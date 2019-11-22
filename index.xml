@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Filip Mazurek</title>
-    <link>https://filipmazurek.github.io/</link>
-      <atom:link href="https://filipmazurek.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <link>https://filipworks.github.io/</link>
+      <atom:link href="https://filipworks.github.io/index.xml" rel="self" type="application/rss+xml" />
     <description>Filip Mazurek</description>
     <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><copyright>© 2019</copyright><lastBuildDate>Thu, 17 Oct 2019 00:00:00 +0000</lastBuildDate>
     <image>
-      <url>https://filipmazurek.github.io/img/icon-192.png</url>
+      <url>https://filipworks.github.io/img/icon-192.png</url>
       <title>Filip Mazurek</title>
-      <link>https://filipmazurek.github.io/</link>
+      <link>https://filipworks.github.io/</link>
     </image>
     
     <item>
       <title>Quantum Traveling Salesman</title>
-      <link>https://filipmazurek.github.io/projects/tsp-qiskit/</link>
+      <link>https://filipworks.github.io/projects/tsp-qiskit/</link>
       <pubDate>Thu, 17 Oct 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/tsp-qiskit/</guid>
+      <guid>https://filipworks.github.io/projects/tsp-qiskit/</guid>
       <description>
 
 &lt;p&gt;Filip Mazurek&lt;/p&gt;
@@ -683,9 +683,9 @@ Counter({(0, 1, 0, 0, 0, 1, 1, 0, 0): 301, (0, 1, 0, 1, 0, 0, 0, 0, 1): 299, (1,
     
     <item>
       <title>Variational Quantum Unsampling</title>
-      <link>https://filipmazurek.github.io/projects/q-unsampling/</link>
+      <link>https://filipworks.github.io/projects/q-unsampling/</link>
       <pubDate>Wed, 16 Oct 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/q-unsampling/</guid>
+      <guid>https://filipworks.github.io/projects/q-unsampling/</guid>
       <description>
 
 &lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
@@ -1024,9 +1024,9 @@ The optimised parameter value found is:  1.5613149700366853
     
     <item>
       <title>Quantum Supremacy Circuits</title>
-      <link>https://filipmazurek.github.io/projects/quantum-supremacy/</link>
+      <link>https://filipworks.github.io/projects/quantum-supremacy/</link>
       <pubDate>Sat, 12 Oct 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/quantum-supremacy/</guid>
+      <guid>https://filipworks.github.io/projects/quantum-supremacy/</guid>
       <description>
 
 &lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
@@ -1187,9 +1187,9 @@ plot_data(exact_probs)
     
     <item>
       <title>Quantum Neural Networks</title>
-      <link>https://filipmazurek.github.io/projects/q-neural-nets/</link>
+      <link>https://filipworks.github.io/projects/q-neural-nets/</link>
       <pubDate>Tue, 08 Oct 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/q-neural-nets/</guid>
+      <guid>https://filipworks.github.io/projects/q-neural-nets/</guid>
       <description>
 
 &lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
@@ -1539,9 +1539,9 @@ The loss on the test set is: 1.0079999999999998
     
     <item>
       <title>Matrix Visualization</title>
-      <link>https://filipmazurek.github.io/projects/matrix-visualization/</link>
+      <link>https://filipworks.github.io/projects/matrix-visualization/</link>
       <pubDate>Fri, 20 Sep 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/matrix-visualization/</guid>
+      <guid>https://filipworks.github.io/projects/matrix-visualization/</guid>
       <description>
 
 &lt;p&gt;Filip Mazurek&lt;/p&gt;
@@ -1775,9 +1775,9 @@ CNOT @ qubits
     
     <item>
       <title>Compilers for Quantum Code</title>
-      <link>https://filipmazurek.github.io/research-interests/q-compilation/</link>
+      <link>https://filipworks.github.io/research-interests/q-compilation/</link>
       <pubDate>Sun, 01 Sep 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/research-interests/q-compilation/</guid>
+      <guid>https://filipworks.github.io/research-interests/q-compilation/</guid>
       <description>
 
 &lt;p&gt;Quantum compilers are constantly finding ways to optimize code so that quantum programs have a chance to run on the short coherence times of NISQ computers. They must also work around the noise inherently present in quantum computers. The following are selected readings on compilers which I find most interesting and would like to work on similar projects.&lt;/p&gt;
@@ -1804,9 +1804,9 @@ CNOT @ qubits
     
     <item>
       <title>Quantum Computing Verification</title>
-      <link>https://filipmazurek.github.io/research-interests/q-verification/</link>
+      <link>https://filipworks.github.io/research-interests/q-verification/</link>
       <pubDate>Sun, 01 Sep 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/research-interests/q-verification/</guid>
+      <guid>https://filipworks.github.io/research-interests/q-verification/</guid>
       <description>
 
 &lt;p&gt;As quantum computers slip into the realm where they can&amp;rsquo;t be simulated on classical computers, we need some ways to verify that our programs are correct using formal methods or other techniques. I&amp;rsquo;m interested in the following types of research especially.&lt;/p&gt;
@@ -1827,9 +1827,9 @@ CNOT @ qubits
     
     <item>
       <title>Quantum Debugging</title>
-      <link>https://filipmazurek.github.io/research-interests/q-debug/</link>
+      <link>https://filipworks.github.io/research-interests/q-debug/</link>
       <pubDate>Sun, 01 Sep 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/research-interests/q-debug/</guid>
+      <guid>https://filipworks.github.io/research-interests/q-debug/</guid>
       <description>
 
 &lt;p&gt;As quantum computing programs get larger and larger, they will invariably contain developers&amp;rsquo; bugs in them. New debugging methods have to be constructed for programmers to catch these bugs. The following paper is one of the possible techniques to go about this, but I am interested in finding more possibilities for debugging.&lt;/p&gt;
@@ -1844,9 +1844,9 @@ CNOT @ qubits
     
     <item>
       <title>Quantum Simulation</title>
-      <link>https://filipmazurek.github.io/research-interests/q-simulation/</link>
+      <link>https://filipworks.github.io/research-interests/q-simulation/</link>
       <pubDate>Sun, 01 Sep 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/research-interests/q-simulation/</guid>
+      <guid>https://filipworks.github.io/research-interests/q-simulation/</guid>
       <description>
 
 &lt;p&gt;Simulating quantum computers allows us to study quantum circuit behavior in customizable conditions. Doing so paves the way to running our quantum algorithms on real quantum devices. I am interested in how we can leverage NISQ computers to prepare for computers with an increasing number of qubits. The following are two articles which are representative of the research I&amp;rsquo;m interested in.&lt;/p&gt;
@@ -1867,9 +1867,9 @@ CNOT @ qubits
     
     <item>
       <title>Quantum Languages</title>
-      <link>https://filipmazurek.github.io/projects/quantum-languages/</link>
+      <link>https://filipworks.github.io/projects/quantum-languages/</link>
       <pubDate>Fri, 16 Aug 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/quantum-languages/</guid>
+      <guid>https://filipworks.github.io/projects/quantum-languages/</guid>
       <description>
 
 &lt;p&gt;Filip Mazurek - 8/16/2019&lt;/p&gt;
@@ -2223,18 +2223,18 @@ if runMethod == &amp;quot;projq&amp;quot;:
     
     <item>
       <title>Formal Verification</title>
-      <link>https://filipmazurek.github.io/projects/formal-verification/</link>
+      <link>https://filipworks.github.io/projects/formal-verification/</link>
       <pubDate>Sun, 20 May 2018 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/formal-verification/</guid>
+      <guid>https://filipworks.github.io/projects/formal-verification/</guid>
       <description>&lt;p&gt;&lt;embed src=&#34;ModelingVerificationAutomaticTransmission.pdf&#34; width=&#34;100%&#34; height=&#34;1000px&#34; /&gt;&lt;/p&gt;
 </description>
     </item>
     
     <item>
       <title>VOOGA</title>
-      <link>https://filipmazurek.github.io/projects/vooga/</link>
+      <link>https://filipworks.github.io/projects/vooga/</link>
       <pubDate>Sat, 19 May 2018 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/vooga/</guid>
+      <guid>https://filipworks.github.io/projects/vooga/</guid>
       <description>
 
 &lt;h1 id=&#34;vooga&#34;&gt;VOOGA&lt;/h1&gt;
@@ -2288,9 +2288,9 @@ Our main goal was to keep the editor and engine separate so that they would be e
     
     <item>
       <title>Fermentation Effects Investigation</title>
-      <link>https://filipmazurek.github.io/projects/biology-research/</link>
+      <link>https://filipworks.github.io/projects/biology-research/</link>
       <pubDate>Wed, 20 May 2015 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/biology-research/</guid>
+      <guid>https://filipworks.github.io/projects/biology-research/</guid>
       <description>&lt;p&gt;&lt;embed src=&#34;linking_probiotics_cancer.pdf&#34; width=&#34;100%&#34; height=&#34;1000px&#34; /&gt;&lt;/p&gt;
 </description>
     </item>

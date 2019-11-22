@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>quantum | Filip Mazurek</title>
-    <link>https://filipmazurek.github.io/tags/quantum/</link>
-      <atom:link href="https://filipmazurek.github.io/tags/quantum/index.xml" rel="self" type="application/rss+xml" />
+    <link>https://filipworks.github.io/tags/quantum/</link>
+      <atom:link href="https://filipworks.github.io/tags/quantum/index.xml" rel="self" type="application/rss+xml" />
     <description>quantum</description>
     <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><copyright>© 2019</copyright><lastBuildDate>Thu, 17 Oct 2019 00:00:00 +0000</lastBuildDate>
     <image>
-      <url>https://filipmazurek.github.io/img/icon-192.png</url>
+      <url>https://filipworks.github.io/img/icon-192.png</url>
       <title>quantum</title>
-      <link>https://filipmazurek.github.io/tags/quantum/</link>
+      <link>https://filipworks.github.io/tags/quantum/</link>
     </image>
     
     <item>
       <title>Quantum Traveling Salesman</title>
-      <link>https://filipmazurek.github.io/projects/tsp-qiskit/</link>
+      <link>https://filipworks.github.io/projects/tsp-qiskit/</link>
       <pubDate>Thu, 17 Oct 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/tsp-qiskit/</guid>
+      <guid>https://filipworks.github.io/projects/tsp-qiskit/</guid>
       <description>
 
 &lt;p&gt;Filip Mazurek&lt;/p&gt;
@@ -683,9 +683,9 @@ Counter({(0, 1, 0, 0, 0, 1, 1, 0, 0): 301, (0, 1, 0, 1, 0, 0, 0, 0, 1): 299, (1,
     
     <item>
       <title>Variational Quantum Unsampling</title>
-      <link>https://filipmazurek.github.io/projects/q-unsampling/</link>
+      <link>https://filipworks.github.io/projects/q-unsampling/</link>
       <pubDate>Wed, 16 Oct 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/q-unsampling/</guid>
+      <guid>https://filipworks.github.io/projects/q-unsampling/</guid>
       <description>
 
 &lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
@@ -1024,9 +1024,9 @@ The optimised parameter value found is:  1.5613149700366853
     
     <item>
       <title>Quantum Supremacy Circuits</title>
-      <link>https://filipmazurek.github.io/projects/quantum-supremacy/</link>
+      <link>https://filipworks.github.io/projects/quantum-supremacy/</link>
       <pubDate>Sat, 12 Oct 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/quantum-supremacy/</guid>
+      <guid>https://filipworks.github.io/projects/quantum-supremacy/</guid>
       <description>
 
 &lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
@@ -1187,9 +1187,9 @@ plot_data(exact_probs)
     
     <item>
       <title>Quantum Neural Networks</title>
-      <link>https://filipmazurek.github.io/projects/q-neural-nets/</link>
+      <link>https://filipworks.github.io/projects/q-neural-nets/</link>
       <pubDate>Tue, 08 Oct 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/q-neural-nets/</guid>
+      <guid>https://filipworks.github.io/projects/q-neural-nets/</guid>
       <description>
 
 &lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
@@ -1539,9 +1539,9 @@ The loss on the test set is: 1.0079999999999998
     
     <item>
       <title>Matrix Visualization</title>
-      <link>https://filipmazurek.github.io/projects/matrix-visualization/</link>
+      <link>https://filipworks.github.io/projects/matrix-visualization/</link>
       <pubDate>Fri, 20 Sep 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/matrix-visualization/</guid>
+      <guid>https://filipworks.github.io/projects/matrix-visualization/</guid>
       <description>
 
 &lt;p&gt;Filip Mazurek&lt;/p&gt;
@@ -1775,9 +1775,9 @@ CNOT @ qubits
     
     <item>
       <title>Quantum Languages</title>
-      <link>https://filipmazurek.github.io/projects/quantum-languages/</link>
+      <link>https://filipworks.github.io/projects/quantum-languages/</link>
       <pubDate>Fri, 16 Aug 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/quantum-languages/</guid>
+      <guid>https://filipworks.github.io/projects/quantum-languages/</guid>
       <description>
 
 &lt;p&gt;Filip Mazurek - 8/16/2019&lt;/p&gt;

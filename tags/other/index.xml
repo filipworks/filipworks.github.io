@@ -2,30 +2,30 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>other | Filip Mazurek</title>
-    <link>https://filipmazurek.github.io/tags/other/</link>
-      <atom:link href="https://filipmazurek.github.io/tags/other/index.xml" rel="self" type="application/rss+xml" />
+    <link>https://filipworks.github.io/tags/other/</link>
+      <atom:link href="https://filipworks.github.io/tags/other/index.xml" rel="self" type="application/rss+xml" />
     <description>other</description>
     <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><copyright>© 2019</copyright><lastBuildDate>Sun, 20 May 2018 00:00:00 +0000</lastBuildDate>
     <image>
-      <url>https://filipmazurek.github.io/img/icon-192.png</url>
+      <url>https://filipworks.github.io/img/icon-192.png</url>
       <title>other</title>
-      <link>https://filipmazurek.github.io/tags/other/</link>
+      <link>https://filipworks.github.io/tags/other/</link>
     </image>
     
     <item>
       <title>Formal Verification</title>
-      <link>https://filipmazurek.github.io/projects/formal-verification/</link>
+      <link>https://filipworks.github.io/projects/formal-verification/</link>
       <pubDate>Sun, 20 May 2018 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/formal-verification/</guid>
+      <guid>https://filipworks.github.io/projects/formal-verification/</guid>
       <description>&lt;p&gt;&lt;embed src=&#34;ModelingVerificationAutomaticTransmission.pdf&#34; width=&#34;100%&#34; height=&#34;1000px&#34; /&gt;&lt;/p&gt;
 </description>
     </item>
     
     <item>
       <title>VOOGA</title>
-      <link>https://filipmazurek.github.io/projects/vooga/</link>
+      <link>https://filipworks.github.io/projects/vooga/</link>
       <pubDate>Sat, 19 May 2018 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/vooga/</guid>
+      <guid>https://filipworks.github.io/projects/vooga/</guid>
       <description>
 
 &lt;h1 id=&#34;vooga&#34;&gt;VOOGA&lt;/h1&gt;
@@ -79,9 +79,9 @@ Our main goal was to keep the editor and engine separate so that they would be e
     
     <item>
       <title>Fermentation Effects Investigation</title>
-      <link>https://filipmazurek.github.io/projects/biology-research/</link>
+      <link>https://filipworks.github.io/projects/biology-research/</link>
       <pubDate>Wed, 20 May 2015 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/projects/biology-research/</guid>
+      <guid>https://filipworks.github.io/projects/biology-research/</guid>
       <description>&lt;p&gt;&lt;embed src=&#34;linking_probiotics_cancer.pdf&#34; width=&#34;100%&#34; height=&#34;1000px&#34; /&gt;&lt;/p&gt;
 </description>
     </item>

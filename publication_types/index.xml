@@ -2,14 +2,14 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Publication_types | Filip Mazurek</title>
-    <link>https://filipmazurek.github.io/publication_types/</link>
-      <atom:link href="https://filipmazurek.github.io/publication_types/index.xml" rel="self" type="application/rss+xml" />
+    <link>https://filipworks.github.io/publication_types/</link>
+      <atom:link href="https://filipworks.github.io/publication_types/index.xml" rel="self" type="application/rss+xml" />
     <description>Publication_types</description>
     <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><copyright>© 2019</copyright>
     <image>
-      <url>https://filipmazurek.github.io/img/icon-192.png</url>
+      <url>https://filipworks.github.io/img/icon-192.png</url>
       <title>Publication_types</title>
-      <link>https://filipmazurek.github.io/publication_types/</link>
+      <link>https://filipworks.github.io/publication_types/</link>
     </image>
     
   </channel>

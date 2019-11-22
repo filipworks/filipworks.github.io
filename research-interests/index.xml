@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Research-interests | Filip Mazurek</title>
-    <link>https://filipmazurek.github.io/research-interests/</link>
-      <atom:link href="https://filipmazurek.github.io/research-interests/index.xml" rel="self" type="application/rss+xml" />
+    <link>https://filipworks.github.io/research-interests/</link>
+      <atom:link href="https://filipworks.github.io/research-interests/index.xml" rel="self" type="application/rss+xml" />
     <description>Research-interests</description>
     <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><copyright>© 2019</copyright><lastBuildDate>Sun, 01 Sep 2019 00:00:00 +0000</lastBuildDate>
     <image>
-      <url>https://filipmazurek.github.io/img/icon-192.png</url>
+      <url>https://filipworks.github.io/img/icon-192.png</url>
       <title>Research-interests</title>
-      <link>https://filipmazurek.github.io/research-interests/</link>
+      <link>https://filipworks.github.io/research-interests/</link>
     </image>
     
     <item>
       <title>Compilers for Quantum Code</title>
-      <link>https://filipmazurek.github.io/research-interests/q-compilation/</link>
+      <link>https://filipworks.github.io/research-interests/q-compilation/</link>
       <pubDate>Sun, 01 Sep 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/research-interests/q-compilation/</guid>
+      <guid>https://filipworks.github.io/research-interests/q-compilation/</guid>
       <description>
 
 &lt;p&gt;Quantum compilers are constantly finding ways to optimize code so that quantum programs have a chance to run on the short coherence times of NISQ computers. They must also work around the noise inherently present in quantum computers. The following are selected readings on compilers which I find most interesting and would like to work on similar projects.&lt;/p&gt;
@@ -43,9 +43,9 @@
     
     <item>
       <title>Quantum Computing Verification</title>
-      <link>https://filipmazurek.github.io/research-interests/q-verification/</link>
+      <link>https://filipworks.github.io/research-interests/q-verification/</link>
       <pubDate>Sun, 01 Sep 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/research-interests/q-verification/</guid>
+      <guid>https://filipworks.github.io/research-interests/q-verification/</guid>
       <description>
 
 &lt;p&gt;As quantum computers slip into the realm where they can&amp;rsquo;t be simulated on classical computers, we need some ways to verify that our programs are correct using formal methods or other techniques. I&amp;rsquo;m interested in the following types of research especially.&lt;/p&gt;
@@ -66,9 +66,9 @@
     
     <item>
       <title>Quantum Debugging</title>
-      <link>https://filipmazurek.github.io/research-interests/q-debug/</link>
+      <link>https://filipworks.github.io/research-interests/q-debug/</link>
       <pubDate>Sun, 01 Sep 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/research-interests/q-debug/</guid>
+      <guid>https://filipworks.github.io/research-interests/q-debug/</guid>
       <description>
 
 &lt;p&gt;As quantum computing programs get larger and larger, they will invariably contain developers&amp;rsquo; bugs in them. New debugging methods have to be constructed for programmers to catch these bugs. The following paper is one of the possible techniques to go about this, but I am interested in finding more possibilities for debugging.&lt;/p&gt;
@@ -83,9 +83,9 @@
     
     <item>
       <title>Quantum Simulation</title>
-      <link>https://filipmazurek.github.io/research-interests/q-simulation/</link>
+      <link>https://filipworks.github.io/research-interests/q-simulation/</link>
       <pubDate>Sun, 01 Sep 2019 00:00:00 +0000</pubDate>
-      <guid>https://filipmazurek.github.io/research-interests/q-simulation/</guid>
+      <guid>https://filipworks.github.io/research-interests/q-simulation/</guid>
       <description>
 
 &lt;p&gt;Simulating quantum computers allows us to study quantum circuit behavior in customizable conditions. Doing so paves the way to running our quantum algorithms on real quantum devices. I am interested in how we can leverage NISQ computers to prepare for computers with an increasing number of qubits. The following are two articles which are representative of the research I&amp;rsquo;m interested in.&lt;/p&gt;
