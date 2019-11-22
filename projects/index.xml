@@ -1,0 +1,2207 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects | Filip Mazurek</title>
+    <link>https://filipmazurek.github.io/projects/</link>
+      <atom:link href="https://filipmazurek.github.io/projects/index.xml" rel="self" type="application/rss+xml" />
+    <description>Projects</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><copyright>© 2019</copyright><lastBuildDate>Thu, 17 Oct 2019 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>https://filipmazurek.github.io/img/icon-192.png</url>
+      <title>Projects</title>
+      <link>https://filipmazurek.github.io/projects/</link>
+    </image>
+    
+    <item>
+      <title>Quantum Traveling Salesman</title>
+      <link>https://filipmazurek.github.io/projects/tsp-qiskit/</link>
+      <pubDate>Thu, 17 Oct 2019 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/projects/tsp-qiskit/</guid>
+      <description>
+
+&lt;p&gt;Filip Mazurek&lt;/p&gt;
+
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+
+&lt;p&gt;This notebook will go over the basics of solving the traveling salesman problem (TSP) using &lt;a href=&#34;https://arxiv.org/abs/1411.4028&#34; target=&#34;_blank&#34;&gt;QAOA&lt;/a&gt;. While not everything will be covered here, the complete code can be found on my &lt;a href=&#34;https://github.com/filipmazurek?tab=repositories&#34; target=&#34;_blank&#34;&gt;GitHub&lt;/a&gt; and the original can be found on the original author&amp;rsquo;s &lt;a href=&#34;https://github.com/mstechly/quantum_tsp_tutorials&#34; target=&#34;_blank&#34;&gt;Jupyter Notebook&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;The aim of the code written for this notebook was to extend the original work done for it. Namely, the algorithm was redone using the Qiskit library. Furthermore, I added more code to test the efficacy of the chosen Hamiltonians, including testing whether a valid city order was chosen even in the absence of visitation distance constraints. While I failed to find a more optimal Hamiltonian, this provides a base for further investigation.&lt;/p&gt;
+
+&lt;p&gt;This notebook will have three sections: the first will quickly give an overview of solving the traveling salesman problem using QAOA, the second will explicitly show the problem of having correct outputs, and then the third will be  a link to my GitHub with the descriptions of all the extensions that were done from the original Jupyter Notebook.&lt;/p&gt;
+
+&lt;h1 id=&#34;traveling-salesman-problem&#34;&gt;Traveling Salesman Problem&lt;/h1&gt;
+
+&lt;p&gt;This TSP that we are solving will be formulated as a collection of $n$ number of coordinate points on a 2D plane. The goal is to find a path which visits all coordinate points and returns to the starting point while minimizing the total distance traveled.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;traveling-salesman-points.png&#34; alt=&#34;Points connected for shortest distance&#34; width=&#34;40%&#34;/&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;qaoa&#34;&gt;QAOA&lt;/h2&gt;
+
+&lt;p&gt;One quantum strategy to solve the TSP is to use QAOA. To do so, we have to decide on a cost Hamiltonian and a mixing Hamiltonian, where the cost Hamiltonian is the cost function for the whole problem.&lt;/p&gt;
+
+&lt;h2 id=&#34;encoding-the-problem&#34;&gt;Encoding the Problem&lt;/h2&gt;
+
+&lt;p&gt;So now there&amp;rsquo;s the problem of how to translate the TSP in such a way that we can use QAOA to solve it. For example, consider that we have four cities and we want to find an ordering of them. Of course for an ordering of 0 -&amp;gt; 1 -&amp;gt; 3 -&amp;gt; 2 , we can use a Python array of &lt;code&gt;[0,1,3,2]&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;One way which we can encode this sort of information on a quantum computer is to consider $n^2$ qubits, where $n$ is the number of cities in the TSP. Since there are $n$ cities, there are $n$ time units taken to visit all of them. Therefore we construct the first $n$ qubits to be the first time step, the second $n$ qubits to be the second time step, etc. Within each time step, the one qubit which is a $|1\rangle$ is the &amp;ldquo;city&amp;rdquo; which is visited. All other qubit values should be $|0\rangle$, to indicate that they are not being visited.&lt;/p&gt;
+
+&lt;p&gt;This means that our above example of &lt;code&gt;[0, 1, 3, 2]&lt;/code&gt; will be encoded using qubits as&lt;/p&gt;
+
+&lt;p&gt;$\begin{bmatrix}
+1 &amp;amp; 0 &amp;amp; 0 &amp;amp; 0 \\&lt;br /&gt;
+0 &amp;amp; 1 &amp;amp; 0 &amp;amp; 0 \\&lt;br /&gt;
+0 &amp;amp; 0 &amp;amp; 0 &amp;amp; 1 \\&lt;br /&gt;
+0 &amp;amp; 0 &amp;amp; 1 &amp;amp; 0 \\&lt;br /&gt;
+\end{bmatrix}$&lt;/p&gt;
+
+&lt;p&gt;Which translates into the following string of qubits:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;[1,0,0,0, 0,1,0,0, 0,0,0,1, 0,0,1,0]&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Now the first part of the problem is that we want to make sure that the cities are able to be listed out in an order that makes sense, since this by itself is not trivial.&lt;/p&gt;
+
+&lt;h2 id=&#34;solving-the-two-city-case&#34;&gt;Solving the Two City Case&lt;/h2&gt;
+
+&lt;p&gt;Say that we only have two cities. Following from our qubit descriptions above, this means that our program will use four qubits, and the only two possible results should be &lt;code&gt;[0,1, 1,0]&lt;/code&gt; and &lt;code&gt;[1,0, 0,1]&lt;/code&gt;. These two cases represent first visiting city 0 then 1, the second case being first visiting city 1 then 0.&lt;/p&gt;
+
+&lt;p&gt;To achieve just this, we need to build a cost Hamiltonian. This Hamiltonian will need to achieve two things: penalize if a city is visited more than once and penalize if more than one city is visited in the same time step. At the same time, we need to make sure that one city is visited during a time step.&lt;/p&gt;
+
+&lt;p&gt;Let&amp;rsquo;s call the cities city A and city B, to make it easier to talk about them. The two city case therefore uses four qubits, numbered 0 to 3:
+Qubit 0 is city A at time = 0
+Qubit 1 is city B at time = 0
+Qubit 2 is city A at time = 1
+Qubit 3 is city B at time = 1&lt;/p&gt;
+
+&lt;p&gt;Then we construct the cost Hamiltonian by creating penalty terms between impossible situations. First, we add penalties for visiting the same city multiple times. So we add penalty terms between qubits 0 and 2, and between 1 and 3. Let&amp;rsquo;s build this using the matrix visualization utility. All the following can be found in the matrix visualization project section of the page.&lt;/p&gt;
+
+&lt;p&gt;Note that the qubit ordering here is left to right.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from numpy import kron as k
+from numpy import subtract as sub
+from numpy import add
+from numpy import array
+import numpy as np
+
+
+pauli_Z = array([[1, 0], [0, -1]])
+identity = array([[1, 0], [0, 1]])
+
+Z = pauli_Z
+I = identity
+
+z0 = k(k(k(Z, I), I), I)
+z1 = k(k(k(I, Z), I), I)
+z2 = k(k(k(I, I), Z), I)
+z3 = k(k(k(I, I), I), Z)
+I4 = k(k(k(I, I), I), I)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def create_penalty_for_range_02():
+    weight = -100
+
+    z_term = z0 * -100
+    all_ones_term = sub(I4 * -50, z0 * -50)
+
+    z_term = z_term.dot(z2)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z2 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+
+
+def create_penalty_for_range_13():
+    weight = -100
+
+    z_term = z1 * -100
+    all_ones_term = sub(I4 * -50, z1 * -50)
+
+    z_term = z_term.dot(z3)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z3 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Then we do the same for visiting multiple cities in the same time step. So we add a penalty for between qubits 0 and 1 and between qubits 2 and 3.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def create_penalty_for_range_01():
+    weight = -100
+
+    z_term = z0 * -100
+    all_ones_term = sub(I4 * -50, z0 * -50)
+
+    z_term = z_term.dot(z1)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z1 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+
+
+def create_penalty_for_range_23():
+    weight = -100
+
+    z_term = z2 * -100
+    all_ones_term = sub(I4 * -50, z2 * -50)
+
+    z_term = z_term.dot(z3)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z3 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we can add up all these penalty terms to find the part of the cost Hamiltonian which focuses on visiting valid cities.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;same_city_penalty = add(add(add(create_penalty_for_range_02(),
+                                create_penalty_for_range_13()),
+                            create_penalty_for_range_01()),
+                        create_penalty_for_range_23())
+print(same_city_penalty)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;[[   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0. -400.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0. -400.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0. -300.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0. -400.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0. -300.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0. -800.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0. -200.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0. -400.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0. -800.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0. -300.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0. -200.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+  -300.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0. -200.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0. -200.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.  400.]]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;running-on-a-quantum-computer&#34;&gt;Running on a Quantum Computer&lt;/h1&gt;
+
+&lt;p&gt;Now we can take this simplest case and run it as a QAOA problem. Note that the code added here is a subset of the full algorithm on my GitHub. We&amp;rsquo;ll first run the code on a two-city example to show off performance and accuracy. The below is written as a Qiskit implementation partly using Qiskit Aqua&amp;rsquo;s &lt;code&gt;tsp&lt;/code&gt; library. However, this code takes a long time to the beta and gamma angle parameters. The code which this is based on can be found as part of a quantum machine learning course offered by edX &amp;ndash; the code is on &lt;a href=&#34;https://github.com/Qiskit/qiskit-community-tutorials/blob/41dfb73df77595c5d5078164ddecfd915e24897b/awards/teach_me_quantum_2018/qml_mooc/07_Variational%20Circuits.ipynb&#34; target=&#34;_blank&#34;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import warnings
+warnings.filterwarnings(&#39;ignore&#39;)
+
+from qiskit.quantum_info import Pauli
+from qiskit.aqua import Operator
+import numpy as np
+from functools import partial, reduce
+from qiskit.aqua.components.initial_states import Custom
+from qiskit import QuantumRegister, Aer, BasicAer, execute
+from scipy.optimize import minimize
+from qiskit.aqua.translators.ising import tsp
+from results_visualization import list_to_easier_vis
+np.set_printoptions(precision=3, suppress=True)
+
+
+def pauli_i(coeff, n_q):
+    id_pauli = Pauli(np.zeros(n_q), np.zeros(n_q))
+    return Operator([[coeff, id_pauli]])
+
+
+def pauli_x(qubit, coeff, n_q):
+    eye = np.eye(n_q)
+    return Operator([[coeff, Pauli(np.zeros(n_q), eye[qubit])]])
+
+
+def pauli_z(qubit, coeff, n_q):
+    eye = np.eye(n_q)
+    return Operator([[coeff, Pauli(eye[qubit], np.zeros(n_q))]])
+
+
+def product_pauli_z(q1, q2, coeff, n_q):
+    eye = np.eye(n_q)
+    return Operator([[coeff, Pauli(eye[q1], np.zeros(n_q)) * Pauli(eye[q2], np.zeros(n_q))]])
+
+
+def evolve(hamiltonian, angle, quantum_registers):
+    return hamiltonian.evolve(None, angle, &#39;circuit&#39;, 1,
+                              quantum_registers=quantum_registers,
+                              expansion_mode=&#39;suzuki&#39;,
+                              expansion_order=3)
+
+
+def create_circuit(qr, gamma, beta, p, m_H, c_H, init_circ):
+    circuit_evolv = reduce(lambda x, y: x + y, [evolve(m_H, beta[i], qr) + evolve(c_H, gamma[i], qr)
+                                                for i in range(p)])
+    circuit = init_circ + circuit_evolv
+    return circuit
+
+
+def neg_evaluate_circuit(gamma_beta, qr, p, m_H, c_H, init_circ):
+    n = len(gamma_beta)//2
+    circuit = create_circuit(qr, gamma_beta[:n], gamma_beta[n:], p, m_H=m_H,  c_H=c_H, init_circ=init_circ)
+    return np.real(c_H.eval(&amp;quot;matrix&amp;quot;, circuit, Aer.get_backend(&#39;statevector_simulator&#39;))[0])
+
+
+def create_weights_cost_operators(num_cities, num_qubits, dist_mat):
+    cost_operator = None
+
+    for i in range(num_cities):
+        for j in range(i, num_cities):
+            for t in range(num_cities - 1):
+                weight = dist_mat[i][j] / 2
+                if dist_mat[i][j] != 0:
+                    qubit_1 = t * num_cities + i
+                    qubit_2 = (t + 1) * num_cities + j
+                    if cost_operator is None:
+                        cost_operator = pauli_i(weight, num_qubits) - \
+                                        product_pauli_z(qubit_1, qubit_2, weight, num_qubits)
+                    else:
+                        cost_operator += pauli_i(weight, num_qubits) - \
+                                         product_pauli_z(qubit_1, qubit_2, weight, num_qubits)
+    return cost_operator
+
+
+def create_penalty_operators_for_bilocation(num_cities, distance_mat, num_qubits):
+    # TODO: big problems here. It likes position 1010 WAAY too much (= 0.88) (in two city case)
+    penalty_operators = None
+    for t in range(num_cities):  # adding penalty for being in multiple cities at the same time point
+        range_of_qubits = list(range(t * num_cities, (t + 1) * num_cities))
+        print(range_of_qubits)
+        if penalty_operators is None:
+            penalty_operators = create_penalty_operators_for_qubit_range(range_of_qubits, distance_mat, num_qubits)
+        else:
+            penalty_operators += create_penalty_operators_for_qubit_range(range_of_qubits, distance_mat, num_qubits)
+
+    return penalty_operators
+
+
+def create_penalty_operators_for_repetition(num_cities, distance_mat, num_qubits):
+    # TODO: big problems here. It likes position 1100 WAAY too much (= 0.88) (in two city case)
+    penalty_operators = None
+    for i in range(num_cities):  # add penalty for visiting the same city more than once
+        range_of_qubits = list(range(i, num_cities ** 2, num_cities))
+        print(range_of_qubits)
+        if penalty_operators is None:
+            penalty_operators = create_penalty_operators_for_qubit_range(range_of_qubits, distance_mat, num_qubits)
+        else:
+            penalty_operators += create_penalty_operators_for_qubit_range(range_of_qubits, distance_mat, num_qubits)
+    return penalty_operators
+
+
+def create_penalty_operators_for_qubit_range(range_of_qubits, dist_mat, n_q):
+    penalty_weight = 100 * np.max(dist_mat)
+    cost_operators = None
+    for i in range_of_qubits:
+        if i == range_of_qubits[0]:
+            z_term = pauli_z(qubit=i, coeff=penalty_weight, n_q=n_q)
+            all_ones_term = pauli_i(coeff=.5 * penalty_weight, n_q=n_q) - pauli_z(qubit=i, coeff=0.5 * penalty_weight, n_q=n_q)
+        else:
+            z_term = z_term * pauli_z(qubit=i, coeff=1, n_q=n_q)
+            all_ones_term = all_ones_term * (pauli_i(coeff=.5, n_q=n_q) - pauli_z(qubit=i, coeff=0.5, n_q=n_q))
+
+        if cost_operators is None:
+            cost_operators = pauli_i(penalty_weight, n_q) - z_term - all_ones_term
+        else:
+            cost_operators += pauli_i(penalty_weight, n_q) - z_term - all_ones_term
+
+    return cost_operators
+
+
+def main(run_mode):
+    # graph of city coordinates
+    cities = np.array([[0, 0], [0, 1]])  # coordinates of the cities
+    num_cities = len(cities)
+    num_qubits = num_cities ** 2
+
+    # algorithm properties
+    p = 2  # number of time steps
+    beta = np.random.uniform(0, np.pi * 2, p)
+    gamma = np.random.uniform(0, np.pi * 2, p)
+
+    # create matrix of distances between cities
+    distance_mat = tsp.calc_distance(cities).w  # note that this method does integer distances
+
+    # create mixing Hamiltonian. A city may or may not be visited in a timestep
+    mixing_hamiltonian = reduce(lambda x, y: x + y,
+                                [pauli_x(i, 1, num_qubits) for i in range(num_qubits)])
+
+    # penalty_operators = create_weights_cost_operators(num_cities=num_cities, num_qubits=num_qubits,
+    #                                                   dist_mat=distance_mat)
+    penalty_operators = create_penalty_operators_for_bilocation(num_qubits=num_qubits, num_cities=num_cities,
+                                                                 distance_mat=distance_mat)
+    penalty_operators += create_penalty_operators_for_repetition(num_qubits=num_qubits, num_cities=num_cities,
+                                                                 distance_mat=distance_mat)
+
+    print(penalty_operators)
+    cost_hamiltonian = penalty_operators
+
+    # circuit initial state vector. All states in equal superposition
+    init_state_vect = [1 for i in range(2 ** num_qubits)]
+    init_state = Custom(num_qubits, state_vector=init_state_vect)
+
+    # initialize quantum circuit
+    qr = QuantumRegister(num_qubits, name=&#39;q&#39;)
+    init_circ = init_state.construct_circuit(&#39;circuit&#39;, qr)
+
+    # find optimal beta and gamma
+    evaluate = partial(neg_evaluate_circuit, qr=qr, p=p, m_H=mixing_hamiltonian, c_H=cost_hamiltonian,
+                       init_circ=init_circ)
+    print(&amp;quot;Looking for optimal beta and gamma&amp;quot;)
+    # TODO: maybe we should use a different or faster method of finding the min? Super long even with two cities
+    result = minimize(evaluate, np.concatenate([gamma, beta]), method=&#39;L-BFGS-B&#39;)
+    # result = minimize(evaluate, np.concatenate([gamma, beta]))
+
+    print(result)
+
+    # now use the result of the gathered angles to find the answer
+    circuit = create_circuit(qr, result[&#39;x&#39;][:p], result[&#39;x&#39;][p:], p, m_H=mixing_hamiltonian, c_H=cost_hamiltonian,
+                             init_circ=init_circ)
+
+    if run_mode == &amp;quot;IBM quantum&amp;quot;:
+        import secrets
+        from qiskit import IBMQ
+        from qiskit.providers.ibmq import least_busy
+
+        provider = IBMQ.enable_account(secrets.IBM_TOKEN)
+        large_enough_devices = provider.backends(filters=lambda x: x.configuration().n_qubits &amp;gt; 4 and
+                                                                   not x.configuration().simulator)
+        backend = least_busy(large_enough_devices)
+        print(&amp;quot;This will be running on the IBM device &amp;quot; + backend.name())
+
+    else:
+        print(&amp;quot;Preparing to run on local simulator&amp;quot;)
+        backend = BasicAer.get_backend(&#39;statevector_simulator&#39;)
+
+    job = execute(circuit, backend)
+    state = np.asarray(job.result().get_statevector(circuit))
+    print(list_to_easier_vis(np.absolute(state)))
+
+
+main(run_mode=&amp;quot;sim&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;[0, 1]
+[2, 3]
+[0, 2]
+[1, 3]
+Representation: paulis, qubits: 4, size: 9
+Looking for optimal beta and gamma
+      fun: 244.8597191241482
+ hess_inv: &amp;lt;4x4 LbfgsInvHessProduct with dtype=float64&amp;gt;
+      jac: array([-0.014,  0.   , -0.   , -0.   ])
+  message: b&#39;CONVERGENCE: REL_REDUCTION_OF_F_&amp;lt;=_FACTR*EPSMCH&#39;
+     nfev: 150
+      nit: 19
+   status: 0
+  success: True
+        x: array([4.081, 1.9  , 4.35 , 0.398])
+Preparing to run on local simulator
+{&#39;0000&#39;: 0.5074293080932455, &#39;0001&#39;: 0.08389827713721104, &#39;0010&#39;: 0.12487737720594391, &#39;0011&#39;: 0.25253594977274596, &#39;0100&#39;: 0.12487737720594448, &#39;0101&#39;: 0.25253594977274696, &#39;0110&#39;: 0.11649122579589484, &#39;0111&#39;: 0.08389827713721305, &#39;1000&#39;: 0.18889230462758796, &#39;1001&#39;: 0.11649122579589463, &#39;1010&#39;: 0.3020975725542607, &#39;1011&#39;: 0.1248773772059434, &#39;1100&#39;: 0.30209757255425984, &#39;1101&#39;: 0.1248773772059429, &#39;1110&#39;: 0.18889230462758663, &#39;1111&#39;: 0.5074293080932352}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;interpreting-the-results&#34;&gt;Interpreting the Results&lt;/h2&gt;
+
+&lt;p&gt;Now we can take a look at the printed results of the Qiskit QAOA results. The dictionary of results is presented as a list of coefficients for the complete wavefunction. Meaning that the actual probability of each result is the coefficient squared.&lt;/p&gt;
+
+&lt;p&gt;Unfortunately, it looks like our Hamiltonians may be inadequate. Recall that the only &amp;ldquo;valid&amp;rdquo; results that we are looking for are &lt;code&gt;0110&lt;/code&gt; and &lt;code&gt;1001&lt;/code&gt;. But those results are not even close to being the most prevalent. These results warrant further steps into investigating where the issues are. I&amp;rsquo;m betting that the Hamiltonians can be constructed better.&lt;/p&gt;
+
+&lt;p&gt;But rather than hunting for errors, let&amp;rsquo;s take a look at another example. This code comes from Michał Stęchny, and it served as an inspiration for me to redo his project in Qiskit with a slightly different take.&lt;/p&gt;
+
+&lt;h2 id=&#34;another-example&#34;&gt;Another Example&lt;/h2&gt;
+
+&lt;p&gt;Here&amp;rsquo;s another example which uses Rigetti&amp;rsquo;s libraries to solve the same problem. We run the problem with only two cities. Let&amp;rsquo;s run this and take a look at the results.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;&amp;quot;&amp;quot;&amp;quot;
+Written by Michał Stęchny. https://github.com/mstechly
+Adapted by Filip Mazurek
+&amp;quot;&amp;quot;&amp;quot;
+
+import numpy as np
+from grove.pyqaoa.qaoa import QAOA
+from pyquil import get_qc
+import scipy
+from pyquil.paulis import PauliTerm, PauliSum
+from rigetti_result_analysis import error_binary_state_to_points_order
+from forest_utils_ms import *
+
+
+class ForestTSPSolver(object):
+    def __init__(self, distance_matrix, steps=1, ftol=1.0e-2, xtol=1.0e-2, use_constraints=False,
+                 add_weight_constraints=True):
+
+        self.distance_matrix = distance_matrix
+        self.number_of_qubits = self.get_number_of_qubits()
+        self.qvm = get_qc(str(self.number_of_qubits) + &amp;quot;q-qvm&amp;quot;)
+        self.steps = steps
+        self.ftol = ftol
+        self.xtol = xtol
+        self.betas = None
+        self.gammas = None
+        self.qaoa_inst = None
+        self.solution = None
+        self.naive_distribution = None
+        self.most_frequent_string = None
+        self.sampling_results = None
+        self.use_constraints = use_constraints
+        self.add_weight_constraints = add_weight_constraints
+
+        self.sensible_distribution = None
+
+        cost_operators = self.create_cost_operators()
+        driver_operators = self.create_driver_operators()
+
+        minimizer_kwargs = {&#39;method&#39;: &#39;Nelder-Mead&#39;,
+                                &#39;options&#39;: {&#39;ftol&#39;: self.ftol, &#39;xtol&#39;: self.xtol,
+                                            &#39;disp&#39;: False}}
+
+        # vqe_option = {&#39;disp&#39;: print_fun, &#39;return_all&#39;: True,
+        #               &#39;samples&#39;: None}
+
+        qubits = list(range(self.number_of_qubits))
+
+        self.qaoa_inst = QAOA(self.qvm, qubits, steps=self.steps, cost_ham=cost_operators, ref_ham=driver_operators,
+                              store_basis=True, minimizer=scipy.optimize.minimize, minimizer_kwargs=minimizer_kwargs,
+                              # vqe_options=vqe_option
+                              )
+
+    def solve_tsp(self):
+        &amp;quot;&amp;quot;&amp;quot;
+        Calculates the optimal angles (betas and gammas) for the QAOA algorithm
+        and returns a list containing the order of nodes.
+        &amp;quot;&amp;quot;&amp;quot;
+        self.find_angles()
+        self.calculate_solution()
+        return self.solution, self.naive_distribution
+
+    def find_angles(self):
+        &amp;quot;&amp;quot;&amp;quot;
+        Runs the QAOA algorithm for finding the optimal angles.
+        &amp;quot;&amp;quot;&amp;quot;
+        self.betas, self.gammas = self.qaoa_inst.get_angles()
+        print(&amp;quot;betas: &amp;quot;, self.betas)
+        print(&amp;quot;gammas: &amp;quot;, self.gammas)
+        return self.betas, self.gammas
+
+    def calculate_solution(self):
+        &amp;quot;&amp;quot;&amp;quot;
+        Samples the QVM for the results of the algorithm
+        and returns a list containing the order of nodes.
+        &amp;quot;&amp;quot;&amp;quot;
+        most_frequent_string, sampling_results = self.qaoa_inst.get_string(self.betas, self.gammas, samples=10000)
+        self.most_frequent_string = most_frequent_string
+        self.sampling_results = sampling_results
+        self.solution = binary_state_to_points_order(most_frequent_string)
+
+        print()   # uncomment to show raw sampling results
+        print(&amp;quot;Raw sampling results: &amp;quot;)
+        print(sampling_results)
+
+        all_solutions = sampling_results.keys()
+        naive_distribution = {}
+        for sol in all_solutions:
+            points_order_solution = error_binary_state_to_points_order(sol)
+            # the following is only true during error conditions of qubits
+            if tuple(points_order_solution) in naive_distribution.keys():
+                naive_distribution[tuple(points_order_solution)] += sampling_results[sol]
+            else:
+                naive_distribution[tuple(points_order_solution)] = sampling_results[sol]
+
+        # TODO: make use of sensible_distribution as well as naive
+        self.naive_distribution = naive_distribution
+
+    def create_cost_operators(self):
+        cost_operators = []
+        if self.add_weight_constraints:
+            cost_operators += self.create_weights_cost_operators()
+        if self.use_constraints:
+            cost_operators += self.create_penalty_operators_for_bilocation()
+            cost_operators += self.create_penalty_operators_for_repetition()
+
+        return cost_operators
+
+    def create_penalty_operators_for_bilocation(self):
+        # Additional cost for visiting more than one node in given time t
+        cost_operators = []
+        number_of_nodes = len(self.distance_matrix)
+        for t in range(number_of_nodes):
+            range_of_qubits = list(range(t * number_of_nodes, (t + 1) * number_of_nodes))
+            cost_operators += self.create_penalty_operators_for_qubit_range(range_of_qubits)
+
+        # print()
+        # print(&amp;quot;Cost operators for bilocation: &amp;quot;)
+        # print(cost_operators)  # uncomment to see cost operator
+
+        return cost_operators
+
+    def create_penalty_operators_for_repetition(self):
+        # Additional cost for visiting given node more than one time
+        cost_operators = []
+        number_of_nodes = len(self.distance_matrix)
+        for i in range(number_of_nodes):
+            range_of_qubits = list(range(i, number_of_nodes ** 2, number_of_nodes))
+            cost_operators += self.create_penalty_operators_for_qubit_range(range_of_qubits)
+
+        # print()  # uncomment to see cost operator
+        # print(&amp;quot;Cost operators for repetition: &amp;quot;)
+        # print(cost_operators)
+
+        return cost_operators
+
+    def create_penalty_operators_for_qubit_range(self, range_of_qubits):
+        cost_operators = []
+        weight = -100 * np.max(self.distance_matrix)
+        for i in range_of_qubits:
+            if i == range_of_qubits[0]:
+                z_term = PauliTerm(&amp;quot;Z&amp;quot;, i, weight)
+                all_ones_term = PauliTerm(&amp;quot;I&amp;quot;, 0, 0.5 * weight) - PauliTerm(&amp;quot;Z&amp;quot;, i, 0.5 * weight)
+            else:
+                z_term = z_term * PauliTerm(&amp;quot;Z&amp;quot;, i)
+                all_ones_term = all_ones_term * (PauliTerm(&amp;quot;I&amp;quot;, 0, 0.5) - PauliTerm(&amp;quot;Z&amp;quot;, i, 0.5))
+
+        z_term = PauliSum([z_term])
+        cost_operators.append(PauliTerm(&amp;quot;I&amp;quot;, 0, weight) - z_term - all_ones_term)
+
+        return cost_operators
+
+    def create_weights_cost_operators(self):
+        cost_operators = []
+        number_of_nodes = len(self.distance_matrix)
+
+        for i in range(number_of_nodes):
+            for j in range(i, number_of_nodes):
+                for t in range(number_of_nodes - 1):
+                    weight = -self.distance_matrix[i][j] / 2
+                    if self.distance_matrix[i][j] != 0:
+                        qubit_1 = t * number_of_nodes + i
+                        qubit_2 = (t + 1) * number_of_nodes + j
+                        cost_operators.append(
+                            PauliTerm(&amp;quot;I&amp;quot;, 0, weight) - PauliTerm(&amp;quot;Z&amp;quot;, qubit_1, weight) * PauliTerm(&amp;quot;Z&amp;quot;, qubit_2))
+
+        return cost_operators
+
+    def create_driver_operators(self):
+        driver_operators = []
+
+        for i in range(self.number_of_qubits):
+            driver_operators.append(PauliSum([PauliTerm(&amp;quot;X&amp;quot;, i, -1.0)]))
+
+        return driver_operators
+
+    def get_number_of_qubits(self):
+        return len(self.distance_matrix) ** 2
+
+
+def print_fun(x):
+    # print(x)
+    pass
+
+
+cities = [[0, 0], [0, 1]]
+distance_matrix = get_distance_matrix(cities)
+solver = ForestTSPSolver(distance_matrix, steps=2, ftol=1.0e-2, xtol=1.0e-2, use_constraints=True,
+                         add_weight_constraints=False)
+sol, dist = solver.solve_tsp()
+print()
+print(sol)
+print()
+print(dist)
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;WARNING: Fast method for expectation will be used. Noise
+                     models will be ineffective
+betas:  [1.83163777 2.15788585]
+gammas:  [6.16385162 5.25559322]
+
+Raw sampling results:
+Counter({(1, 0, 0, 1): 3742, (0, 1, 1, 0): 3594, (0, 0, 0, 0): 625, (1, 1, 1, 1): 407, (0, 0, 1, 0): 309, (1, 0, 0, 0): 297, (0, 1, 0, 0): 297, (0, 0, 0, 1): 280, (1, 1, 0, 0): 112, (0, 0, 1, 1): 94, (1, 0, 1, 0): 88, (0, 1, 0, 1): 87, (1, 0, 1, 1): 22, (0, 1, 1, 1): 16, (1, 1, 0, 1): 15, (1, 1, 1, 0): 15})
+
+[0, 1]
+
+{(-1,): 2489, (1, 0): 3594, (0, 1): 3742, (1, 1): 87, (0, 0): 88}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now here are some pretty interesting results. And slightly disheartening as well. First, let&amp;rsquo;s take a look at the raw sampling results. While the two valid results come up as the most prevalent solutions, the margin between them and the rest of the possible results is not that great. Especially considering that this is only for the case with two cities.&lt;/p&gt;
+
+&lt;p&gt;When we take a look at the last line, all nonsensical results were classified into the &lt;code&gt;(-1,)&lt;/code&gt; label. These include all the cases when more than one city is visited at one time, as well as when no cities are visited at any time point. As can be seen, these nonsensical results make up more than a third of the possible results.&lt;/p&gt;
+
+&lt;p&gt;However! Take solace in the fact that we were able to get possible results in the first place &amp;ndash; and from a quantum computer no less! For this specific problem, further time and research will need to be dedicated to find better ways to run this solver.&lt;/p&gt;
+
+&lt;h1 id=&#34;conclusions&#34;&gt;Conclusions&lt;/h1&gt;
+
+&lt;p&gt;Hopefully the above was instructive in a more &amp;ldquo;practical&amp;rdquo; problem solution for quantum computers. I hope to be able to improve both the Qiskit and PyQuil versions by doing a more in-depth analysis of the runtimes and analyze the circuit models of both approaches.&lt;/p&gt;
+
+&lt;p&gt;For the curious, below is the PyQuil version of the code finding arrangements of three cities. This uses 9 qubits and takes significantly longer to run (around 10 minutes). Check out the results below.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;cities = [[0, 0], [0, 1], [1, 1]]
+distance_matrix = get_distance_matrix(cities)
+solver = ForestTSPSolver(distance_matrix, steps=2, ftol=1.0e-2, xtol=1.0e-2, use_constraints=True,
+                         add_weight_constraints=False)
+sol, dist = solver.solve_tsp()
+print()
+print(sol)
+print()
+print(dist)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;WARNING: Fast method for expectation will be used. Noise
+                     models will be ineffective
+betas:  [2.05006381 2.99135792]
+gammas:  [1.35174587 5.73163097]
+
+Raw sampling results:
+Counter({(0, 1, 0, 0, 0, 1, 1, 0, 0): 301, (0, 1, 0, 1, 0, 0, 0, 0, 1): 299, (1, 0, 0, 0, 1, 0, 0, 0, 1): 293, (1, 0, 0, 0, 0, 1, 0, 1, 0): 290, (0, 0, 1, 1, 0, 0, 0, 1, 0): 289, (0, 0, 1, 0, 1, 0, 1, 0, 0): 288, (1, 1, 1, 1, 1, 1, 1, 1, 1): 269, (1, 0, 0, 1, 0, 0, 0, 1, 1): 117, (1, 0, 0, 0, 1, 1, 1, 0, 0): 116, (1, 0, 1, 0, 1, 0, 0, 1, 0): 104, (0, 1, 1, 1, 0, 0, 1, 0, 0): 96, (0, 0, 1, 0, 0, 1, 1, 1, 0): 96, (1, 1, 1, 0, 0, 0, 1, 1, 1): 95, (0, 1, 0, 1, 0, 1, 0, 1, 0): 95, (1, 1, 0, 0, 0, 1, 0, 0, 1): 94, (0, 0, 1, 1, 1, 0, 0, 0, 1): 94, (0, 1, 1, 0, 1, 1, 0, 1, 1): 92, (0, 1, 0, 0, 1, 0, 1, 0, 1): 91, (1, 1, 1, 1, 1, 1, 0, 0, 0): 89, (1, 1, 0, 1, 1, 0, 1, 1, 0): 88, (0, 0, 0, 1, 1, 1, 1, 1, 1): 87, (1, 0, 1, 1, 0, 1, 1, 0, 1): 86, (0, 0, 1, 0, 1, 0, 0, 0, 1): 49, (0, 1, 0, 0, 0, 0, 1, 0, 1): 48, (0, 0, 0, 0, 0, 0, 1, 1, 1): 46, (0, 0, 1, 0, 0, 0, 1, 1, 0): 45, (1, 0, 0, 0, 1, 1, 0, 0, 0): 45, (1, 0, 0, 1, 0, 1, 1, 1, 0): 44, (1, 1, 0, 0, 0, 0, 0, 0, 1): 43, (0, 1, 0, 0, 0, 0, 0, 1, 1): 43, (0, 0, 0, 1, 1, 1, 0, 0, 0): 43, (0, 1, 0, 0, 1, 1, 0, 0, 0): 43, (0, 0, 0, 0, 1, 0, 1, 0, 1): 42, (0, 0, 0, 0, 0, 1, 1, 1, 0): 42, (0, 0, 1, 0, 0, 1, 0, 0, 1): 41, (0, 0, 0, 1, 0, 0, 0, 1, 1): 40, (1, 0, 0, 1, 0, 0, 0, 1, 0): 40, (0, 1, 0, 1, 0, 0, 1, 0, 0): 40, (1, 0, 0, 1, 1, 1, 0, 0, 1): 39, (1, 0, 1, 0, 1, 1, 0, 0, 1): 39, (0, 1, 0, 0, 1, 0, 0, 1, 0): 39, (0, 0, 0, 1, 1, 0, 0, 0, 1): 39, (0, 1, 0, 0, 0, 1, 1, 1, 1): 38, (1, 0, 1, 0, 0, 0, 1, 0, 0): 38, (1, 0, 0, 1, 0, 0, 1, 0, 0): 38, (0, 0, 1, 0, 0, 1, 1, 0, 0): 38, (0, 0, 1, 1, 0, 0, 1, 1, 1): 38, (1, 0, 1, 0, 0, 0, 0, 1, 0): 38, (1, 0, 0, 1, 1, 0, 0, 0, 0): 37, (0, 0, 1, 1, 1, 1, 0, 1, 0): 37, (0, 0, 0, 0, 1, 0, 1, 1, 0): 37, (1, 0, 1, 0, 0, 1, 0, 1, 1): 37, (0, 1, 1, 1, 0, 1, 0, 0, 1): 37, (0, 1, 1, 0, 0, 1, 1, 0, 1): 37, (0, 1, 1, 0, 0, 1, 0, 0, 0): 37, (0, 0, 0, 1, 0, 1, 0, 0, 1): 37, (0, 0, 1, 1, 1, 0, 0, 0, 0): 36, (1, 1, 0, 0, 0, 1, 0, 0, 0): 36, (1, 1, 0, 0, 1, 0, 0, 1, 1): 36, (0, 1, 0, 1, 0, 1, 0, 0, 0): 36, (1, 0, 0, 0, 0, 0, 0, 1, 1): 36, (0, 0, 1, 1, 0, 0, 0, 0, 1): 36, (0, 1, 1, 0, 1, 0, 0, 0, 0): 35, (0, 0, 0, 0, 1, 1, 1, 0, 0): 35, (0, 0, 1, 0, 1, 0, 1, 1, 1): 35, (0, 1, 0, 0, 0, 0, 1, 1, 0): 35, (0, 1, 1, 1, 0, 0, 0, 0, 0): 35, (0, 1, 0, 0, 0, 1, 0, 0, 1): 34, (0, 1, 1, 0, 0, 0, 1, 0, 0): 34, (1, 0, 0, 0, 1, 0, 1, 0, 0): 34, (1, 1, 1, 0, 0, 0, 0, 0, 0): 34, (1, 1, 1, 1, 0, 0, 0, 0, 1): 34, (1, 0, 0, 0, 0, 1, 1, 0, 0): 34, (0, 0, 1, 1, 0, 0, 1, 0, 0): 33, (1, 0, 0, 0, 0, 1, 0, 0, 1): 33, (0, 1, 0, 0, 1, 1, 1, 1, 0): 33, (0, 0, 1, 0, 0, 1, 0, 1, 0): 33, (1, 0, 0, 0, 0, 0, 1, 1, 0): 33, (0, 1, 1, 0, 1, 0, 1, 1, 0): 33, (0, 1, 0, 1, 1, 0, 0, 1, 1): 32, (1, 0, 0, 1, 0, 0, 0, 0, 1): 32, (0, 1, 0, 1, 0, 0, 0, 1, 0): 32, (1, 0, 0, 1, 1, 0, 1, 0, 1): 31, (0, 0, 0, 1, 1, 0, 0, 1, 0): 31, (0, 0, 1, 0, 1, 1, 1, 0, 1): 31, (1, 0, 1, 1, 0, 0, 0, 0, 0): 31, (1, 0, 0, 1, 0, 1, 0, 0, 0): 30, (0, 0, 1, 0, 0, 0, 1, 1, 1): 30, (1, 1, 1, 0, 1, 0, 1, 0, 0): 30, (0, 1, 0, 0, 1, 0, 0, 0, 1): 30, (0, 0, 0, 0, 1, 1, 0, 0, 1): 30, (0, 1, 0, 0, 1, 0, 1, 0, 0): 30, (0, 0, 1, 1, 0, 1, 0, 0, 0): 30, (0, 0, 1, 0, 1, 0, 0, 1, 0): 30, (0, 0, 0, 1, 0, 1, 0, 1, 0): 30, (1, 1, 1, 0, 0, 1, 1, 0, 0): 30, (0, 0, 0, 0, 0, 1, 0, 1, 1): 29, (1, 1, 1, 1, 0, 0, 0, 1, 0): 29, (1, 1, 0, 1, 0, 1, 1, 0, 0): 29, (1, 1, 0, 0, 1, 1, 0, 1, 0): 29, (0, 1, 1, 0, 0, 0, 0, 0, 1): 29, (0, 0, 0, 0, 1, 0, 0, 1, 1): 29, (1, 0, 1, 1, 0, 0, 1, 1, 0): 29, (1, 1, 1, 0, 0, 1, 0, 1, 0): 29, (0, 0, 0, 1, 0, 0, 1, 1, 0): 29, (1, 1, 0, 1, 0, 0, 1, 0, 1): 29, (0, 1, 0, 0, 0, 1, 0, 1, 0): 28, (0, 0, 1, 1, 1, 1, 1, 0, 0): 28, (0, 1, 0, 1, 1, 1, 1, 0, 0): 28, (1, 0, 1, 0, 0, 0, 0, 0, 1): 28, (0, 0, 0, 1, 0, 0, 1, 0, 1): 28, (0, 1, 0, 1, 1, 0, 0, 0, 0): 28, (0, 1, 1, 1, 1, 0, 0, 1, 0): 28, (1, 0, 1, 1, 1, 0, 1, 0, 0): 27, (1, 0, 0, 1, 1, 1, 0, 1, 0): 27, (1, 0, 1, 0, 0, 1, 0, 0, 0): 27, (0, 0, 0, 1, 1, 0, 1, 0, 0): 27, (0, 1, 0, 1, 0, 0, 1, 1, 1): 27, (1, 0, 1, 0, 1, 0, 0, 0, 0): 27, (1, 0, 0, 0, 0, 1, 1, 1, 1): 27, (1, 0, 0, 0, 1, 0, 1, 1, 1): 27, (0, 0, 1, 0, 0, 0, 0, 1, 1): 27, (1, 1, 0, 0, 0, 0, 0, 1, 0): 26, (0, 0, 1, 1, 0, 1, 0, 1, 1): 26, (0, 0, 1, 0, 0, 0, 1, 0, 1): 26, (0, 0, 0, 0, 1, 1, 0, 1, 0): 25, (1, 1, 0, 1, 0, 0, 0, 0, 0): 25, (0, 0, 0, 0, 0, 1, 1, 0, 1): 25, (1, 1, 0, 0, 1, 0, 0, 0, 0): 25, (1, 1, 0, 0, 0, 0, 1, 0, 0): 25, (1, 1, 1, 0, 1, 0, 0, 0, 1): 24, (1, 1, 1, 0, 0, 0, 0, 1, 0): 24, (0, 1, 0, 0, 1, 0, 0, 1, 1): 24, (0, 0, 1, 0, 1, 1, 0, 0, 0): 24, (1, 0, 0, 0, 1, 0, 0, 1, 0): 23, (0, 1, 1, 0, 0, 0, 0, 1, 0): 23, (0, 0, 1, 1, 0, 1, 0, 0, 1): 23, (0, 0, 1, 0, 0, 1, 1, 0, 1): 23, (1, 0, 1, 1, 0, 1, 0, 0, 1): 22, (1, 0, 0, 1, 0, 1, 1, 0, 0): 22, (1, 0, 0, 0, 0, 0, 1, 1, 1): 22, (0, 1, 0, 1, 1, 0, 0, 1, 0): 22, (1, 1, 0, 1, 0, 0, 1, 0, 0): 21, (0, 0, 0, 0, 0, 1, 1, 1, 1): 20, (0, 0, 0, 1, 0, 1, 1, 0, 0): 20, (0, 0, 0, 1, 1, 1, 0, 0, 1): 20, (0, 0, 0, 0, 1, 0, 1, 1, 1): 20, (0, 0, 0, 1, 1, 0, 1, 1, 1): 20, (1, 0, 0, 0, 0, 0, 1, 0, 1): 20, (0, 1, 0, 1, 1, 1, 0, 0, 0): 20, (1, 0, 0, 1, 1, 0, 1, 0, 0): 20, (0, 1, 0, 0, 1, 0, 1, 1, 0): 19, (1, 1, 0, 1, 1, 0, 1, 0, 0): 19, (0, 0, 1, 1, 0, 1, 1, 1, 1): 19, (0, 1, 0, 1, 1, 1, 0, 0, 1): 19, (1, 0, 1, 1, 0, 0, 1, 1, 1): 19, (1, 0, 0, 1, 0, 0, 1, 0, 1): 18, (0, 0, 1, 1, 1, 1, 0, 0, 0): 18, (1, 1, 1, 0, 1, 0, 0, 0, 0): 18, (1, 0, 1, 1, 1, 1, 0, 0, 0): 17, (1, 1, 1, 0, 0, 1, 0, 0, 0): 17, (1, 0, 1, 1, 0, 0, 1, 0, 0): 17, (0, 1, 0, 1, 1, 0, 1, 1, 0): 17, (0, 0, 1, 0, 1, 1, 0, 1, 1): 17, (1, 0, 1, 0, 0, 0, 1, 0, 1): 17, (1, 1, 1, 1, 0, 0, 0, 0, 0): 17, (1, 0, 1, 0, 0, 1, 1, 0, 1): 17, (1, 1, 0, 1, 1, 1, 1, 1, 0): 16, (0, 1, 0, 0, 1, 1, 0, 1, 0): 16, (0, 1, 0, 1, 1, 1, 1, 1, 1): 16, (1, 0, 1, 1, 0, 1, 1, 0, 0): 16, (0, 1, 1, 0, 1, 0, 0, 1, 0): 16, (1, 1, 0, 1, 1, 1, 1, 0, 0): 16, (0, 0, 0, 1, 0, 0, 1, 1, 1): 16, (1, 0, 0, 1, 0, 0, 1, 1, 0): 15, (0, 1, 1, 1, 1, 1, 0, 1, 1): 15, (1, 1, 1, 0, 0, 0, 1, 0, 1): 15, (0, 1, 1, 0, 0, 1, 0, 0, 1): 15, (1, 1, 1, 0, 1, 0, 1, 1, 1): 15, (0, 1, 1, 1, 1, 1, 0, 0, 1): 15, (0, 1, 1, 0, 1, 1, 1, 0, 0): 15, (0, 1, 1, 0, 1, 0, 0, 1, 1): 15, (1, 0, 0, 0, 0, 1, 0, 1, 1): 15, (0, 1, 1, 0, 1, 1, 1, 1, 1): 14, (0, 0, 1, 1, 0, 1, 1, 0, 1): 14, (1, 0, 1, 1, 1, 1, 0, 0, 1): 14, (1, 0, 1, 1, 0, 1, 0, 1, 0): 14, (1, 1, 0, 1, 1, 0, 0, 1, 0): 14, (0, 0, 0, 1, 1, 1, 0, 1, 1): 14, (1, 1, 1, 0, 0, 0, 1, 1, 0): 14, (1, 1, 1, 1, 0, 1, 0, 0, 0): 14, (1, 0, 0, 1, 1, 1, 1, 1, 1): 14, (1, 0, 0, 1, 1, 0, 1, 1, 0): 14, (1, 1, 1, 0, 0, 0, 0, 0, 1): 14, (0, 0, 0, 1, 1, 1, 0, 1, 0): 14, (0, 1, 0, 0, 0, 0, 1, 1, 1): 14, (0, 0, 0, 1, 1, 1, 1, 0, 1): 13, (1, 0, 1, 1, 1, 1, 1, 0, 1): 13, (0, 1, 1, 1, 1, 1, 1, 1, 1): 13, (0, 1, 1, 1, 0, 0, 0, 1, 1): 13, (0, 0, 0, 1, 1, 1, 1, 1, 0): 13, (1, 1, 1, 0, 1, 1, 0, 1, 0): 13, (1, 1, 1, 0, 1, 1, 0, 0, 1): 13, (0, 0, 1, 0, 1, 1, 0, 0, 1): 13, (1, 1, 1, 0, 1, 0, 1, 1, 0): 13, (1, 1, 1, 1, 0, 1, 1, 0, 1): 13, (1, 1, 1, 1, 1, 0, 0, 0, 0): 13, (0, 0, 0, 1, 0, 1, 1, 1, 1): 13, (1, 1, 0, 1, 1, 0, 0, 0, 1): 13, (0, 0, 1, 0, 0, 1, 0, 1, 1): 13, (1, 1, 1, 0, 0, 0, 1, 0, 0): 13, (1, 1, 1, 1, 1, 0, 0, 1, 0): 12, (0, 0, 0, 1, 1, 1, 1, 0, 0): 12, (1, 1, 0, 0, 0, 0, 1, 1, 1): 12, (1, 0, 0, 1, 0, 1, 1, 0, 1): 12, (1, 1, 0, 0, 0, 0, 1, 1, 0): 12, (1, 1, 1, 0, 1, 1, 0, 1, 1): 12, (1, 0, 1, 0, 0, 1, 0, 0, 1): 12, (0, 0, 1, 1, 1, 1, 0, 1, 1): 12, (0, 0, 1, 0, 0, 0, 1, 0, 0): 12, (1, 0, 0, 0, 1, 1, 0, 1, 1): 12, (1, 1, 1, 1, 1, 0, 1, 0, 0): 12, (1, 1, 1, 1, 0, 0, 1, 1, 1): 12, (0, 0, 1, 1, 1, 0, 1, 1, 0): 12, (1, 1, 1, 0, 0, 1, 1, 1, 1): 12, (1, 1, 1, 0, 1, 0, 0, 1, 1): 11, (0, 0, 1, 1, 1, 1, 1, 0, 1): 11, (0, 0, 1, 0, 0, 1, 1, 1, 1): 11, (1, 1, 0, 0, 1, 0, 0, 1, 0): 11, (1, 1, 1, 0, 0, 1, 1, 0, 1): 11, (0, 0, 0, 0, 1, 1, 1, 1, 1): 11, (1, 1, 0, 0, 0, 1, 1, 1, 0): 11, (1, 1, 1, 1, 1, 0, 1, 1, 0): 11, (1, 1, 1, 0, 0, 0, 0, 1, 1): 11, (1, 1, 1, 1, 1, 1, 1, 0, 0): 11, (0, 1, 0, 0, 1, 0, 1, 1, 1): 11, (0, 1, 1, 1, 1, 1, 0, 1, 0): 11, (0, 1, 1, 0, 0, 1, 1, 1, 1): 11, (1, 0, 1, 1, 0, 1, 1, 1, 1): 11, (0, 0, 1, 1, 1, 1, 1, 1, 1): 11, (1, 1, 1, 1, 0, 0, 1, 0, 1): 11, (1, 1, 0, 1, 0, 0, 1, 1, 0): 11, (1, 1, 1, 1, 1, 1, 0, 1, 0): 11, (0, 0, 1, 0, 1, 1, 1, 1, 1): 11, (1, 1, 1, 0, 1, 0, 0, 1, 0): 11, (0, 0, 1, 0, 1, 0, 1, 1, 0): 11, (1, 0, 0, 1, 1, 1, 1, 0, 1): 11, (0, 0, 1, 1, 1, 1, 0, 0, 1): 10, (1, 1, 1, 1, 1, 1, 1, 0, 1): 10, (0, 1, 1, 0, 0, 0, 0, 1, 1): 10, (1, 1, 0, 1, 1, 1, 0, 0, 0): 10, (1, 0, 1, 1, 0, 1, 0, 0, 0): 10, (1, 1, 0, 0, 1, 0, 1, 1, 1): 10, (0, 1, 0, 1, 0, 1, 1, 0, 1): 10, (0, 0, 1, 1, 1, 0, 1, 0, 0): 10, (0, 1, 1, 0, 1, 1, 0, 0, 1): 10, (0, 1, 0, 1, 1, 1, 1, 1, 0): 10, (0, 1, 0, 1, 1, 1, 0, 1, 1): 10, (1, 1, 0, 1, 0, 0, 1, 1, 1): 10, (1, 0, 0, 1, 1, 1, 1, 1, 0): 10, (1, 0, 0, 0, 1, 1, 0, 1, 0): 10, (1, 1, 1, 0, 1, 1, 0, 0, 0): 10, (1, 0, 1, 1, 0, 0, 1, 0, 1): 10, (1, 0, 1, 1, 1, 1, 1, 1, 1): 10, (1, 1, 1, 1, 0, 1, 0, 0, 1): 10, (0, 0, 0, 1, 0, 0, 0, 0, 1): 10, (1, 0, 0, 0, 0, 0, 0, 0, 0): 10, (0, 1, 0, 0, 1, 1, 0, 1, 1): 10, (0, 0, 0, 0, 0, 1, 0, 0, 0): 10, (1, 1, 0, 0, 1, 0, 1, 1, 0): 10, (0, 0, 0, 0, 0, 0, 0, 0, 1): 9, (1, 0, 1, 1, 1, 1, 1, 0, 0): 9, (0, 0, 1, 1, 0, 0, 0, 1, 1): 9, (0, 1, 1, 1, 0, 0, 0, 1, 0): 9, (0, 1, 0, 1, 0, 0, 0, 0, 0): 9, (1, 1, 0, 1, 1, 0, 1, 1, 1): 9, (1, 1, 1, 1, 0, 1, 1, 1, 1): 9, (0, 0, 0, 0, 1, 1, 0, 1, 1): 9, (0, 1, 1, 0, 1, 0, 1, 0, 0): 9, (1, 1, 1, 1, 0, 1, 1, 0, 0): 9, (1, 0, 0, 1, 1, 1, 0, 0, 0): 9, (1, 1, 1, 0, 1, 1, 1, 1, 1): 9, (0, 0, 0, 0, 0, 1, 0, 1, 0): 9, (0, 0, 1, 1, 1, 0, 0, 1, 0): 9, (1, 1, 1, 1, 1, 1, 0, 0, 1): 9, (1, 0, 1, 0, 0, 1, 1, 1, 1): 9, (1, 1, 0, 1, 1, 1, 0, 1, 0): 9, (1, 0, 0, 0, 1, 1, 0, 0, 1): 9, (1, 1, 0, 1, 1, 0, 0, 0, 0): 8, (1, 0, 0, 0, 1, 0, 0, 1, 1): 8, (0, 1, 0, 1, 0, 0, 0, 1, 1): 8, (1, 0, 0, 1, 1, 0, 1, 1, 1): 8, (0, 1, 1, 0, 0, 0, 1, 1, 1): 8, (0, 1, 1, 1, 1, 1, 0, 0, 0): 8, (0, 1, 1, 0, 1, 0, 1, 1, 1): 8, (1, 0, 0, 1, 1, 1, 1, 0, 0): 8, (1, 0, 0, 1, 0, 1, 1, 1, 1): 8, (1, 1, 0, 1, 0, 0, 0, 0, 1): 8, (1, 0, 0, 0, 1, 0, 1, 0, 1): 8, (1, 1, 1, 1, 0, 0, 1, 0, 0): 8, (0, 0, 0, 1, 1, 0, 1, 1, 0): 8, (1, 0, 1, 0, 0, 0, 1, 1, 1): 8, (0, 0, 0, 1, 0, 0, 0, 0, 0): 8, (0, 1, 1, 0, 1, 1, 0, 0, 0): 8, (0, 0, 0, 1, 0, 1, 0, 0, 0): 7, (0, 1, 0, 1, 1, 0, 0, 0, 1): 7, (0, 0, 1, 0, 1, 0, 1, 0, 1): 7, (1, 0, 1, 1, 0, 0, 0, 1, 0): 7, (0, 1, 1, 0, 0, 1, 1, 0, 0): 7, (0, 1, 0, 1, 1, 0, 1, 1, 1): 7, (1, 0, 0, 1, 0, 0, 0, 0, 0): 7, (0, 0, 1, 1, 0, 1, 0, 1, 0): 7, (1, 1, 1, 1, 1, 1, 1, 1, 0): 7, (1, 1, 0, 0, 0, 0, 0, 0, 0): 7, (0, 1, 0, 1, 1, 1, 0, 1, 0): 7, (0, 0, 0, 0, 0, 0, 0, 1, 0): 7, (0, 0, 1, 0, 0, 0, 0, 0, 1): 7, (0, 1, 1, 0, 1, 1, 0, 1, 0): 6, (1, 1, 0, 0, 0, 1, 0, 1, 0): 6, (1, 1, 0, 1, 1, 1, 1, 1, 1): 6, (0, 0, 0, 0, 1, 0, 0, 0, 1): 6, (0, 0, 1, 0, 0, 1, 0, 0, 0): 6, (1, 0, 1, 0, 1, 0, 0, 0, 1): 6, (0, 0, 0, 0, 0, 1, 1, 0, 0): 6, (1, 1, 1, 1, 1, 1, 0, 1, 1): 6, (1, 0, 1, 0, 1, 0, 1, 0, 1): 6, (1, 1, 0, 1, 0, 1, 1, 0, 1): 6, (0, 1, 0, 0, 0, 1, 1, 1, 0): 6, (0, 1, 1, 0, 0, 1, 0, 1, 1): 6, (0, 1, 0, 0, 0, 0, 0, 1, 0): 6, (0, 0, 1, 1, 0, 0, 0, 0, 0): 6, (1, 0, 0, 0, 1, 0, 0, 0, 0): 6, (1, 1, 1, 1, 1, 0, 1, 1, 1): 6, (0, 0, 0, 1, 0, 1, 1, 0, 1): 6, (1, 0, 0, 0, 0, 1, 0, 0, 0): 6, (0, 1, 0, 1, 0, 1, 0, 0, 1): 6, (0, 0, 0, 0, 1, 0, 0, 0, 0): 6, (0, 1, 0, 0, 1, 1, 1, 1, 1): 6, (0, 1, 1, 1, 0, 0, 1, 1, 0): 6, (0, 1, 0, 0, 0, 1, 0, 1, 1): 5, (0, 0, 0, 0, 0, 0, 1, 0, 1): 5, (0, 0, 0, 1, 1, 0, 0, 0, 0): 5, (0, 0, 1, 0, 0, 0, 0, 0, 0): 5, (0, 0, 0, 1, 1, 0, 0, 1, 1): 5, (0, 1, 0, 1, 0, 1, 1, 0, 0): 5, (1, 0, 1, 0, 1, 0, 1, 0, 0): 5, (1, 1, 0, 0, 1, 1, 1, 0, 0): 5, (0, 0, 0, 0, 0, 0, 1, 1, 0): 5, (1, 0, 0, 0, 0, 0, 1, 0, 0): 5, (0, 1, 1, 1, 0, 0, 0, 0, 1): 5, (1, 0, 0, 1, 0, 1, 0, 1, 0): 5, (0, 0, 1, 0, 1, 1, 1, 0, 0): 5, (0, 0, 0, 0, 0, 0, 1, 0, 0): 5, (1, 0, 0, 0, 0, 1, 1, 0, 1): 5, (0, 0, 1, 1, 0, 0, 1, 1, 0): 5, (0, 1, 0, 0, 1, 1, 1, 0, 0): 5, (1, 0, 1, 0, 0, 0, 0, 0, 0): 5, (1, 1, 1, 0, 0, 1, 0, 0, 1): 5, (0, 0, 0, 0, 1, 1, 0, 0, 0): 4, (1, 1, 0, 0, 1, 0, 0, 0, 1): 4, (0, 1, 1, 1, 1, 0, 1, 1, 0): 4, (0, 1, 0, 0, 0, 0, 0, 0, 1): 4, (0, 0, 0, 0, 1, 0, 1, 0, 0): 4, (0, 1, 0, 0, 0, 1, 0, 0, 0): 4, (0, 1, 0, 1, 0, 1, 1, 1, 1): 4, (1, 0, 0, 1, 0, 1, 0, 0, 1): 4, (1, 1, 0, 0, 0, 1, 1, 0, 0): 4, (1, 0, 1, 1, 1, 0, 1, 1, 0): 4, (0, 1, 0, 0, 0, 0, 1, 0, 0): 4, (1, 0, 1, 1, 1, 0, 0, 0, 1): 4, (0, 1, 1, 0, 0, 0, 1, 0, 1): 4, (1, 0, 1, 0, 1, 1, 0, 1, 1): 4, (1, 1, 1, 1, 0, 0, 1, 1, 0): 4, (0, 0, 0, 0, 0, 1, 0, 0, 1): 4, (1, 0, 0, 0, 0, 1, 1, 1, 0): 4, (0, 1, 0, 0, 0, 1, 1, 0, 1): 4, (1, 0, 1, 1, 1, 1, 0, 1, 0): 4, (0, 0, 1, 0, 1, 0, 0, 0, 0): 4, (0, 1, 0, 1, 1, 0, 1, 0, 1): 4, (0, 0, 0, 1, 0, 0, 0, 1, 0): 4, (0, 1, 1, 0, 1, 1, 1, 0, 1): 4, (0, 1, 0, 1, 0, 0, 1, 0, 1): 4, (1, 0, 1, 0, 1, 0, 0, 1, 1): 4, (1, 0, 0, 1, 1, 0, 0, 1, 0): 3, (1, 0, 1, 0, 0, 1, 1, 0, 0): 3, (0, 1, 1, 0, 0, 0, 0, 0, 0): 3, (1, 0, 0, 1, 1, 0, 0, 0, 1): 3, (1, 1, 0, 1, 1, 0, 0, 1, 1): 3, (0, 0, 1, 0, 1, 1, 1, 1, 0): 3, (0, 1, 1, 1, 0, 0, 1, 0, 1): 3, (0, 1, 1, 1, 0, 1, 1, 0, 1): 3, (0, 0, 0, 0, 0, 0, 0, 0, 0): 3, (1, 0, 1, 1, 0, 1, 1, 1, 0): 3, (0, 0, 0, 1, 1, 0, 1, 0, 1): 3, (1, 1, 1, 0, 1, 0, 1, 0, 1): 3, (0, 1, 1, 1, 1, 1, 1, 0, 0): 3, (1, 1, 0, 1, 0, 0, 0, 1, 1): 3, (1, 0, 1, 0, 1, 0, 1, 1, 1): 3, (1, 1, 0, 0, 0, 1, 1, 0, 1): 3, (0, 0, 1, 0, 1, 1, 0, 1, 0): 3, (1, 0, 0, 1, 0, 0, 1, 1, 1): 3, (1, 0, 1, 1, 1, 0, 1, 0, 1): 3, (1, 0, 1, 1, 1, 1, 1, 1, 0): 3, (0, 0, 1, 0, 1, 0, 0, 1, 1): 3, (0, 1, 0, 1, 0, 1, 0, 1, 1): 3, (1, 1, 0, 0, 1, 0, 1, 0, 1): 3, (1, 1, 1, 0, 0, 1, 0, 1, 1): 3, (1, 1, 0, 0, 1, 1, 0, 0, 0): 3, (1, 0, 1, 0, 1, 1, 1, 1, 1): 3, (1, 1, 1, 0, 1, 1, 1, 0, 1): 3, (0, 1, 0, 1, 0, 0, 1, 1, 0): 3, (1, 0, 1, 0, 0, 1, 0, 1, 0): 3, (1, 0, 0, 0, 0, 0, 0, 1, 0): 3, (0, 0, 0, 0, 1, 0, 0, 1, 0): 3, (0, 1, 0, 1, 1, 1, 1, 0, 1): 3, (1, 0, 1, 0, 1, 1, 1, 0, 1): 3, (1, 1, 0, 0, 1, 1, 1, 1, 0): 2, (0, 1, 0, 1, 1, 0, 1, 0, 0): 2, (1, 1, 0, 0, 0, 0, 0, 1, 1): 2, (1, 1, 0, 0, 1, 1, 0, 1, 1): 2, (1, 0, 0, 0, 0, 0, 0, 0, 1): 2, (1, 0, 1, 0, 1, 1, 0, 0, 0): 2, (0, 0, 0, 1, 0, 0, 1, 0, 0): 2, (0, 1, 0, 0, 0, 0, 0, 0, 0): 2, (0, 1, 0, 0, 1, 1, 0, 0, 1): 2, (1, 0, 1, 0, 1, 1, 1, 1, 0): 2, (1, 1, 0, 0, 1, 1, 1, 0, 1): 2, (0, 1, 1, 1, 0, 1, 0, 1, 0): 2, (0, 0, 1, 0, 0, 0, 0, 1, 0): 2, (1, 1, 1, 0, 0, 1, 1, 1, 0): 2, (1, 1, 0, 0, 0, 1, 0, 1, 1): 2, (1, 1, 1, 1, 0, 1, 1, 1, 0): 2, (1, 1, 0, 0, 0, 0, 1, 0, 1): 2, (1, 1, 1, 0, 1, 1, 1, 1, 0): 2, (1, 0, 0, 1, 0, 1, 0, 1, 1): 2, (1, 0, 1, 1, 1, 1, 0, 1, 1): 2, (0, 1, 1, 0, 1, 0, 1, 0, 1): 2, (1, 0, 1, 0, 0, 0, 0, 1, 1): 2, (1, 0, 1, 1, 0, 0, 0, 0, 1): 2, (1, 1, 1, 1, 0, 1, 0, 1, 0): 2, (0, 0, 1, 1, 1, 1, 1, 1, 0): 2, (0, 0, 1, 1, 0, 1, 1, 0, 0): 2, (1, 0, 1, 0, 1, 1, 1, 0, 0): 2, (0, 0, 0, 0, 0, 0, 0, 1, 1): 2, (0, 1, 1, 1, 0, 1, 1, 1, 0): 1, (0, 1, 1, 1, 1, 0, 1, 0, 0): 1, (0, 0, 0, 1, 0, 1, 1, 1, 0): 1, (0, 0, 1, 1, 1, 0, 0, 1, 1): 1, (0, 0, 1, 1, 0, 1, 1, 1, 0): 1, (1, 1, 0, 0, 1, 1, 0, 0, 1): 1, (0, 1, 0, 0, 1, 1, 1, 0, 1): 1, (0, 0, 0, 1, 0, 1, 0, 1, 1): 1, (1, 0, 1, 1, 0, 1, 0, 1, 1): 1, (0, 1, 1, 1, 1, 0, 0, 1, 1): 1, (0, 0, 1, 1, 0, 0, 1, 0, 1): 1, (0, 1, 1, 0, 0, 1, 0, 1, 0): 1, (1, 0, 1, 0, 1, 1, 0, 1, 0): 1, (0, 1, 1, 0, 1, 1, 1, 1, 0): 1, (1, 0, 1, 1, 1, 0, 0, 0, 0): 1, (1, 1, 1, 0, 1, 1, 1, 0, 0): 1, (0, 1, 1, 0, 0, 0, 1, 1, 0): 1, (1, 0, 0, 1, 1, 1, 0, 1, 1): 1, (1, 1, 0, 0, 0, 1, 1, 1, 1): 1, (1, 0, 1, 1, 1, 0, 1, 1, 1): 1, (0, 1, 1, 1, 0, 0, 1, 1, 1): 1, (1, 0, 0, 0, 1, 0, 1, 1, 0): 1, (0, 1, 1, 1, 0, 1, 0, 1, 1): 1, (0, 1, 1, 0, 0, 1, 1, 1, 0): 1, (0, 1, 1, 1, 1, 0, 0, 0, 0): 1, (1, 1, 1, 1, 0, 0, 0, 1, 1): 1, (0, 0, 1, 1, 1, 0, 1, 1, 1): 1, (0, 1, 0, 1, 0, 1, 1, 1, 0): 1, (1, 1, 0, 1, 1, 1, 1, 0, 1): 1, (1, 1, 0, 1, 1, 1, 0, 1, 1): 1, (1, 1, 0, 1, 0, 0, 0, 1, 0): 1, (1, 1, 1, 1, 1, 0, 0, 1, 1): 1, (0, 1, 1, 1, 1, 1, 1, 0, 1): 1, (1, 0, 1, 0, 0, 1, 1, 1, 0): 1, (1, 0, 1, 0, 1, 0, 1, 1, 0): 1, (1, 0, 1, 0, 0, 0, 1, 1, 0): 1, (1, 1, 0, 0, 1, 0, 1, 0, 0): 1, (1, 1, 0, 1, 1, 1, 0, 0, 1): 1, (1, 0, 0, 0, 1, 1, 1, 1, 1): 1, (0, 1, 1, 0, 1, 0, 0, 0, 1): 1, (0, 1, 1, 1, 0, 1, 0, 0, 0): 1, (0, 0, 1, 1, 1, 0, 1, 0, 1): 1, (1, 1, 0, 1, 0, 1, 0, 1, 1): 1})
+
+[1, 2, 0]
+
+{(-1,): 7513, (2, 0, 1): 289, (1, 0, 2): 299, (1, 2, 1): 28, (0, 0, 0): 38, (0, 1, 2): 293, (1, 2, 0): 301, (2, 2, 2): 41, (2, 1, 0): 288, (0, 2, 1): 290, (1, 1, 2): 30, (2, 0, 0): 33, (1, 2, 2): 34, (1, 1, 1): 39, (0, 1, 1): 23, (0, 2, 2): 33, (0, 1, 0): 34, (0, 0, 1): 40, (2, 2, 0): 38, (1, 1, 0): 30, (0, 2, 0): 34, (2, 1, 1): 30, (2, 2, 1): 33, (0, 0, 2): 32, (2, 1, 2): 49, (2, 0, 2): 36, (1, 0, 0): 40, (1, 0, 1): 32}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Variational Quantum Unsampling</title>
+      <link>https://filipmazurek.github.io/projects/q-unsampling/</link>
+      <pubDate>Wed, 16 Oct 2019 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/projects/q-unsampling/</guid>
+      <description>
+
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+
+&lt;p&gt;Variational Quantum Unsampling (VQU) is an algorithm recently developed to take into account the limited computational powers of NISQ computers, and described in this &lt;a href=&#34;https://arxiv.org/abs/1904.10463&#34; target=&#34;_blank&#34;&gt;arXiv paper&lt;/a&gt;. The code and some descriptions here were helped out by a challenge which was part of the University of Edinburgh&amp;rsquo;s quantum computing hackathon, found on their &lt;a href=&#34;https://github.com/QuHackEd/Challenges/blob/master/advanced_challenge_quantum_unsampling.ipynb&#34; target=&#34;_blank&#34;&gt;GitHub&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;This notebook serves as a complement to the one on creating supremacy circuits. If you have not taken a look at that or if you are not familiar with Google&amp;rsquo;s proposed pseudo-random generating supremacy circuits, take a look at that for context first.&lt;/p&gt;
+
+&lt;p&gt;The whole point of quantum supremacy circuits is that the algorithm which they encode cannot be replicated on a classical computer. That begs the question, however, as to how we can be sure that the quantum computer actually gave us the correct answer. We&amp;rsquo;re short on verification tools in this space. The need for verification will become more and more important as NISQ computers may be used to develop new chemical compounds &amp;ndash; we need to be able to check the accuracy of quantum algorithm results before we blindly trust its results.&lt;/p&gt;
+
+&lt;p&gt;Enter Variational Quantum Unsampling. This algorithm is designed to variationally &amp;ldquo;undo&amp;rdquo; the operations performed on the circuit. If we consider some quantum circuit to be represented as some unitary $U$ acting on the inputs of the quantum circuit, then VQU attempts to find that $U$:&lt;/p&gt;
+
+&lt;p&gt;\begin{align}
+|\psi_o\rangle = U|\psi_i\rangle
+\end{align}&lt;/p&gt;
+
+&lt;p&gt;More specifically, the algorithm does this by applying some parameterized unitary operation, $V(\theta)$, on the state $|\psi_o\rangle$ in order to return it to the reference state, $\left|\psi_i\right&amp;gt;$. In other words, it attempts to find the &lt;strong&gt;&lt;em&gt;inverse&lt;/em&gt;&lt;/strong&gt; of the target unitary, $U$, such that:&lt;/p&gt;
+
+&lt;p&gt;\begin{align}
+|\psi_i\rangle =  V(\theta)U|\psi_i\rangle
+\end{align}&lt;/p&gt;
+
+&lt;p&gt;This is achieved by minimizing some cost function, relative to the parameters, $\theta$, which describes the discrepancy between the target, and the current state of the system at any point during the optimization procedure.&lt;/p&gt;
+
+&lt;h2 id=&#34;quantum-neural-networks-relationship&#34;&gt;Quantum Neural Networks Relationship&lt;/h2&gt;
+
+&lt;p&gt;The method for VQU was largely inspired by quantum neural networks (QNN). I wrote another [notebook]() addressing the specifics of QNN, so check it out if you&amp;rsquo;re interested!&lt;/p&gt;
+
+&lt;p&gt;QNN work by optimizing over a set of parameters in some defined gate operations. The parameters are optimized by a classical optimizer to find the parameters which correspond to the correct output. Similarly, VQU works by optimizing gate parameters for some chosen gates, except that it does so multiple times, bu disentangling one qubit at a time from the state space.&lt;/p&gt;
+
+&lt;p&gt;The following is an illustration of a QNN:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;qnn_ancilla_diagram.png&#34; alt=&#34;Quantum neural network with ancilla&#34; width=&#34;50%&#34;/&gt;&lt;/p&gt;
+
+&lt;p&gt;In contrast, the following is an example of a VQU:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;vqu_image.png&#34; alt=&#34;Variational quantum unsampling circuit&#34; width=&#34;50%&#34;/&gt;&lt;/p&gt;
+
+&lt;p&gt;Here, we can see each time that we would need to optimize for some $\theta$.&lt;/p&gt;
+
+&lt;h1 id=&#34;basic-implementation&#34;&gt;Basic Implementation&lt;/h1&gt;
+
+&lt;p&gt;First, let&amp;rsquo;s go ahead and import all the basics that we need when working with PyQuil&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from pyquil import Program
+from pyquil.api import get_qc, WavefunctionSimulator, local_qvm
+from pyquil.gates import *
+import numpy as np
+
+# as well as our classic optimizer
+import scipy.optimize as opt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;And let&amp;rsquo;s define an extra gate that we&amp;rsquo;ll need to use&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from pyquil.parameters import Parameter, quil_sin, quil_cos
+from pyquil.quilbase import DefGate
+
+# Define the new gate from a matrix
+theta = Parameter(&#39;theta&#39;)
+crx = np.array([
+    [1, 0, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, quil_cos(theta / 2), -1j * quil_sin(theta / 2)],
+    [0, 0, -1j * quil_sin(theta / 2), quil_cos(theta / 2)]
+])
+
+gate_definition = DefGate(&#39;CRX&#39;, crx, [theta])
+CRX = gate_definition.get_constructor()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now, let&amp;rsquo;s construct the circuit on which we will run VQU.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def create_trial_circuit(circuit, qubits):
+    target_two_qubit_angle = 0.444
+    target_single_qubit_angle = 0.7822
+
+    circuit += RY(target_single_qubit_angle, qubits[0])
+    circuit += CRX(target_two_qubit_angle)(qubits[0], qubits[1])
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Since this is a two qubit circuit, we&amp;rsquo;re going to have two major steps to this VQU. The first step will be finding the parameters to bring qubit 1 to the state $|0\rangle$.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def cost_func_two_qubit_gate(params, qubits):
+    circuit = Program()
+    circuit += gate_definition # We need to define the new gate in each program we use it in.
+
+    ro = circuit.declare(&#39;ro&#39;, &#39;BIT&#39;, 1)
+
+    create_trial_circuit(circuit, qubits)
+
+    # apply some trial gate to otimize our angle
+    circuit += CRX(params[0])(qubits[0], qubits[1])
+
+#     print(&#39;The current parameter value is:&#39;, params[0])
+    circuit += MEASURE(qubits[1], ro[0])
+    circuit.wrap_in_numshots_loop(num_trials)
+
+    executable = qc.compile(circuit)
+
+    results = qc.run(executable)
+    prob_zero = list(results).count([0])/num_trials
+
+    # We want to minimise this value, by making the probability of observing qubit *one* in the state |0&amp;gt; close to 1
+    cost_func = 1 - prob_zero
+
+    return cost_func
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that in this particular example we have chosen to apply the same gate to our &amp;ldquo;unsampling&amp;rdquo; as we have in the trial circuit. This is for the sake of first simple example. We&amp;rsquo;ll use more gritty scenarios later in this notebook.&lt;/p&gt;
+
+&lt;p&gt;Now let&amp;rsquo;s go ahead and run our optimizer.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;qc_name = &amp;quot;2q-qvm&amp;quot;
+qc = get_qc(qc_name)
+qubits = qc.qubits()
+
+num_trials = 10000
+params = np.random.rand(1)
+
+result = opt.minimize(cost_func_two_qubit_gate, params, args=(qubits), method=&#39;Powell&#39;)
+
+print(&#39;The optimised parameter value found is: &#39;, result.x)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;The optimised parameter value found is:  -0.4813267098032141
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We found the first parametrized value! Now time to do the same thing but for qubit 0. Below is another function which will run after the first angle is optimized.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def cost_func_both_gates(params, optimised_two_q_param, qubits):
+    circuit = Program()
+    circuit += gate_definition # We need to define the new gate in each program we use it in.
+
+    ro = circuit.declare(&#39;ro&#39;, &#39;BIT&#39;, 1)
+
+    create_trial_circuit(circuit, qubits)
+
+    circuit += CRX(optimised_two_q_param)(qubits[0], qubits[1])  # using the previously found parameter
+    circuit += RY(params[0], qubits[0])  # new gate put in to find the second paramter
+
+#     print(&#39;The current parameter value is:&#39;, params[0])
+
+    circuit += MEASURE(qubits[0], ro[0])
+    circuit.wrap_in_numshots_loop(num_trials)
+
+    executable = qc.compile(circuit)
+    results = qc.run(executable)
+    prob_zero = list(results).count([0])/num_trials
+
+    # We want to minimise this value, by making the probability of observing |0&amp;gt; in qubit *zero* close to 1
+    cost_func = 1 - prob_zero
+
+    return cost_func
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can plug in the angle we found in the previous run and optimize for this second angle.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;optimised_two_q_param = np.asscalar(result.x)
+params = np.random.rand(1) # start with another random parameter for this run
+
+
+result_single_qubit_opt = \
+opt.minimize(cost_func_both_gates, params, args=(optimised_two_q_param, qubits), method=&#39;Powell&#39;)
+
+optimised_single_q_param = result_single_qubit_opt.x
+
+print(&#39;The optimised parameter value found is: &#39;, optimised_single_q_param)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;The optimised parameter value found is:  -0.7723922231661331
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;checking-our-results&#34;&gt;Checking Our Results&lt;/h2&gt;
+
+&lt;p&gt;Now we can take the two angles found and apply them to our constructed circuit. Thereby checking for the condition&lt;/p&gt;
+
+&lt;p&gt;\begin{align}
+\left|\psi_i\right&amp;gt; =  V(\theta)U\left|\psi_i\right&amp;gt;
+\end{align}&lt;/p&gt;
+
+&lt;p&gt;And seeing how close we got to the input state of $|00\rangle$&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;make_wf = WavefunctionSimulator()
+
+optimised_params = np.array([optimised_two_q_param, optimised_single_q_param])
+
+circuit_optimised = Program()
+circuit_optimised += gate_definition # We need to define the new gate in each program we use it in.
+
+ro = circuit_optimised.declare(&#39;ro&#39;, &#39;BIT&#39;, 1)
+
+create_trial_circuit(circuit_optimised, qubits)
+
+# Applying our &amp;quot;unsampling&amp;quot; operations here
+circuit_optimised += CRX(optimised_params[0])(qubits[0], qubits[1])
+circuit_optimised += RY(optimised_params[1], qubits[0])
+
+with local_qvm():
+    wavefunction = make_wf.wavefunction(circuit_optimised)
+
+print(wavefunction)
+
+print(wavefunction.get_outcome_probs())
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;(0.9999629694+0j)|00&amp;gt; + (0.0048423694+0j)|01&amp;gt; + 0.0026796731j|10&amp;gt; + 0.0065901938j|11&amp;gt;
+{&#39;00&#39;: 0.9999259401560409, &#39;01&#39;: 2.3448541541007383e-05, &#39;10&#39;: 7.180647922794661e-06, &#39;11&#39;: 4.3430654495366794e-05}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Checking our results, the VQU did well! We&amp;rsquo;re back to the $|00\rangle$ state with good accuracy.&lt;/p&gt;
+
+&lt;h1 id=&#34;more-complex-examples&#34;&gt;More Complex Examples&lt;/h1&gt;
+
+&lt;p&gt;Now let&amp;rsquo;s run our same method of VQU, but this time we can define a different circuit to run our algorithm on. This way we can check how well the algorithm can actually work.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def create_trial_circuit(circuit, qubits):
+
+    circuit += H(qubits[0])
+    circuit += CNOT(qubits[0], qubits[1])
+
+    return circuit
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now that we changed the function of the trial circuit, we can run exactly the same code as we ran before. First we optimize for qubit 1, then for qubit 0, and then we can check how well we got the circuit back to the initial state.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;result_two_qubit_opt = opt.minimize(cost_func_two_qubit_gate, np.array(params[0]), args=(qubits), method=&#39;Powell&#39;)
+optimised_two_q_param = np.asscalar(result_two_qubit_opt.x)
+print(&#39;The optimised parameter value found is: &#39;, optimised_two_q_param)
+
+params = np.random.rand(1)
+result_single_qubit_opt = \
+opt.minimize(cost_func_both_gates, params, args=(optimised_two_q_param, qubits), method=&#39;Powell&#39;)
+optimised_single_q_param = result_single_qubit_opt.x
+print(&#39;The optimised parameter value found is: &#39;, optimised_single_q_param)
+
+optimised_params = np.array([optimised_two_q_param, optimised_single_q_param])
+
+circuit_optimised = Program()
+circuit_optimised += gate_definition # We need to define the new gate in each program we use it in.
+
+ro = circuit_optimised.declare(&#39;ro&#39;, &#39;BIT&#39;, 1)
+
+create_trial_circuit(circuit_optimised, qubits)
+
+# Applying our &amp;quot;unsampling&amp;quot; operations here
+circuit_optimised += CRX(optimised_params[0])(qubits[0], qubits[1])
+circuit_optimised += RY(optimised_params[1], qubits[0])
+
+with local_qvm():
+    wavefunction = make_wf.wavefunction(circuit_optimised)
+
+print(wavefunction)
+
+print(wavefunction.get_outcome_probs())
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;The optimised parameter value found is:  3.13466307165333
+The optimised parameter value found is:  -1.0631845000285267
+(0.609526782-0.3584348752j)|00&amp;gt; + (-0.3584370267-0.6095231233j)|01&amp;gt; + (0.0012419069+0j)|10&amp;gt; + (0.0021118787+0j)|11&amp;gt;
+{&#39;00&#39;: 0.4999984576672817, &#39;01&#39;: 0.49999553996851026, &#39;10&#39;: 1.5423327181163183e-06, &#39;11&#39;: 4.460031489581977e-06}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note what happened this time. We kept our &amp;ldquo;unsampling&amp;rdquo; circuit the same, and it was not able to untangle the Bell state. We have equal probability of the $|00\rangle$ state as well as the $|01\rangle$ state.&lt;/p&gt;
+
+&lt;h2 id=&#34;another-example&#34;&gt;Another Example&lt;/h2&gt;
+
+&lt;p&gt;Now we can try the same approach, but with yet another circuit.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def create_trial_circuit(state, qubits):
+    theta = Parameter(&#39;theta&#39;)
+    crtest = np.array([
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, quil_cos(theta / 2), -quil_sin(theta / 2)],
+        [0, 0, quil_sin(theta / 2), quil_cos(theta / 2)]
+    ])
+
+    gate_definition = DefGate(&#39;CRTEST&#39;, crtest, [theta])
+    CRTEST = gate_definition.get_constructor()
+
+    state += gate_definition
+    state += H(qubits[0])
+    state += Z(qubits[0])
+    state += CRTEST(np.pi/42)(qubits[0], qubits[1])
+
+    return state
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;result_two_qubit_opt = opt.minimize(cost_func_two_qubit_gate, np.array(params[0]), args=(qubits), method=&#39;Powell&#39;)
+optimised_two_q_param = np.asscalar(result_two_qubit_opt.x)
+print(&#39;The optimised parameter value found is: &#39;, optimised_two_q_param)
+
+params = np.random.rand(1)
+result_single_qubit_opt = \
+opt.minimize(cost_func_both_gates, params, args=(optimised_two_q_param, qubits), method=&#39;Powell&#39;)
+optimised_single_q_param = result_single_qubit_opt.x
+print(&#39;The optimised parameter value found is: &#39;, optimised_single_q_param)
+
+optimised_params = np.array([optimised_two_q_param, optimised_single_q_param])
+
+circuit_optimised = Program()
+circuit_optimised += gate_definition # We need to define the new gate in each program we use it in.
+
+ro = circuit_optimised.declare(&#39;ro&#39;, &#39;BIT&#39;, 1)
+
+create_trial_circuit(circuit_optimised, qubits)
+
+# Applying our &amp;quot;unsampling&amp;quot; operations here
+circuit_optimised += CRX(optimised_params[0])(qubits[0], qubits[1])
+circuit_optimised += RY(optimised_params[1], qubits[0])
+
+with local_qvm():
+    wavefunction = make_wf.wavefunction(circuit_optimised)
+
+print(wavefunction)
+
+print(wavefunction.get_outcome_probs())
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;The optimised parameter value found is:  -0.04057073475865205
+The optimised parameter value found is:  1.5613149700366853
+(0.9995384668+0.000377419j)|00&amp;gt; + (-0.0042860746-0.0003810145j)|01&amp;gt; + (0.0186029294+0.0100867359j)|10&amp;gt; + (-0.0187801519-0.0101828281j)|11&amp;gt;
+{&#39;00&#39;: 0.9990772890769184, &#39;01&#39;: 1.8515607891615624e-05, &#39;10&#39;: 0.00044781122263651166, &#39;11&#39;: 0.0004563840925529468}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Our circuit worked out pretty well in this case!&lt;/p&gt;
+
+&lt;h1 id=&#34;conclusions&#34;&gt;Conclusions&lt;/h1&gt;
+
+&lt;p&gt;VQU is a quantum neural network approach to verification for NISQ computers. It provides another demonstrably working tool to use for quantum computer scientists, and a possibility to keep building on it.&lt;/p&gt;
+
+&lt;p&gt;This is a very interesting new tool, one that we can hopefully learn to better use.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quantum Supremacy Circuits</title>
+      <link>https://filipmazurek.github.io/projects/quantum-supremacy/</link>
+      <pubDate>Sat, 12 Oct 2019 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/projects/quantum-supremacy/</guid>
+      <description>
+
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+
+&lt;p&gt;Some information recently leaked that Google&amp;rsquo;s quantum computing team achieved quantum supremacy &amp;ndash; that Google&amp;rsquo;s new 54-qubit quantum computer was successful in completing a task that would be intractable even for modern supercomputers. This notebook is dedicated to running a simplified version of the supremacy circuit that Google&amp;rsquo;s team used. It is based on the notebook from the University of Edinburgh&amp;rsquo;s quantum computing hackathon, found on &lt;a href=&#34;https://github.com/QuHackEd/Challenges/blob/master/advanced_challenge_circuit_sampling.ipynb&#34; target=&#34;_blank&#34;&gt;GitHub&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;We&amp;rsquo;re going to follow the original &lt;a href=&#34;https://arxiv.org/abs/1608.00263&#34; target=&#34;_blank&#34;&gt;Google proposal&lt;/a&gt; This supremacy circuit focuses on running pseudo-random quantum circuits, which is a natural task for a quantum computer, but can take exponential time to run on a classical computer. We&amp;rsquo;ll run a four-qubit example of this supremacy circuit.&lt;/p&gt;
+
+&lt;h1 id=&#34;circuit-building&#34;&gt;Circuit Building&lt;/h1&gt;
+
+&lt;p&gt;The first step in the supremacy routine is to apply Hadamard gates to all qubits.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from pyquil import Program
+from pyquil.api import get_qc, WavefunctionSimulator, local_qvm
+from pyquil.gates import *
+import numpy as np
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def hadamard_to_all(circuit, n):
+    for qubit in qubits:
+        circuit += H(qubit)
+    return circuit
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Next we have the application of Controlled-Z operations to all qubits, where the qubits are ordered in a square. For an example of a 6 x 6 qubit grid, these CZ gates are applied in an order specified by this image:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;supremacy_cZ.png&#34; alt=&#34;Application of CZ gates&#34; width=&#34;50%&#34;/&gt;&lt;/p&gt;
+
+&lt;p&gt;While applying the CZ gates, we begin adding random gates from a specific set. We apply them following these rules:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;The set of gates that may be applied is
+
+&lt;ul&gt;
+&lt;li&gt;$X^{\frac{1}{2}} = \exp\left(i\frac{\pi}{4}\sigma_x\right)$&lt;/li&gt;
+&lt;li&gt;$Y^{\frac{1}{2}} = \exp{i\frac{\pi}{4}\sigma_y}$&lt;/li&gt;
+&lt;li&gt;$T = \left(\begin{array}{cc}
+    1 &amp;amp; 0 \\&lt;br /&gt;
+    0 &amp;amp; e^{i\pi/4} \end{array}
+\right)$&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;A gate from this set may be applied to a qubit only if a CZ gate was applied to it the previous time step.&lt;/li&gt;
+&lt;li&gt;On each qubit, the first gate from this set to be applied must be the $T$ gate&lt;/li&gt;
+&lt;li&gt;On each qubit, a different gate from this set must be applied than was applied to it previously&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The end goal is to have a circuit of the general form shown below.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&#34;supremacy_circ_gates.png&#34; alt=&#34;General supremacy circuit&#34; width=&#34;50%&#34;/&gt;&lt;/p&gt;
+
+&lt;p&gt;First, we need to define the $X^{\frac{1}{2}}$ and $Y^{\frac{1}{2}}$ gates.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from pyquil.quilbase import DefGate
+
+# gate definitions for the X^(1/2) gate
+sqrt_x = np.array([[ 0.5+0.5j,  0.5-0.5j],
+                   [ 0.5-0.5j,  0.5+0.5j]])
+# Get the Quil definition for the new gate
+sqrt_x_definition = DefGate(&amp;quot;SQRT_X&amp;quot;, sqrt_x)
+# Get the gate constructor
+SQRT_X = sqrt_x_definition.get_constructor()
+
+# gate definitions for the Y^(1/2) gate
+sqrt_y = np.array([[ 0.5+0.5j, -0.5-0.5j],
+                   [ 0.5+0.5j,  0.5+0.5j]])
+# Get the Quil definition for the new gate
+sqrt_y_definition = DefGate(&amp;quot;SQRT_Y&amp;quot;, sqrt_y)
+# Get the gate constructor
+SQRT_Y = sqrt_y_definition.get_constructor()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now that we have defined all gates and constructed a function to apply the Hadamard to all qubits, we can make a function to apply all necessary operations. For the sake of reproducibility and brevity, we&amp;rsquo;ll apply the gates in a set order, but it is trivial to pick them from the random set instead.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def random_circuit_sampling_4(circuit, qubits):
+    circuit += sqrt_x_definition
+    circuit += sqrt_y_definition
+
+    circuit = hadamard_to_all(circuit, np.sqrt(len(qubits)))
+    circuit += CZ(qubits[0], qubits[1])
+
+    circuit += T(qubits[0])
+    circuit += T(qubits[1])
+
+    circuit += CZ(qubits[2], qubits[3])
+
+    circuit += T(qubits[2])
+    circuit += T(qubits[3])
+
+    # end of layer 1
+    #----------------------
+
+    circuit += CZ(qubits[0], qubits[2])
+
+    circuit += SQRT_Y(qubits[0])
+    circuit += SQRT_X(qubits[2])
+
+    circuit += CZ(qubits[1], qubits[3])
+
+    circuit += SQRT_Y(qubits[1])
+    circuit += SQRT_X(qubits[3])
+
+    return circuit
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we are ready to apply the randomized gates to the circuit.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;circuit = Program()
+qc = get_qc(&amp;quot;4q-qvm&amp;quot;)
+qubits = qc.qubits()
+
+random_circuit_sampling_4(circuit, qubits)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;&amp;lt;pyquil.quil.Program at 0xa21c78cf8&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now that the circuit is built, let&amp;rsquo;s also make a plotting utility so that we can see the outcomes more easily.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def plot_data(probs):
+    x = np.arange(len(probs))        
+    plt.bar(x, probs.values(), width=0.3, align=&#39;center&#39;)
+
+    plt.xticks(range(len(probs)), list(probs.keys()),rotation=70)
+
+    plt.xlabel(&amp;quot;Outcomes&amp;quot;, fontsize=20)
+    plt.ylabel(&amp;quot;Coefficients&amp;quot;, fontsize=20)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now let&amp;rsquo;s actually find the values of the circuit. We&amp;rsquo;ll use the PyQuil WavefunctionSimulator to get the exact outputs. Recall that the exact probability of an outcome is the coefficient squared.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from pyquil.api import WavefunctionSimulator
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+make_wf = WavefunctionSimulator()
+
+with local_qvm():
+    wf = make_wf.wavefunction(circuit)
+exact_probs = wf.get_outcome_probs()
+print(&#39;The exact circuit probability coeffs are: \n&#39;, exact_probs )
+
+plot_data(exact_probs)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;The exact circuit probability coeffs are:
+ {&#39;0000&#39;: 0.015624999999999993, &#39;0001&#39;: 0.0026808261758407724, &#39;0010&#39;: 0.0026808261758407724, &#39;0011&#39;: 0.22901334764831824, &#39;0100&#39;: 0.09106917382415915, &#39;0101&#39;: 0.14062499999999992, &#39;0110&#39;: 0.015624999999999993, &#39;0111&#39;: 0.002680826175840781, &#39;1000&#39;: 0.09106917382415915, &#39;1001&#39;: 0.015624999999999986, &#39;1010&#39;: 0.14062499999999992, &#39;1011&#39;: 0.002680826175840778, &#39;1100&#39;: 0.05223665235168152, &#39;1101&#39;: 0.09106917382415915, &#39;1110&#39;: 0.09106917382415915, &#39;1111&#39;: 0.01562499999999999}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;img src=&#34;output_16_1.png&#34; alt=&#34;png&#34; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;conclusions&#34;&gt;Conclusions&lt;/h1&gt;
+
+&lt;p&gt;It&amp;rsquo;s easy to see how this supremacy circuit is relatively easy to execute on a quantum computer, since it is a series of two- and one-qubit operations. It&amp;rsquo;s also easy to see how the size of classical computation for this circuit can quickly grow exponentially.&lt;/p&gt;
+
+&lt;p&gt;This contrived example has shown a case of quantum supremacy, but it is a fascinating example nonetheless. Unless we were to come up with a new clever classical algorithm to simulate a quantum circuit, this will stand as the first example of achieved quantum supremacy, provided that Google officially releases its official article outlining its quantum supremacy experiment.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quantum Neural Networks</title>
+      <link>https://filipmazurek.github.io/projects/q-neural-nets/</link>
+      <pubDate>Tue, 08 Oct 2019 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/projects/q-neural-nets/</guid>
+      <description>
+
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+
+&lt;p&gt;In finding more uses for quantum computers, we explore using them as trainable classifiers. Depending on their implementation, we can think of this application as a layer in a classical neural network. There are several resources on the study of specifically quantum neural networks. But first, we&amp;rsquo;ll go over the basic idea of how to create and train a neural network, then we will take a look at some resources and academic papers, and finally we will go over a simple implementation.&lt;/p&gt;
+
+&lt;h1 id=&#34;the-basics&#34;&gt;The Basics&lt;/h1&gt;
+
+&lt;p&gt;&lt;img src=&#34;qnn_drawing.png&#34; alt=&#34;Quantum neural network drawing&#34; width=&#34;50%&#34;/&gt;&lt;/p&gt;
+
+&lt;p&gt;A quantum neural network may be taken as a collection of well-chosen operations (we don&amp;rsquo;t know how to choose these operations yet) acting on an input of some sample data, and returning the classification of that data. Each operation parameter in the quantum neural network operation is tunable. Here, we use classical optimization to select the best parameters.&lt;/p&gt;
+
+&lt;p&gt;The end result is a quantum circuit with correctly tuned parameters such that it will return the correct classification for the input.&lt;/p&gt;
+
+&lt;h1 id=&#34;resources-important&#34;&gt;Resources (Important!)&lt;/h1&gt;
+
+&lt;p&gt;The company &lt;a href=&#34;https://www.xanadu.ai/&#34; target=&#34;_blank&#34;&gt;Xanadu&lt;/a&gt; has developed a whole library for training quantum machine learning. For an easily digestible version, check out the &lt;a href=&#34;https://medium.com/xanaduai/training-quantum-neural-networks-with-pennylane-pytorch-and-tensorflow-c669108118cc&#34; target=&#34;_blank&#34;&gt;Medium article&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;One such implementation of a quantum neural network has been described by Edward Farhi and Hartmut Neven. Their article is a great read and can be found on &lt;a href=&#34;https://arxiv.org/abs/1802.06002&#34; target=&#34;_blank&#34;&gt;arxiv&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;In order to implement the quantum neural network described by Farhi and Neven, I started writing code based on the Jupyter Notebook from QuHackEd, the University of Edinburgh&amp;rsquo;s quantum hackathon. The original notebook may be found on &lt;a href=&#34;https://github.com/QuHackEd/Challenges/blob/master/advanced_challenge_classification.ipynb&#34; target=&#34;_blank&#34;&gt;github&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&#34;implementation&#34;&gt;Implementation&lt;/h1&gt;
+
+&lt;p&gt;In this small example, we will be attempting to train a quantum neural network to classify single-bit inputs into binary categories. To show this as a classification table:&lt;/p&gt;
+
+&lt;p&gt;\begin{align}
+z = \begin{cases}
+0 \implies l(z) = -1\\&lt;br /&gt;
+1 \implies l(z) = +1\\&lt;br /&gt;
+\end{cases}
+\end{align}&lt;/p&gt;
+
+&lt;p&gt;Where the &lt;em&gt;l(z)&lt;/em&gt; is our classifying function.&lt;/p&gt;
+
+&lt;p&gt;While this might be a trivial classification, it will be complex enough for us to train. Furthermore, it will only need to use two qubits, so that training will be feasible even on a small personal computer.&lt;/p&gt;
+
+&lt;h2 id=&#34;circuit-goal&#34;&gt;Circuit Goal&lt;/h2&gt;
+
+&lt;p&gt;&lt;img src=&#34;qnn_ancilla_diagram.png&#34; alt=&#34;Quantum neural network with ancilla&#34; width=&#34;50%&#34;/&gt;&lt;/p&gt;
+
+&lt;p&gt;A generalized version of the circuit can be seen above. $\psi$ is the sample input bits. In our case, we will only have one. The input $|1\rangle$ is an ancilla qubit. This qubit will interact with the sample input, then it will be measured at the end as the classification bit.&lt;/p&gt;
+
+&lt;h2 id=&#34;loss-function&#34;&gt;Loss Function&lt;/h2&gt;
+
+&lt;p&gt;For our classical optimizer, we will need to define a loss function (the objective function to minimize). The goal is to penalize the circuit if the predicted label is different from the actual label.&lt;/p&gt;
+
+&lt;p&gt;\begin{align}
+    L(z) = 1 - l(z) * l_{actual}
+\end{align}&lt;/p&gt;
+
+&lt;p&gt;Note that we can do this thanks to our chosen labeling scheme.&lt;/p&gt;
+
+&lt;h2 id=&#34;starting-the-code&#34;&gt;Starting the Code&lt;/h2&gt;
+
+&lt;p&gt;Now we can actually start writing the code! We will start with preparing all inputs we need, as well as setting up the local simulator.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# Import the usual things
+from pyquil import Program
+from pyquil.api import get_qc, WavefunctionSimulator, local_qvm
+from pyquil.gates import *
+import numpy as np
+import os, inspect, sys
+
+import sys
+sys.path.insert(0, &#39;tests/&#39;)
+from tests import *
+make_wf = WavefunctionSimulator()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Since we will be only working with 2 qubits, we&amp;rsquo;ll set up the 2-qubit qvm.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;qc_name = &#39;2q-qvm&#39;
+with local_qvm():
+    qc = get_qc(qc_name)
+
+qubits = qc.qubits()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We&amp;rsquo;ll also prepare a general function to set up the input state. It&amp;rsquo;ll add on the ancilla |1\rangle as qubit 0.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;# prepares the state equivalent to the bitstring
+#  [0,1,1]  →  Prepare the state  |011,1⟩
+def classifier_input_prep(bitstring, qubits):
+    n = len(bitstring)
+    input_circuit = Program()
+
+    for i in range(n):
+        if bitstring[i] == 1:
+            input_circuit += X(qubits[n-i])
+
+    input_circuit += X(qubits[0])
+    return input_circuit
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Next we&amp;rsquo;ll prepare the Unitaries. To have more options, we&amp;rsquo;ll define a controlled-RX gate, as found in &lt;a href=&#34;http://docs.rigetti.com/en/stable/basics.html#defining-parametric-gates&#34; target=&#34;_blank&#34;&gt;Rigetti&amp;rsquo;s documentation&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from pyquil.parameters import Parameter, quil_sin, quil_cos
+from pyquil.quilbase import DefGate
+
+# Define the new gate from a matrix
+theta = Parameter(&#39;theta&#39;)
+crx = np.array([
+    [1, 0, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, quil_cos(theta / 2), -1j * quil_sin(theta / 2)],
+    [0, 0, -1j * quil_sin(theta / 2), quil_cos(theta / 2)]
+])
+
+gate_definition = DefGate(&#39;CRX&#39;, crx, [theta])
+CRX = gate_definition.get_constructor()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;choosing-gates-to-apply&#34;&gt;Choosing Gates to Apply&lt;/h2&gt;
+
+&lt;p&gt;Now the actual quantum neural network circuit needs to have operations to parametrize. As Farhi and Neven found, however, there is not really any guidance to what operations we could or should apply. Their article contains a lot of useful information in finding which operations to apply.&lt;/p&gt;
+
+&lt;p&gt;For our purposes, we will apply $R_y(\theta_2)$ to the first qubit, and then $CRX(\theta_1)$ to the second and first qubit.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def qnn_circuit_prep(input_circuit, params, qubits):
+    if not isinstance(input_circuit, Program):
+        raise TypeError(&#39;The input must be a Pyquil program&#39;)
+
+    qnn_circuit = input_circuit
+    qnn_circuit += gate_definition # We need to &#39;define&#39; in the circuit the gate so it can be used in the circuit
+
+    qnn_circuit += RY(params[1], qubits[1])
+    qnn_circuit += CRX(params[0])( qubits[1], qubits[0])  # Add gates here
+
+
+    return qnn_circuit
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;measuring-results&#34;&gt;Measuring Results&lt;/h2&gt;
+
+&lt;p&gt;We&amp;rsquo;ll be measuring the ancilla qubit in the pauli-y basis:&lt;/p&gt;
+
+&lt;p&gt;\begin{align}
+Y_{\text{anc}} = \left(\begin{array}{cc}
+0 &amp;amp; -i \\&lt;br /&gt;
+i &amp;amp; 0
+\end{array}
+\right)
+\end{align}&lt;/p&gt;
+
+&lt;p&gt;We can do so by first applying $H$ and then $S^{\dagger}$&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def measure_ancilla(qnn_circuit, qc, qubits, num_trials):
+    if not isinstance(qnn_circuit, Program):
+        raise TypeError(&#39;The input must be a Pyquil program&#39;)
+
+    qnn_circuit += H(qubits[0])  # Gates to rotate in correct pauli Y basis
+    qnn_circuit += S(qubits[0]).dagger()
+
+    ro = qnn_circuit.declare(&#39;ro&#39;, &#39;BIT&#39;, 1)
+
+    qnn_circuit += MEASURE(qubits[0], ro[0])
+    qnn_circuit.wrap_in_numshots_loop(num_trials)
+
+    executable = qc.compile(qnn_circuit)
+    measurement_results = qc.run(executable)
+
+    return measurement_results
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;expectation-value&#34;&gt;Expectation Value&lt;/h2&gt;
+
+&lt;p&gt;For the classical optimization, we need to have a function to find the average result of the circuit given some sample. Remember that $|0\rangle$ corresponds to $+1$ and $|1\rangle$ corresponds to $-1$&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def compute_expectation(results, qubits, num_trials):
+
+    prob_zero = list(results).count([0])/num_trials
+    prob_one = list(results).count([1])/num_trials
+
+
+    # zero corresponds to value +1. one corresponds to the value -1
+    expectation_value = prob_zero - prob_one  # Compute expectation value of Y observable
+
+    return expectation_value
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we can write the loss function&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def classifier_loss(params, samples, labels, qc, num_trials):
+    N = len(samples) # We want to run the optimiser over N samples to learn the appropriate classification rule.
+    loss_per_sample = np.zeros(N)
+
+
+    for sample in range(N):
+        input_circuit = classifier_input_prep(samples[sample], qubits) # Prepare the input state
+        qnn_circuit = qnn_circuit_prep(input_circuit, params, qubits) # Build the quantum neural network
+        results = measure_ancilla(qnn_circuit, qc, qubits, num_trials) # Measure the appropriate qubits
+        expectation_value = compute_expectation(results, qubits, num_trials) # Compute expectation value
+
+        loss_per_sample[sample] = 1 - labels[sample]*expectation_value # Define loss per sample.
+#         print(qnn_circuit)
+#         print(&amp;quot;expecation value: \n&amp;quot;, expectation_value)
+#         print(&amp;quot;sample: \n&amp;quot;, samples[sample])
+#         print(&amp;quot;sample label \n&amp;quot;, labels[sample])
+#         print(&amp;quot;sample loss: \n&amp;quot;, loss_per_sample[sample])
+#         print(&amp;quot;--------------------------------&amp;quot;)
+
+
+    loss = (1/N)*np.sum(loss_per_sample) # Compute average loss
+    print(loss) # We can keep this to print out the value of the loss during the optimisation
+    return loss
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;generating-samples&#34;&gt;Generating Samples&lt;/h2&gt;
+
+&lt;p&gt;We can manually generate samples and their corresponding labels very easily because of how simple our test set is defined to be.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import random
+def generate_samples(N_samples, n_bits):
+    samples = [[random.randint(0,1) for bit in range(n_bits)] for sample in range(N_samples)]
+    labels = [] # The labels will be a list of +/- 1 values according to the ground truth above.
+
+    for sample in samples:
+        if sample[0] == 0:
+            labels.append(+1) # Fill label list with correct labels
+        else: labels.append(-1)
+
+    return samples, labels
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;training-the-circuit&#34;&gt;Training the Circuit&lt;/h2&gt;
+
+&lt;p&gt;Now we can train the circuit. We&amp;rsquo;ll be using scipy.optimize to choose the best parameter values for the circuit.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import scipy.optimize as opt
+
+N_train_samples = 20        # We will use 20 training samples, i.e. 20 0&#39;s and 1&#39;s.
+n_bits = 1                  # Number of bits (length of samples)
+params = np.random.rand(2)  # Initialise the parameters randomly
+num_trials = 50             # Number of times to measure the circuit on each run.
+
+train_samples, labels = generate_samples(N_train_samples, n_bits) # Generate appropriate samples as a list
+print(&#39;\nThe training samples are: &#39;  , train_samples)
+print(&#39;\nThe corresponding labels are: &#39;, labels)
+
+# Now run the optimiser, with the extra arguments the function requires.
+result =  opt.minimize(classifier_loss, params, args=(train_samples, labels, qc, num_trials), method=&#39;Powell&#39;)
+print(result)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;The training samples are:  [[1], [1], [1], [1], [1], [0], [0], [0], [1], [0], [1], [0], [1], [1], [1], [1], [0], [0], [1], [1]]
+
+The corresponding labels are:  [-1, -1, -1, -1, -1, 1, 1, 1, -1, 1, -1, 1, -1, -1, -1, -1, 1, 1, -1, -1]
+1.0099999999999998
+0.9440000000000002
+1.0100000000000002
+0.9500000000000002
+1.0259999999999998
+1.048
+0.9900000000000002
+1.0099999999999998
+0.9400000000000001
+0.9740000000000002
+0.9999999999999999
+1.0
+1.0220000000000002
+1.002
+0.96
+0.9800000000000001
+0.9920000000000002
+1.0659999999999998
+1.002
+1.002
+1.03
+1.014
+1.0
+1.0380000000000003
+0.9740000000000002
+1.046
+1.014
+1.0280000000000002
+1.032
+0.9860000000000002
+0.9500000000000001
+0.96
+0.9820000000000001
+0.96
+1.038
+1.022
+0.9659999999999999
+1.048
+1.0040000000000002
+0.9420000000000001
+1.012
+0.956
+0.9780000000000002
+1.044
+0.9580000000000001
+1.016
+0.9960000000000001
+0.9760000000000002
+1.086
+1.012
+0.992
+0.968
+0.9719999999999998
+0.986
+1.0
+0.984
+0.9620000000000002
+   direc: array([[1., 0.],
+       [0., 1.]])
+     fun: 0.9620000000000002
+ message: &#39;Optimization terminated successfully.&#39;
+    nfev: 57
+     nit: 2
+  status: 0
+ success: True
+       x: array([2.92552347, 2.11167601])
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;testing-the-circuit&#34;&gt;Testing the Circuit&lt;/h2&gt;
+
+&lt;p&gt;Now that the circuit has been trained, we can generate more samples and run the circuit to test the results. We&amp;rsquo;ll run tests on 10 new samples.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;N_test_samples = 10 #Add code here
+test_samples, labels = generate_samples(N_test_samples, 1) # Add code here
+
+trained_params = result.x # Extract the trained parameters
+print(trained_params)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;[2.92552347 2.11167601]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;loss = classifier_loss(trained_params, test_samples, labels, qc, num_trials)  # Compute the loss on the test set. Make sure you use the trained parameters
+
+print(&#39;The loss on the test set is:&#39;, loss)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;1.0079999999999998
+The loss on the test set is: 1.0079999999999998
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;conclusions&#34;&gt;Conclusions&lt;/h2&gt;
+
+&lt;p&gt;The goal of the loss on the test set is to be as close to 0 as possible. This would mean that the prediction of the circuit would be absolutely accurate.&lt;/p&gt;
+
+&lt;p&gt;Unfortunately, the current result of the loss function is close to 1. Since the loss function ranges from 0 (total predictive accuracy) to 2 (always predicting the opposite of the true label), a value of 1 means that the circuit is predicting values no better than a random number generator. In order to improve results, we will need to look into using different gate operations to give better predictions.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Matrix Visualization</title>
+      <link>https://filipmazurek.github.io/projects/matrix-visualization/</link>
+      <pubDate>Fri, 20 Sep 2019 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/projects/matrix-visualization/</guid>
+      <description>
+
+&lt;p&gt;Filip Mazurek&lt;/p&gt;
+
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+
+&lt;p&gt;This notebook will introduce the utility of how to set up matrices and their multiplication to more easily visualize quantum operations. The premise is that we already know how the single-qubit operation matrices look, and we know how to combine them. While not difficult, this notebook provides a starting point.&lt;/p&gt;
+
+&lt;h1 id=&#34;basic-operations&#34;&gt;Basic Operations&lt;/h1&gt;
+
+&lt;p&gt;First, we have to define our single-qubit operations. We&amp;rsquo;ll define these as some of the most common gates available, but add more as needed. We&amp;rsquo;ll be working with numpy arrays to make matrix operations easier.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;from numpy import kron as k
+from numpy import subtract as sub
+from numpy import add
+from numpy import sqrt
+from numpy import array
+import numpy as np
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;pauli_Z = array([[1, 0], [0, -1]])
+pauli_X = array([[0, 1], [1, 0]])
+identity = array([[1, 0], [0, 1]])
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We can go ahead and simplify the naming, since we&amp;rsquo;ll be using lots of these matrices.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;Z = pauli_Z
+X = pauli_X
+I = identity
+H = 1/sqrt(2) * array([[1, 1], [1, -1]])
+S = array([[1, 0], [0, 1j]])
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;compound-matrices&#34;&gt;Compound Matrices&lt;/h1&gt;
+
+&lt;p&gt;Now that we have some basic operations defined, let&amp;rsquo;s define what everything would look like if we were figuring out a Hamiltonian which runs on &lt;strong&gt;four qubits&lt;/strong&gt;. In order to make the above operation usable, we need to use the Kronecker product (our imported k) with the identity operator. Let&amp;rsquo;s do this for the Z operator.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;z0 = k(k(k(Z, I), I), I)
+z1 = k(k(k(I, Z), I), I)
+z2 = k(k(k(I, I), Z), I)
+z3 = k(k(k(I, I), I), Z)
+I4 = k(k(k(I, I), I), I)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;traveling-salesman-example&#34;&gt;Traveling Salesman Example&lt;/h1&gt;
+
+&lt;p&gt;The following is an excerpt from the Hamiltonian on traveling salesman. It penalizes the qubits for being in two cities at once and for not visiting any cities. We&amp;rsquo;ll be doing the case for four qubits (two cities at two timesteps).&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def create_penalty_operators_for_qubit_range(self, range_of_qubits):
+    from pyquil.paulis import PauliTerm, PauliSum
+    cost_operators = []
+    weight = -100 * np.max(self.distance_matrix)
+    for i in range_of_qubits:
+        if i == range_of_qubits[0]:
+            z_term = PauliTerm(&amp;quot;Z&amp;quot;, i, weight)
+            all_ones_term = PauliTerm(&amp;quot;I&amp;quot;, 0, 0.5 * weight) - PauliTerm(&amp;quot;Z&amp;quot;, i, 0.5 * weight)
+        else:
+            z_term = z_term * PauliTerm(&amp;quot;Z&amp;quot;, i)
+            all_ones_term = all_ones_term * (PauliTerm(&amp;quot;I&amp;quot;, 0, 0.5) - PauliTerm(&amp;quot;Z&amp;quot;, i, 0.5))
+
+    z_term = PauliSum([z_term])
+    cost_operators.append(PauliTerm(&amp;quot;I&amp;quot;, 0, weight) - z_term - all_ones_term)
+
+    return cost_operators
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;That&amp;rsquo;s part of the code creating a Hamiltonian with Pauli operators. We can visualize what it looks like if we were to run it, but let&amp;rsquo;s do that later. First, let&amp;rsquo;s see what our expected matrix would look just using matrix multiplication. The below starts with what the penalty is between each of the qubit positions. If you&amp;rsquo;re having trouble following at this point, please check out the quantum traveling salesman problem for context!&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;def create_penalty_for_range_02():
+    weight = -100
+
+    z_term = z0 * -100
+    all_ones_term = sub(I4 * -50, z0 * -50)
+
+    z_term = z_term.dot(z2)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z2 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+
+
+def create_penalty_for_range_13():
+    weight = -100
+
+    z_term = z1 * -100
+    all_ones_term = sub(I4 * -50, z1 * -50)
+
+    z_term = z_term.dot(z3)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z3 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+
+
+def create_penalty_for_range_01():
+    weight = -100
+
+    z_term = z0 * -100
+    all_ones_term = sub(I4 * -50, z0 * -50)
+
+    z_term = z_term.dot(z1)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z1 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+
+
+def create_penalty_for_range_23():
+    weight = -100
+
+    z_term = z2 * -100
+    all_ones_term = sub(I4 * -50, z2 * -50)
+
+    z_term = z_term.dot(z3)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z3 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Now we can add up each of the penalty terms and find the part of our cost Hamiltonian for co-location and multiple visitation.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;same_city_penalty = add(add(add(create_penalty_for_range_02(),
+                                create_penalty_for_range_13()),
+                            create_penalty_for_range_01()),
+                        create_penalty_for_range_23())
+print(same_city_penalty)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;[[   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0. -400.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0. -400.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0. -300.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0. -400.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0. -300.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0. -800.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0. -200.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0. -400.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0. -800.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0. -300.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0. -200.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+  -300.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0. -200.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0. -200.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.  400.]]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Here, we can check that indeed our most favored states of &lt;code&gt;0110&lt;/code&gt; and &lt;code&gt;1001&lt;/code&gt; are indeed the ones with the most favorable (negative) value. The difference between the most favored states and the rest may not be as large as we had hoped, so we might be left looking for a better Hamiltonian. But that can be an exercise saved for another time.&lt;/p&gt;
+
+&lt;h1 id=&#34;multi-qubit-operations&#34;&gt;Multi-Qubit Operations&lt;/h1&gt;
+
+&lt;p&gt;We can also add in multi-qubit operations, such as CNOT, or even custom controlled rotations. Note that working with these might require you to make custom matrices, since, by definition, it&amp;rsquo;s impossible to get these results by multiplying single qubit operations using the Kronecker product.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;CNOT = array([
+    [1, 0, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, 0, 1],
+    [0, 0, 1, 0]])
+
+def CRX(theta):
+    CRX = array([
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, np.cos(theta / 2), -1j * np.sin(theta / 2)],
+        [0, 0, -1j * np.sin(theta / 2), np.cos(theta / 2)]
+        ])
+    return CRX
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Note that if we were to want to make a CNOT in a two qubit system where the second qubit is the control for &lt;code&gt;NOT&lt;/code&gt; on the first, we would need to define a different matrix.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;CNOT_rev = array([
+    [0, 1, 0, 0],
+    [1, 0, 0, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 1]])
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Notice the differences of how these CNOTs act.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;qubits = array([[1], [2], [3], [4]])
+
+CNOT @ qubits
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;array([[1],
+       [2],
+       [4],
+       [3]])
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;CNOT_rev @ qubits
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;array([[2],
+       [1],
+       [3],
+       [4]])
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quantum Languages</title>
+      <link>https://filipmazurek.github.io/projects/quantum-languages/</link>
+      <pubDate>Fri, 16 Aug 2019 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/projects/quantum-languages/</guid>
+      <description>
+
+&lt;p&gt;Filip Mazurek - 8/16/2019&lt;/p&gt;
+
+&lt;h1 id=&#34;introduction&#34;&gt;Introduction&lt;/h1&gt;
+
+&lt;p&gt;This notebook serves as a quick cross-reference for how to write code to run on a quantum computer in some of the most popular Python-based libraries. We&amp;rsquo;ll cover the code for simulation on the local machine in Qiskit, Cirq, pyQuil, and ProjectQ. We&amp;rsquo;ll also cover how to use Qiskit to run the quantum code on IBM&amp;rsquo;s quantum computers.&lt;/p&gt;
+
+&lt;p&gt;As for the actual code, we&amp;rsquo;ll be basing everything on a game of &amp;ldquo;Cat/Box/Scissors&amp;rdquo;, and interesting quantum take on the classical rock-paper-scissors. The original was written by Dr. James Wootton, and can be found on &lt;a href=&#34;https://medium.com/@decodoku/introducing-the-worlds-first-game-for-a-quantum-computer-50640e3c22e4&#34; target=&#34;_blank&#34;&gt;Medium&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Please note that this notebook only serves to show how writing quantum instructions is different among the different libraries. In order to run this on your machine, see each SDK&amp;rsquo;s website for installation steps.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://qiskit.org/&#34; target=&#34;_blank&#34;&gt;Qiskit&lt;/a&gt;&lt;br/&gt;
+&lt;a href=&#34;https://cirq.readthedocs.io/en/stable/install.html&#34; target=&#34;_blank&#34;&gt;Cirq&lt;/a&gt;&lt;br/&gt;
+&lt;a href=&#34;https://www.rigetti.com/forest&#34; target=&#34;_blank&#34;&gt;Forest/PyQuil&lt;/a&gt;&lt;br/&gt;
+&lt;a href=&#34;https://projectq.readthedocs.io/en/latest/tutorials.html#getting-started&#34; target=&#34;_blank&#34;&gt;ProjectQ&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;projectq-original-code&#34;&gt;ProjectQ Original Code&lt;/h2&gt;
+
+&lt;p&gt;Dr. James Wootton wrote the original code below. As you can see, it&amp;rsquo;s a simple luck-based game which takes advantage of quantum effects. Take a look at the original &lt;a href=&#34;https://medium.com/@decodoku/introducing-the-worlds-first-game-for-a-quantum-computer-50640e3c22e4&#34; target=&#34;_blank&#34;&gt;Medium&lt;/a&gt; article for how the game actually works, but we&amp;rsquo;ll be focusing on how to translate the actual quantum part of the code.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import math, numpy, random, time # normal python stuff
+
+from projectq import MainEngine  # import the main compiler engine
+from projectq.ops import H, S, T, X, CNOT, get_inverse, Measure  # import the operations we want to perform
+
+import projectq.setups.ibm
+from projectq.backends import IBMBackend
+
+eng = MainEngine() #uncomment to simulate on your own computer
+#eng = MainEngine(IBMBackend(use_hardware=True, num_runs=1, verbose=True, user=None, password=None))
+# uncomment to run on the quantum experience
+
+print(&amp;quot;\n\n\n\n===== Welcome to Cat/Box/Scissors! =====\n\n&amp;quot;)
+print(&amp;quot;  ~~ A game by the Decodoku project ~~ \n\n&amp;quot;)
+print(&amp;quot;When in doubt, press any key to continue!&amp;quot;)
+raw_input()
+print(&amp;quot;You and your opponent choose one of two possible moves.&amp;quot;)
+raw_input()
+print(&amp;quot;You win if your moves are the same.&amp;quot;)
+raw_input()
+print(&amp;quot;Your opponent wins if they are different.&amp;quot;)
+raw_input()
+
+# get human player to choose opponent
+chosen = 0
+while (chosen==0):
+	opponent = int( raw_input(&amp;quot;\nWhich qubit will be your opponent? (1,2,3, or 4)\n&amp;quot;) )
+	if ( (opponent &amp;gt;= 1) &amp;amp; (opponent &amp;lt;= 4) ):
+		chosen = 1
+	else:
+		print(&amp;quot;u wot m8? Try that again.&amp;quot;)
+
+# here 1 and 2 mean qubits 0 and 1, so change accordingly
+if (opponent&amp;lt;3):
+	opponent = opponent - 1
+
+# referee is always qubit 2
+
+# get human player to choose move
+chosen = 0
+while (chosen==0):
+	humanMove = raw_input(&amp;quot;\nChoose your move (s or sdg)\n&amp;quot;)
+	if ( (humanMove == &amp;quot;s&amp;quot;) | (humanMove == &amp;quot;sdg&amp;quot;) ):
+		chosen = 1
+	else:
+		print(&amp;quot;u wot m8? Try that again.&amp;quot;)
+
+print(&amp;quot;\nWe&#39;ll now send your move to the quantum referee at IBM.&amp;quot;)
+raw_input()
+print(&amp;quot;It will take your opponents move and compare them.&amp;quot;)
+raw_input()
+print(&amp;quot;But first you&#39;ll have to sign in...\n&amp;quot;)
+
+# prepare qubits
+qubits = eng.allocate_qureg(5)
+
+# referee decides things in the X basis, so we prepare it in the |+&amp;gt; state
+H | qubits[2]
+
+# implement human move
+if (humanMove == &amp;quot;s&amp;quot;):
+	S | qubits[2]
+else:
+	get_inverse(S) | qubits[2]
+
+# opponent qubit is prepared in state |+&amp;gt; to randomly decide the move to make
+H | qubits[opponent]
+
+# to implement the quantum move, first do an S in all cases
+S | qubits[2]
+# then use a controlled-Z to make it into a Sdg if that&#39;s what the quantum player chooses
+H | qubits[2]
+CNOT | (qubits[opponent], qubits[2])
+H | qubits[2]
+
+# quantum player wins if the moves where different, which would leave referee in the |+&amp;gt; state
+# human player wins if the moves were the same
+# we measure in the X basis to see
+H | qubits[2]
+Measure | qubits[2]
+
+eng.flush()  # flush all gates (and execute measurements)
+
+print(&amp;quot;\nThe referee has decided...\n&amp;quot;)
+time.sleep(1)
+if int(qubits[2]):
+	print(&amp;quot;You win!\n&amp;quot;)
+else:
+	print(&amp;quot;You Lose!\n&amp;quot;)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;everything-else&#34;&gt;Everything Else&lt;/h1&gt;
+
+&lt;p&gt;Now we&amp;rsquo;ll only care about the parts of the game that have different ways to write quantum instructions, so we&amp;rsquo;ll go ahead and wrap each one in an &lt;code&gt;if&lt;/code&gt; statement.&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;print(&amp;quot;\n\n\n\n===== Welcome to Cat/Box/Scissors! =====\n\n&amp;quot;)
+print(&amp;quot;  ~~ A game by the Decodoku project ~~ \n\n&amp;quot;)
+print(&amp;quot;When in doubt, press Enter key to continue!&amp;quot;)
+input()
+print(&amp;quot;You and your opponent choose one of two possible moves.&amp;quot;)
+input()
+print(&amp;quot;You win if your moves are the same.&amp;quot;)
+input()
+print(&amp;quot;Your opponent wins if they are different.&amp;quot;)
+input()
+
+print(&amp;quot;How should this quantum program run?&amp;quot;)
+
+chosen = 0
+runMethod = &amp;quot;&amp;quot;
+while chosen == 0:
+    runMethod = input(&amp;quot;\nChoose your method (ibm_sim or ibm_real or cirq or pyquil or projq)\n&amp;quot;)
+    if (runMethod == &amp;quot;ibm_sim&amp;quot;) | (runMethod == &amp;quot;ibm_real&amp;quot;) | (runMethod == &amp;quot;cirq&amp;quot;) \
+            | (runMethod == &amp;quot;pyquil&amp;quot;) | (runMethod == &amp;quot;pq&amp;quot;) | (runMethod == &amp;quot;projq&amp;quot;):
+        chosen = 1
+    else:
+        print(&amp;quot;u wot m8? Try that again.&amp;quot;)
+
+# get human player to choose opponent
+chosen = 0
+opponent = -1
+while chosen == 0:
+    try:
+        opponent = int(input(&amp;quot;\nWhich qubit will be your opponent? (1,2,3, or 4)\n&amp;quot;))
+        if (opponent &amp;gt;= 1) &amp;amp; (opponent &amp;lt;= 4):
+            chosen = 1
+        else:
+            print(&amp;quot;u wot m8? Try that again.&amp;quot;)
+    except ValueError:
+        input(&amp;quot;Try again&amp;quot;)
+
+# here 1 and 2 mean qubits 0 and 1, so change accordingly
+# referee is always qubit 2
+if opponent &amp;lt; 3:
+    opponent = opponent - 1
+
+# get human player to choose move
+chosen = 0
+humanMove = &amp;quot;&amp;quot;
+while chosen == 0:
+    humanMove = input(&amp;quot;\nChoose your move (s or sdg)\n&amp;quot;)
+    if (humanMove == &amp;quot;s&amp;quot;) | (humanMove == &amp;quot;sdg&amp;quot;):
+        chosen = 1
+    else:
+        print(&amp;quot;u wot m8? Try that again.&amp;quot;)
+
+print(&amp;quot;\nWe&#39;ll now send your move to the quantum referee - simulated.&amp;quot;)
+input()
+print(&amp;quot;It will take your opponents move and compare them.&amp;quot;)
+input()
+
+#########
+#
+#  Here&#39;s where the different run methods lie. Take a look at the differences!
+#
+#########
+
+if (runMethod == &amp;quot;ibm_sim&amp;quot;) | (runMethod == &amp;quot;ibm_real&amp;quot;):
+    from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+    from qiskit import execute
+    from qiskit import BasicAer, IBMQ
+    from qiskit.providers.ibmq import least_busy
+
+    q = QuantumRegister(5)
+    c = ClassicalRegister(1)
+    qc = QuantumCircuit(q, c)
+
+    if runMethod == &amp;quot;ibm_sim&amp;quot;:
+        backend = BasicAer.get_backend(&amp;quot;qasm_simulator&amp;quot;)
+    else:
+        import secrets
+        provider = IBMQ.enable_account(secrets.IBM_TOKEN)
+        large_enough_devices = provider.backends(filters=lambda x: x.configuration().n_qubits &amp;gt; 4 and
+                                                               not x.configuration().simulator)
+        backend = least_busy(large_enough_devices)
+        print(&amp;quot;The best IBM simulation backend is &amp;quot; + backend.name())
+
+    # referee decides things in the X basis, so we prepare it in the |+&amp;gt; state
+    qc.h(q[2])
+
+    # implement human move
+    if humanMove == &amp;quot;s&amp;quot;:
+        qc.s(q[2])
+    else:
+        qc.sdg(q[2])
+
+    # opponent qubit is prepared in state |+&amp;gt; to randomly decide the move to make
+    qc.h(q[opponent])
+
+    # to implement the quantum move, first do an S in all cases
+    qc.s(q[2])
+    # then use a controlled-Z to make it into a Sdg if that&#39;s what the quantum player chooses
+    qc.h(q[2])
+    qc.cx(q[opponent], q[2])
+    qc.h(q[2])
+
+    # quantum player wins if the moves where different, which would leave referee in the |+&amp;gt; state
+    # human player wins if the moves were the same
+    # we measure in the X basis to see
+    qc.h(q[2])
+    qc.barrier()
+    qc.measure(q[2], c)
+
+    qc.draw(filename=&amp;quot;circ.txt&amp;quot;)
+
+    # Run the quantum circuit on a statevector simulator backend
+    job = execute(qc, backend, shots=1)
+    result = job.result()
+    counts = result.get_counts(qc)
+    if &amp;quot;1&amp;quot; in counts:
+        print(&amp;quot;You win!&amp;quot;)
+    elif &amp;quot;0&amp;quot; in counts:
+        print(&amp;quot;You lose&amp;quot;)
+    else:
+        print(&amp;quot;Something weird happened&amp;quot;)
+
+
+if runMethod == &amp;quot;cirq&amp;quot;:
+    import cirq
+    from cirq.ops import H, S, CNOT, measure
+
+    qubits = [cirq.GridQubit(0, i) for i in range(5)]
+    q2 = qubits[2]
+    circuit = cirq.Circuit()
+
+    circuit.append(H(q2))
+
+    if humanMove == &amp;quot;s&amp;quot;:
+        circuit.append(S(q2))
+    else:
+        circuit.append(cirq.inverse(S(q2)))
+
+    circuit.append([H(qubits[opponent]),
+                    S(q2),
+                    H(q2),
+                    CNOT(qubits[opponent], q2),
+                    H(q2),
+                    H(q2),
+                    measure(q2, key=&amp;quot;m&amp;quot;)
+                    ])
+
+    print(circuit)
+
+    simulator = cirq.Simulator()
+    results = simulator.run(circuit, repetitions=1)
+    # print(results.histogram(key=&amp;quot;m&amp;quot;))
+    keys = results.histogram(key=&amp;quot;m&amp;quot;).keys()
+
+    for key in keys:
+        if key == 1:
+            print(&amp;quot;You win!&amp;quot;)
+        elif key == 0:
+            print(&amp;quot;You lose&amp;quot;)
+        else:
+            print(&amp;quot;Something weird happened&amp;quot;)
+
+
+# first, must start running compiler and vm using the following commands in terminal
+# quilc -S
+# qvm -S
+if runMethod == &amp;quot;pyquil&amp;quot;:
+    from pyquil.quil import Gate
+    from pyquil.gates import H, CNOT, S
+    from pyquil import Program, get_qc
+    from pyquil.api import local_qvm
+
+    qvm = get_qc(&#39;5q-qvm&#39;)
+    program = Program(H(2))
+
+    if humanMove == &amp;quot;s&amp;quot;:
+        program += S(2)
+    else:
+        program += Gate.dagger(S(2))
+
+    program += [H(opponent), S(2), H(2), CNOT(opponent, 2), H(2), H(2)]
+
+    with local_qvm():
+        results = qvm.run_and_measure(program, trials=1)
+
+    if results[2][0] == 1:
+        print(&amp;quot;You win!&amp;quot;)
+    elif results[2][0] == 0:
+        print(&amp;quot;You lose&amp;quot;)
+    else:
+        print(&amp;quot;Something went weird&amp;quot;)
+
+    # print(results)
+
+if runMethod == &amp;quot;projq&amp;quot;:
+    from projectq import MainEngine
+    from projectq.ops import H, S, Sdag, CNOT, Measure
+
+    eng = MainEngine()
+
+    qubits = eng.allocate_qureg(5)
+    q2 = qubits[2]
+
+    H | q2
+
+    if humanMove == &amp;quot;s&amp;quot;:
+        S | q2
+    else:
+        Sdag | q2
+
+    H | qubits[opponent]
+    S | q2
+    H | q2
+    CNOT | (qubits[opponent], q2)
+    H | q2
+    H | q2
+
+    Measure | q2
+
+    eng.flush()
+
+    if int(q2) == 1:
+        print(&amp;quot;You win!&amp;quot;)
+    elif int(q2) == 0:
+        print(&amp;quot;You lose&amp;quot;)
+    else:
+        print(&amp;quot;Something went weird&amp;quot;)
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h1 id=&#34;conclusion&#34;&gt;Conclusion&lt;/h1&gt;
+
+&lt;p&gt;And that&amp;rsquo;s all there is to it! Of course it&amp;rsquo;s most useful to take a look at the actual documentation when writing each piece of code. But hopefully this quick reference can serve as an introduction to choose how you want to write quantum code!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Formal Verification</title>
+      <link>https://filipmazurek.github.io/projects/formal-verification/</link>
+      <pubDate>Sun, 20 May 2018 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/projects/formal-verification/</guid>
+      <description>&lt;p&gt;&lt;embed src=&#34;ModelingVerificationAutomaticTransmission.pdf&#34; width=&#34;100%&#34; height=&#34;1000px&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>VOOGA</title>
+      <link>https://filipmazurek.github.io/projects/vooga/</link>
+      <pubDate>Sat, 19 May 2018 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/projects/vooga/</guid>
+      <description>
+
+&lt;h1 id=&#34;vooga&#34;&gt;VOOGA&lt;/h1&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/filipmazurek/Vooga-Salad&#34;&gt;Link to the code on GitHub.&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&#34;overview&#34;&gt;Overview&lt;/h4&gt;
+
+&lt;p&gt;VOOGA (Video Object-Oriented Gaming Architecture) is a game authoring engine with a focus on 2D RPG style games, like Pokemon, Evoland, and Zelda. The games that can be constructed are all similar in that there are set number of moveable locations defined in a grid, with only one possible element (character, landscape object, et cetera) occupying that space. Hence, for example, a user&amp;rsquo;s player would not be able to stand in an obstacle cell. We have built a clickable grid in which a user can build an overworld. Certain objects have configurable attributes, such as gates, teleporters, or enemies. The user can then export their overworld to a file which can later be loaded into VOOGA&amp;rsquo;s engine and played like any regular game.&lt;/p&gt;
+
+&lt;p&gt;VOOGA is written in Java and uses JavaFX on the front end.&lt;/p&gt;
+
+&lt;h5 id=&#34;instructions&#34;&gt;Instructions&lt;/h5&gt;
+
+&lt;p&gt;Clone the project down onto your machine and import it into an IDE such as IntelliJ or Eclipse. Add the &lt;code&gt;xstream-1.4.9.jar&lt;/code&gt; file to your buildpath. The application can now be compiled and run.&lt;/p&gt;
+
+&lt;p&gt;Example editor and engine files are located in the &lt;code&gt;example-gamefiles&lt;/code&gt; directory.&lt;/p&gt;
+
+&lt;p&gt;The “build” button on the main menu will direct you to the editor where you can build your own overworld and add characters. First select the default grid size for your project. Then, use the on-screen arrow buttons or scroll with your cursor to navigate around the map. The side tabs in the editor provide full customization tools for your game; with these side control panels, triggered by each tab, you can add objects, players, links, music, and other things to your overworld. You can place an object by selecting it and clicking on the map; you can delete objects by right-clicking them. You can test your game within the editor by navigating to the menu bar and selected Game -&amp;gt; Run Game. You can save your editor for further editing later via File-&amp;gt;Save Project As. You can export your editor to a runnable game file via Game -&amp;gt; Export As Game. From the main menu, you can click the “play” button to load in a game file and play games that you’ve created with the editor.&lt;/p&gt;
+
+&lt;h5 id=&#34;design&#34;&gt;Design&lt;/h5&gt;
+
+&lt;p&gt;Our application is divided into four quadrants that overlap with each other. We have a sharp divide between the editor and engine components of our application. Essentially, the editor and engine could each function as a completely separate program, and could be mixed and matched with other editors or engines to customize the kind of game that you want users to be able to design.&lt;/p&gt;
+
+&lt;p&gt;Both the editor and engine each have a front end and a back end. The editor and engine communicate only through game files that are created and exported by the editor. However, resources used in the editor to build a game must be available to the engine, such as images or sounds. This is because we use XStream in a way that serializes classes but the assets that they may require such as images. Properties files are completely separate so that any user can customize either the editor or engine without affecting the other component.&lt;/p&gt;
+
+&lt;p&gt;The code for the engine and editor are each divided into a model, view, and controller. The model defines the basic building blocks of our games such as block types, players, or other object. The controller interfaces the model with the view and also handles I/O for communicating with the editor or engine. The view holds all of our UI code that uses JavaFX to create a functional GUI. The controller bridges the divide between the front end and back end and is largely a product of both teams.
+Our main goal was to keep the editor and engine separate so that they would be easily extensible for different games types. We wanted it to be possible to create any editor that would be able to interface with our engine, and vice versa, so that our code base could be built on to allow users to build radically different games using our authoring environment.&lt;/p&gt;
+
+&lt;h5 id=&#34;user-interface-design&#34;&gt;User Interface Design&lt;/h5&gt;
+
+&lt;p&gt;At the home page, the user can select between build and play mode. In the play mode, an XML file with a standard overworld design will be loaded. In build mode, the user can build the overworld from a blank canvas and can choose to add obstacles and other NPCs, then the design is saved as an XML file. The canvas is represented as a grid of cells and, in build mode, there is a side menu where objects can be added to the cells by clicking the cell, then selecting an object that appears in a pop up box. The user can also select multiple number of cells by using the mouse to drag and release across the area they desire and are then able to select the object they want to fill each of the selected cells with from a pop up box. As for the game mode user interface, there will be a grid display with the main character as the center of the section of the overworld being displayed (Pokemon display style). There is also a side panel with the current game statistics, such as player health points. Textual dialogs appear as a pop up box at the bottom of the grid display. The game play takes in keyboard input to control the character moving through the overworld.&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;img src=&#34;overworld.png&#34; alt=&#34;Overworld&#34; style=&#34;width:75%&#34;&gt;
+  &lt;figcaption&gt;Game engine running a previously created game.&lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;h5 id=&#34;flexibility&#34;&gt;Flexibility&lt;/h5&gt;
+
+&lt;p&gt;Our final API incorporates both power and simplicity, though we learn more towards simplicity in favor of power. We sought to really stick with the MVC architecture so that it would be easy for any future developer to quickly figure out how all the components of our application work together. Our API is relatively simple: we have a model, view, and controller package, and each of those packages contain separate sub-packages that define functionality for the editor, engine, grid, battles, blocks, et cetera. Thus, it would certainly be easy for any developer to navigate to a specific feature of the game and modify it to their specifications. Furthermore, the authoring environment itself is exceedingly simple, and requires little to no time to pick up and understand. The only feature that is not self-evident is the ability to delete objects via a right-click. Other than that, it is an authoring environment similar to Minecraft. A user need only use the simple, clean side control panels for defining the objects that they want to add to the overworld in addition to any other functionality that they wish to customize within their game. Concise instructions are given throughout the editor that quickly explain how to effectively build a game and errors are thrown when proper building practices are not followed. This functionality prevents users from making mistakes and simultaneously avoids a complicated editor interface where users need to define specific values (i.e. a positional value). Most importantly, a user need not repeatedly test their game to &amp;ldquo;get it right&amp;rdquo;. Because our editor allows you to visualize your game as you build it, the user is provided with an optimal environment for quickly building extensive and powerful games.&lt;/p&gt;
+
+&lt;p&gt;Our authoring environment is also highly flexible because it can be used to design many different kinds of games, like puzzle or battle-based games. Although our authoring environment heavily favors block-based games, users can, for example, user our battle interface to change the kind of experience that players have when playing games built through our application. In terms of the API, developers can easily add to our implementation without violating basic design practice. Because we endeavored to segregate our classes based on the MVC model, there are few features that a user need add to our application that would require a convoluted approach wherein the API would not meet the needs of the developer. However, because of our block-based-centric design, it would be more challenging to implement non-block-based games, which is why our API design leans slightly more in favor of simplicity than power.&lt;/p&gt;
+
+&lt;figure&gt;
+  &lt;img src=&#34;authoring_environment.png&#34; alt=&#34;Authoring environment&#34; style=&#34;width:75%&#34;&gt;
+  &lt;figcaption&gt;Game creation environment involves placing objects on a map.&lt;/figcaption&gt;
+&lt;/figure&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Fermentation Effects Investigation</title>
+      <link>https://filipmazurek.github.io/projects/biology-research/</link>
+      <pubDate>Wed, 20 May 2015 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/projects/biology-research/</guid>
+      <description>&lt;p&gt;&lt;embed src=&#34;linking_probiotics_cancer.pdf&#34; width=&#34;100%&#34; height=&#34;1000px&#34; /&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

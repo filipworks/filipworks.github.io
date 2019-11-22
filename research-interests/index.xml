@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Research-interests | Filip Mazurek</title>
+    <link>https://filipmazurek.github.io/research-interests/</link>
+      <atom:link href="https://filipmazurek.github.io/research-interests/index.xml" rel="self" type="application/rss+xml" />
+    <description>Research-interests</description>
+    <generator>Source Themes Academic (https://sourcethemes.com/academic/)</generator><language>en-us</language><copyright>© 2019</copyright><lastBuildDate>Sun, 01 Sep 2019 00:00:00 +0000</lastBuildDate>
+    <image>
+      <url>https://filipmazurek.github.io/img/icon-192.png</url>
+      <title>Research-interests</title>
+      <link>https://filipmazurek.github.io/research-interests/</link>
+    </image>
+    
+    <item>
+      <title>Compilers for Quantum Code</title>
+      <link>https://filipmazurek.github.io/research-interests/q-compilation/</link>
+      <pubDate>Sun, 01 Sep 2019 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/research-interests/q-compilation/</guid>
+      <description>
+
+&lt;p&gt;Quantum compilers are constantly finding ways to optimize code so that quantum programs have a chance to run on the short coherence times of NISQ computers. They must also work around the noise inherently present in quantum computers. The following are selected readings on compilers which I find most interesting and would like to work on similar projects.&lt;/p&gt;
+
+&lt;h3 id=&#34;noise-adaptive-compiler-mappings-for-noisy-intermediate-scale-quantum-computers&#34;&gt;Noise-Adaptive Compiler Mappings for Noisy Intermediate-Scale Quantum Computers&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.epiqc.cs.uchicago.edu/noise-adaptive-compiler&#34; target=&#34;_blank&#34;&gt;https://www.epiqc.cs.uchicago.edu/noise-adaptive-compiler&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Compilation which takes into account the fact that the error rates on all qubits are not equal. Therefore it is beneficial to map software qubits to hardware qubits to minimize the number of gates on more error-prone qubits.&lt;/p&gt;
+
+&lt;h3 id=&#34;partial-compilation-of-variational-algorithms-for-noisy-intermediate-scale-quantum-machines&#34;&gt;Partial Compilation of Variational Algorithms for Noisy Intermediate-Scale Quantum Machines&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/1909.07522&#34; target=&#34;_blank&#34;&gt;https://arxiv.org/abs/1909.07522&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Variational algorithms such as VQE and QAOA require the quantum circuit be recompiled every time that the parameters change. Optimal compilation would take too long for every iteration of the minimizing function, so it is possible to pre-compile some parts of the quantum circuit.&lt;/p&gt;
+
+&lt;h3 id=&#34;optimal-control-compiler&#34;&gt;Optimal Control Compiler&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.epiqc.cs.uchicago.edu/noise-adaptive-compilation-1&#34; target=&#34;_blank&#34;&gt;https://www.epiqc.cs.uchicago.edu/noise-adaptive-compilation-1&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Logical gates defined in software don&amp;rsquo;t match the gates executable on the hardware, and direct translation from program to pulses results in inefficient quantum computer runs. This can be remediated with a new methodology in which logical operations may be aggregated and given custom control pulses.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quantum Computing Verification</title>
+      <link>https://filipmazurek.github.io/research-interests/q-verification/</link>
+      <pubDate>Sun, 01 Sep 2019 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/research-interests/q-verification/</guid>
+      <description>
+
+&lt;p&gt;As quantum computers slip into the realm where they can&amp;rsquo;t be simulated on classical computers, we need some ways to verify that our programs are correct using formal methods or other techniques. I&amp;rsquo;m interested in the following types of research especially.&lt;/p&gt;
+
+&lt;h3 id=&#34;contract-based-verification-of-a-realistic-quantum-compiler&#34;&gt;Contract-based verification of a realistic quantum compiler&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/1908.08963&#34; target=&#34;_blank&#34;&gt;https://arxiv.org/abs/1908.08963&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;CertiQ is a verification framework for Qiskit, one of the most popular quantum computing libraries. CertiQ allows for a mostly automated verification procedure, checking that every function call complies with its contract. The verification found three bugs in Qiskit compilation code.&lt;/p&gt;
+
+&lt;h3 id=&#34;verified-optimization-in-a-quantum-intermediate-representation&#34;&gt;Verified Optimization in a Quantum Intermediate Representation&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/1904.06319&#34; target=&#34;_blank&#34;&gt;https://arxiv.org/abs/1904.06319&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;In another approach, sQIRe is a sort of &amp;ldquo;quantum assembly&amp;rdquo; language which may be used to formally verify programs. Arguably, it could be used as an intermediate language for other applications in order to guarantee correctness.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quantum Debugging</title>
+      <link>https://filipmazurek.github.io/research-interests/q-debug/</link>
+      <pubDate>Sun, 01 Sep 2019 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/research-interests/q-debug/</guid>
+      <description>
+
+&lt;p&gt;As quantum computing programs get larger and larger, they will invariably contain developers&amp;rsquo; bugs in them. New debugging methods have to be constructed for programmers to catch these bugs. The following paper is one of the possible techniques to go about this, but I am interested in finding more possibilities for debugging.&lt;/p&gt;
+
+&lt;h3 id=&#34;statistical-assertions-for-validating-patterns-and-finding-bugs-in-quantum-programs&#34;&gt;Statistical assertions for validating patterns and finding bugs in quantum programs&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.epiqc.cs.uchicago.edu/assertions-for-quantum-bugs&#34; target=&#34;_blank&#34;&gt;https://www.epiqc.cs.uchicago.edu/assertions-for-quantum-bugs&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;A collection of assert statements gives quantum programmers power to validate that the quantum program progresses as expected. The quantum circuit may be run multiple times and measured at the assert statement to give a statistical measure of program results. The outputs are then compared to the assert statements. Additional checks may be put into place for hard-to-assert problems, such as ones in quantum chemistry.&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Quantum Simulation</title>
+      <link>https://filipmazurek.github.io/research-interests/q-simulation/</link>
+      <pubDate>Sun, 01 Sep 2019 00:00:00 +0000</pubDate>
+      <guid>https://filipmazurek.github.io/research-interests/q-simulation/</guid>
+      <description>
+
+&lt;p&gt;Simulating quantum computers allows us to study quantum circuit behavior in customizable conditions. Doing so paves the way to running our quantum algorithms on real quantum devices. I am interested in how we can leverage NISQ computers to prepare for computers with an increasing number of qubits. The following are two articles which are representative of the research I&amp;rsquo;m interested in.&lt;/p&gt;
+
+&lt;h3 id=&#34;amplitude-aware-lossy-compression-for-quantum-circuit-simulation&#34;&gt;Amplitude-Aware Lossy Compression for Quantum Circuit Simulation&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/1811.05140&#34; target=&#34;_blank&#34;&gt;https://arxiv.org/abs/1811.05140&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Lossy compression can achieve lots of data reduction in exchange for only small losses in accuracy. The effectiveness is dependent on the algorithm being run, so specific circuits like Grover&amp;rsquo;s search could offer an increase of 18 additional simulatable qubits. This is after a demonstration that most current supercomputers could not be able to simulate more than 49 qubits (keeping in mind this was in Nov 2018).&lt;/p&gt;
+
+&lt;h3 id=&#34;simulating-large-quantum-circuits-on-a-small-quantum-computer&#34;&gt;Simulating large quantum circuits on a small quantum computer&lt;/h3&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://arxiv.org/abs/1904.00102&#34; target=&#34;_blank&#34;&gt;https://arxiv.org/abs/1904.00102&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;In instances of simulations where a large system is comprised of many other smaller, weakly-interacting systems, the simulation could be cut into several other smaller circuits. This method can be applied to simulations of clustered systems such as some molecules, as well as to variational algorithms such as VQE.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

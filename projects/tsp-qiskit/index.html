@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 4.5.0">
+
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Filip Mazurek">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="Using QAOA to solve the traveling salesman problem. Done by two different methods using PyQuil and Qiskit.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="https://filipmazurek.github.io/projects/tsp-qiskit/">
+
+  
+
+
+  
+  
+  
+  <meta name="theme-color" content="#2962ff">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css" integrity="sha384-aOkxzJ5uQz7WBObEZcHvV5JvRW3TUc2rNPA7pe3AwnsUohiw1Vj2Rgx2KSOkF5+h" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin="anonymous">
+    
+
+    
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/css/academic.min.1884ccbe79662c38d99b291260b58a24.css">
+
+  
+
+  
+
+
+
+
+  
+
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon-32.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="https://filipmazurek.github.io/projects/tsp-qiskit/">
+
+  
+  
+  
+  
+    
+  
+  
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="Filip Mazurek">
+  <meta property="og:url" content="https://filipmazurek.github.io/projects/tsp-qiskit/">
+  <meta property="og:title" content="Quantum Traveling Salesman | Filip Mazurek">
+  <meta property="og:description" content="Using QAOA to solve the traveling salesman problem. Done by two different methods using PyQuil and Qiskit."><meta property="og:image" content="https://filipmazurek.github.io/projects/tsp-qiskit/featured.png">
+  <meta property="twitter:image" content="https://filipmazurek.github.io/projects/tsp-qiskit/featured.png"><meta property="og:locale" content="en-us">
+  
+    
+      <meta property="article:published_time" content="2019-10-17T00:00:00&#43;00:00">
+    
+    <meta property="article:modified_time" content="2019-10-17T00:00:00&#43;00:00">
+  
+
+  
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  <title>Quantum Traveling Salesman | Filip Mazurek</title>
+
+</head>
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" >
+
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+  
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0 compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Filip Mazurek</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav mr-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#about"><span>Home</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#projects"><span>Projects</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#research-interests"><span>Research</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#experience"><span>Experience</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/files/mazurek_resume.pdf"><span>CV</span></a>
+        </li>
+
+        
+        
+
+      
+      </ul>
+      <ul class="navbar-nav ml-auto">
+      
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-dark-toggle" href="#"><i class="fas fa-moon" aria-hidden="true"></i></a>
+        </li>
+        
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+  <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+
+<div class="article-container pt-3">
+  <h1>Quantum Traveling Salesman</h1>
+
+  
+
+  
+
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+    
+    Oct 17, 2019
+  </span>
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+  
+
+  
+    
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://twitter.com/intent/tweet?url=https://filipmazurek.github.io/projects/tsp-qiskit/&amp;text=Quantum%20Traveling%20Salesman" target="_blank" rel="noopener" class="share-btn-twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.facebook.com/sharer.php?u=https://filipmazurek.github.io/projects/tsp-qiskit/&amp;t=Quantum%20Traveling%20Salesman" target="_blank" rel="noopener" class="share-btn-facebook">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="mailto:?subject=Quantum%20Traveling%20Salesman&amp;body=https://filipmazurek.github.io/projects/tsp-qiskit/" target="_blank" rel="noopener" class="share-btn-email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.linkedin.com/shareArticle?url=https://filipmazurek.github.io/projects/tsp-qiskit/&amp;title=Quantum%20Traveling%20Salesman" target="_blank" rel="noopener" class="share-btn-linkedin">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://web.whatsapp.com/send?text=Quantum%20Traveling%20Salesman%20https://filipmazurek.github.io/projects/tsp-qiskit/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://service.weibo.com/share/share.php?url=https://filipmazurek.github.io/projects/tsp-qiskit/&amp;title=Quantum%20Traveling%20Salesman" target="_blank" rel="noopener" class="share-btn-weibo">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 720px; max-height: 475px;">
+  <div style="position: relative">
+    <img src="/projects/tsp-qiskit/featured_hu32d8b1d271222b43916f63644d669334_274524_720x0_resize_lanczos_2.png" alt="" class="featured-image">
+    
+  </div>
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+
+<p>Filip Mazurek</p>
+
+<h1 id="introduction">Introduction</h1>
+
+<p>This notebook will go over the basics of solving the traveling salesman problem (TSP) using <a href="https://arxiv.org/abs/1411.4028" target="_blank">QAOA</a>. While not everything will be covered here, the complete code can be found on my <a href="https://github.com/filipmazurek?tab=repositories" target="_blank">GitHub</a> and the original can be found on the original author&rsquo;s <a href="https://github.com/mstechly/quantum_tsp_tutorials" target="_blank">Jupyter Notebook</a>.</p>
+
+<p>The aim of the code written for this notebook was to extend the original work done for it. Namely, the algorithm was redone using the Qiskit library. Furthermore, I added more code to test the efficacy of the chosen Hamiltonians, including testing whether a valid city order was chosen even in the absence of visitation distance constraints. While I failed to find a more optimal Hamiltonian, this provides a base for further investigation.</p>
+
+<p>This notebook will have three sections: the first will quickly give an overview of solving the traveling salesman problem using QAOA, the second will explicitly show the problem of having correct outputs, and then the third will be  a link to my GitHub with the descriptions of all the extensions that were done from the original Jupyter Notebook.</p>
+
+<h1 id="traveling-salesman-problem">Traveling Salesman Problem</h1>
+
+<p>This TSP that we are solving will be formulated as a collection of $n$ number of coordinate points on a 2D plane. The goal is to find a path which visits all coordinate points and returns to the starting point while minimizing the total distance traveled.</p>
+
+<p><img src="traveling-salesman-points.png" alt="Points connected for shortest distance" width="40%"/></p>
+
+<h2 id="qaoa">QAOA</h2>
+
+<p>One quantum strategy to solve the TSP is to use QAOA. To do so, we have to decide on a cost Hamiltonian and a mixing Hamiltonian, where the cost Hamiltonian is the cost function for the whole problem.</p>
+
+<h2 id="encoding-the-problem">Encoding the Problem</h2>
+
+<p>So now there&rsquo;s the problem of how to translate the TSP in such a way that we can use QAOA to solve it. For example, consider that we have four cities and we want to find an ordering of them. Of course for an ordering of 0 -&gt; 1 -&gt; 3 -&gt; 2 , we can use a Python array of <code>[0,1,3,2]</code>.</p>
+
+<p>One way which we can encode this sort of information on a quantum computer is to consider $n^2$ qubits, where $n$ is the number of cities in the TSP. Since there are $n$ cities, there are $n$ time units taken to visit all of them. Therefore we construct the first $n$ qubits to be the first time step, the second $n$ qubits to be the second time step, etc. Within each time step, the one qubit which is a $|1\rangle$ is the &ldquo;city&rdquo; which is visited. All other qubit values should be $|0\rangle$, to indicate that they are not being visited.</p>
+
+<p>This means that our above example of <code>[0, 1, 3, 2]</code> will be encoded using qubits as</p>
+
+<p>$\begin{bmatrix}
+1 &amp; 0 &amp; 0 &amp; 0 \\<br />
+0 &amp; 1 &amp; 0 &amp; 0 \\<br />
+0 &amp; 0 &amp; 0 &amp; 1 \\<br />
+0 &amp; 0 &amp; 1 &amp; 0 \\<br />
+\end{bmatrix}$</p>
+
+<p>Which translates into the following string of qubits:</p>
+
+<p><code>[1,0,0,0, 0,1,0,0, 0,0,0,1, 0,0,1,0]</code></p>
+
+<p>Now the first part of the problem is that we want to make sure that the cities are able to be listed out in an order that makes sense, since this by itself is not trivial.</p>
+
+<h2 id="solving-the-two-city-case">Solving the Two City Case</h2>
+
+<p>Say that we only have two cities. Following from our qubit descriptions above, this means that our program will use four qubits, and the only two possible results should be <code>[0,1, 1,0]</code> and <code>[1,0, 0,1]</code>. These two cases represent first visiting city 0 then 1, the second case being first visiting city 1 then 0.</p>
+
+<p>To achieve just this, we need to build a cost Hamiltonian. This Hamiltonian will need to achieve two things: penalize if a city is visited more than once and penalize if more than one city is visited in the same time step. At the same time, we need to make sure that one city is visited during a time step.</p>
+
+<p>Let&rsquo;s call the cities city A and city B, to make it easier to talk about them. The two city case therefore uses four qubits, numbered 0 to 3:
+Qubit 0 is city A at time = 0
+Qubit 1 is city B at time = 0
+Qubit 2 is city A at time = 1
+Qubit 3 is city B at time = 1</p>
+
+<p>Then we construct the cost Hamiltonian by creating penalty terms between impossible situations. First, we add penalties for visiting the same city multiple times. So we add penalty terms between qubits 0 and 2, and between 1 and 3. Let&rsquo;s build this using the matrix visualization utility. All the following can be found in the matrix visualization project section of the page.</p>
+
+<p>Note that the qubit ordering here is left to right.</p>
+
+<pre><code class="language-python">from numpy import kron as k
+from numpy import subtract as sub
+from numpy import add
+from numpy import array
+import numpy as np
+
+
+pauli_Z = array([[1, 0], [0, -1]])
+identity = array([[1, 0], [0, 1]])
+
+Z = pauli_Z
+I = identity
+
+z0 = k(k(k(Z, I), I), I)
+z1 = k(k(k(I, Z), I), I)
+z2 = k(k(k(I, I), Z), I)
+z3 = k(k(k(I, I), I), Z)
+I4 = k(k(k(I, I), I), I)
+</code></pre>
+
+<pre><code class="language-python">def create_penalty_for_range_02():
+    weight = -100
+
+    z_term = z0 * -100
+    all_ones_term = sub(I4 * -50, z0 * -50)
+
+    z_term = z_term.dot(z2)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z2 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+
+
+def create_penalty_for_range_13():
+    weight = -100
+
+    z_term = z1 * -100
+    all_ones_term = sub(I4 * -50, z1 * -50)
+
+    z_term = z_term.dot(z3)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z3 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+</code></pre>
+
+<p>Then we do the same for visiting multiple cities in the same time step. So we add a penalty for between qubits 0 and 1 and between qubits 2 and 3.</p>
+
+<pre><code class="language-python">def create_penalty_for_range_01():
+    weight = -100
+
+    z_term = z0 * -100
+    all_ones_term = sub(I4 * -50, z0 * -50)
+
+    z_term = z_term.dot(z1)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z1 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+
+
+def create_penalty_for_range_23():
+    weight = -100
+
+    z_term = z2 * -100
+    all_ones_term = sub(I4 * -50, z2 * -50)
+
+    z_term = z_term.dot(z3)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z3 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+</code></pre>
+
+<p>Now we can add up all these penalty terms to find the part of the cost Hamiltonian which focuses on visiting valid cities.</p>
+
+<pre><code class="language-python">same_city_penalty = add(add(add(create_penalty_for_range_02(),
+                                create_penalty_for_range_13()),
+                            create_penalty_for_range_01()),
+                        create_penalty_for_range_23())
+print(same_city_penalty)
+</code></pre>
+
+<pre><code>[[   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0. -400.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0. -400.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0. -300.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0. -400.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0. -300.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0. -800.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0. -200.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0. -400.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0. -800.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0. -300.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0. -200.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+  -300.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0. -200.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0. -200.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.  400.]]
+</code></pre>
+
+<h1 id="running-on-a-quantum-computer">Running on a Quantum Computer</h1>
+
+<p>Now we can take this simplest case and run it as a QAOA problem. Note that the code added here is a subset of the full algorithm on my GitHub. We&rsquo;ll first run the code on a two-city example to show off performance and accuracy. The below is written as a Qiskit implementation partly using Qiskit Aqua&rsquo;s <code>tsp</code> library. However, this code takes a long time to the beta and gamma angle parameters. The code which this is based on can be found as part of a quantum machine learning course offered by edX &ndash; the code is on <a href="https://github.com/Qiskit/qiskit-community-tutorials/blob/41dfb73df77595c5d5078164ddecfd915e24897b/awards/teach_me_quantum_2018/qml_mooc/07_Variational%20Circuits.ipynb" target="_blank">GitHub</a>.</p>
+
+<pre><code class="language-python">import warnings
+warnings.filterwarnings('ignore')
+
+from qiskit.quantum_info import Pauli
+from qiskit.aqua import Operator
+import numpy as np
+from functools import partial, reduce
+from qiskit.aqua.components.initial_states import Custom
+from qiskit import QuantumRegister, Aer, BasicAer, execute
+from scipy.optimize import minimize
+from qiskit.aqua.translators.ising import tsp
+from results_visualization import list_to_easier_vis
+np.set_printoptions(precision=3, suppress=True)
+
+
+def pauli_i(coeff, n_q):
+    id_pauli = Pauli(np.zeros(n_q), np.zeros(n_q))
+    return Operator([[coeff, id_pauli]])
+
+
+def pauli_x(qubit, coeff, n_q):
+    eye = np.eye(n_q)
+    return Operator([[coeff, Pauli(np.zeros(n_q), eye[qubit])]])
+
+
+def pauli_z(qubit, coeff, n_q):
+    eye = np.eye(n_q)
+    return Operator([[coeff, Pauli(eye[qubit], np.zeros(n_q))]])
+
+
+def product_pauli_z(q1, q2, coeff, n_q):
+    eye = np.eye(n_q)
+    return Operator([[coeff, Pauli(eye[q1], np.zeros(n_q)) * Pauli(eye[q2], np.zeros(n_q))]])
+
+
+def evolve(hamiltonian, angle, quantum_registers):
+    return hamiltonian.evolve(None, angle, 'circuit', 1,
+                              quantum_registers=quantum_registers,
+                              expansion_mode='suzuki',
+                              expansion_order=3)
+
+
+def create_circuit(qr, gamma, beta, p, m_H, c_H, init_circ):
+    circuit_evolv = reduce(lambda x, y: x + y, [evolve(m_H, beta[i], qr) + evolve(c_H, gamma[i], qr)
+                                                for i in range(p)])
+    circuit = init_circ + circuit_evolv
+    return circuit
+
+
+def neg_evaluate_circuit(gamma_beta, qr, p, m_H, c_H, init_circ):
+    n = len(gamma_beta)//2
+    circuit = create_circuit(qr, gamma_beta[:n], gamma_beta[n:], p, m_H=m_H,  c_H=c_H, init_circ=init_circ)
+    return np.real(c_H.eval(&quot;matrix&quot;, circuit, Aer.get_backend('statevector_simulator'))[0])
+
+
+def create_weights_cost_operators(num_cities, num_qubits, dist_mat):
+    cost_operator = None
+
+    for i in range(num_cities):
+        for j in range(i, num_cities):
+            for t in range(num_cities - 1):
+                weight = dist_mat[i][j] / 2
+                if dist_mat[i][j] != 0:
+                    qubit_1 = t * num_cities + i
+                    qubit_2 = (t + 1) * num_cities + j
+                    if cost_operator is None:
+                        cost_operator = pauli_i(weight, num_qubits) - \
+                                        product_pauli_z(qubit_1, qubit_2, weight, num_qubits)
+                    else:
+                        cost_operator += pauli_i(weight, num_qubits) - \
+                                         product_pauli_z(qubit_1, qubit_2, weight, num_qubits)
+    return cost_operator
+
+
+def create_penalty_operators_for_bilocation(num_cities, distance_mat, num_qubits):
+    # TODO: big problems here. It likes position 1010 WAAY too much (= 0.88) (in two city case)
+    penalty_operators = None
+    for t in range(num_cities):  # adding penalty for being in multiple cities at the same time point
+        range_of_qubits = list(range(t * num_cities, (t + 1) * num_cities))
+        print(range_of_qubits)
+        if penalty_operators is None:
+            penalty_operators = create_penalty_operators_for_qubit_range(range_of_qubits, distance_mat, num_qubits)
+        else:
+            penalty_operators += create_penalty_operators_for_qubit_range(range_of_qubits, distance_mat, num_qubits)
+
+    return penalty_operators
+
+
+def create_penalty_operators_for_repetition(num_cities, distance_mat, num_qubits):
+    # TODO: big problems here. It likes position 1100 WAAY too much (= 0.88) (in two city case)
+    penalty_operators = None
+    for i in range(num_cities):  # add penalty for visiting the same city more than once
+        range_of_qubits = list(range(i, num_cities ** 2, num_cities))
+        print(range_of_qubits)
+        if penalty_operators is None:
+            penalty_operators = create_penalty_operators_for_qubit_range(range_of_qubits, distance_mat, num_qubits)
+        else:
+            penalty_operators += create_penalty_operators_for_qubit_range(range_of_qubits, distance_mat, num_qubits)
+    return penalty_operators
+
+
+def create_penalty_operators_for_qubit_range(range_of_qubits, dist_mat, n_q):
+    penalty_weight = 100 * np.max(dist_mat)
+    cost_operators = None
+    for i in range_of_qubits:
+        if i == range_of_qubits[0]:
+            z_term = pauli_z(qubit=i, coeff=penalty_weight, n_q=n_q)
+            all_ones_term = pauli_i(coeff=.5 * penalty_weight, n_q=n_q) - pauli_z(qubit=i, coeff=0.5 * penalty_weight, n_q=n_q)
+        else:
+            z_term = z_term * pauli_z(qubit=i, coeff=1, n_q=n_q)
+            all_ones_term = all_ones_term * (pauli_i(coeff=.5, n_q=n_q) - pauli_z(qubit=i, coeff=0.5, n_q=n_q))
+
+        if cost_operators is None:
+            cost_operators = pauli_i(penalty_weight, n_q) - z_term - all_ones_term
+        else:
+            cost_operators += pauli_i(penalty_weight, n_q) - z_term - all_ones_term
+
+    return cost_operators
+
+
+def main(run_mode):
+    # graph of city coordinates
+    cities = np.array([[0, 0], [0, 1]])  # coordinates of the cities
+    num_cities = len(cities)
+    num_qubits = num_cities ** 2
+
+    # algorithm properties
+    p = 2  # number of time steps
+    beta = np.random.uniform(0, np.pi * 2, p)
+    gamma = np.random.uniform(0, np.pi * 2, p)
+
+    # create matrix of distances between cities
+    distance_mat = tsp.calc_distance(cities).w  # note that this method does integer distances
+
+    # create mixing Hamiltonian. A city may or may not be visited in a timestep
+    mixing_hamiltonian = reduce(lambda x, y: x + y,
+                                [pauli_x(i, 1, num_qubits) for i in range(num_qubits)])
+
+    # penalty_operators = create_weights_cost_operators(num_cities=num_cities, num_qubits=num_qubits,
+    #                                                   dist_mat=distance_mat)
+    penalty_operators = create_penalty_operators_for_bilocation(num_qubits=num_qubits, num_cities=num_cities,
+                                                                 distance_mat=distance_mat)
+    penalty_operators += create_penalty_operators_for_repetition(num_qubits=num_qubits, num_cities=num_cities,
+                                                                 distance_mat=distance_mat)
+
+    print(penalty_operators)
+    cost_hamiltonian = penalty_operators
+
+    # circuit initial state vector. All states in equal superposition
+    init_state_vect = [1 for i in range(2 ** num_qubits)]
+    init_state = Custom(num_qubits, state_vector=init_state_vect)
+
+    # initialize quantum circuit
+    qr = QuantumRegister(num_qubits, name='q')
+    init_circ = init_state.construct_circuit('circuit', qr)
+
+    # find optimal beta and gamma
+    evaluate = partial(neg_evaluate_circuit, qr=qr, p=p, m_H=mixing_hamiltonian, c_H=cost_hamiltonian,
+                       init_circ=init_circ)
+    print(&quot;Looking for optimal beta and gamma&quot;)
+    # TODO: maybe we should use a different or faster method of finding the min? Super long even with two cities
+    result = minimize(evaluate, np.concatenate([gamma, beta]), method='L-BFGS-B')
+    # result = minimize(evaluate, np.concatenate([gamma, beta]))
+
+    print(result)
+
+    # now use the result of the gathered angles to find the answer
+    circuit = create_circuit(qr, result['x'][:p], result['x'][p:], p, m_H=mixing_hamiltonian, c_H=cost_hamiltonian,
+                             init_circ=init_circ)
+
+    if run_mode == &quot;IBM quantum&quot;:
+        import secrets
+        from qiskit import IBMQ
+        from qiskit.providers.ibmq import least_busy
+
+        provider = IBMQ.enable_account(secrets.IBM_TOKEN)
+        large_enough_devices = provider.backends(filters=lambda x: x.configuration().n_qubits &gt; 4 and
+                                                                   not x.configuration().simulator)
+        backend = least_busy(large_enough_devices)
+        print(&quot;This will be running on the IBM device &quot; + backend.name())
+
+    else:
+        print(&quot;Preparing to run on local simulator&quot;)
+        backend = BasicAer.get_backend('statevector_simulator')
+
+    job = execute(circuit, backend)
+    state = np.asarray(job.result().get_statevector(circuit))
+    print(list_to_easier_vis(np.absolute(state)))
+
+
+main(run_mode=&quot;sim&quot;)
+</code></pre>
+
+<pre><code>[0, 1]
+[2, 3]
+[0, 2]
+[1, 3]
+Representation: paulis, qubits: 4, size: 9
+Looking for optimal beta and gamma
+      fun: 244.8597191241482
+ hess_inv: &lt;4x4 LbfgsInvHessProduct with dtype=float64&gt;
+      jac: array([-0.014,  0.   , -0.   , -0.   ])
+  message: b'CONVERGENCE: REL_REDUCTION_OF_F_&lt;=_FACTR*EPSMCH'
+     nfev: 150
+      nit: 19
+   status: 0
+  success: True
+        x: array([4.081, 1.9  , 4.35 , 0.398])
+Preparing to run on local simulator
+{'0000': 0.5074293080932455, '0001': 0.08389827713721104, '0010': 0.12487737720594391, '0011': 0.25253594977274596, '0100': 0.12487737720594448, '0101': 0.25253594977274696, '0110': 0.11649122579589484, '0111': 0.08389827713721305, '1000': 0.18889230462758796, '1001': 0.11649122579589463, '1010': 0.3020975725542607, '1011': 0.1248773772059434, '1100': 0.30209757255425984, '1101': 0.1248773772059429, '1110': 0.18889230462758663, '1111': 0.5074293080932352}
+</code></pre>
+
+<h2 id="interpreting-the-results">Interpreting the Results</h2>
+
+<p>Now we can take a look at the printed results of the Qiskit QAOA results. The dictionary of results is presented as a list of coefficients for the complete wavefunction. Meaning that the actual probability of each result is the coefficient squared.</p>
+
+<p>Unfortunately, it looks like our Hamiltonians may be inadequate. Recall that the only &ldquo;valid&rdquo; results that we are looking for are <code>0110</code> and <code>1001</code>. But those results are not even close to being the most prevalent. These results warrant further steps into investigating where the issues are. I&rsquo;m betting that the Hamiltonians can be constructed better.</p>
+
+<p>But rather than hunting for errors, let&rsquo;s take a look at another example. This code comes from Michał Stęchny, and it served as an inspiration for me to redo his project in Qiskit with a slightly different take.</p>
+
+<h2 id="another-example">Another Example</h2>
+
+<p>Here&rsquo;s another example which uses Rigetti&rsquo;s libraries to solve the same problem. We run the problem with only two cities. Let&rsquo;s run this and take a look at the results.</p>
+
+<pre><code class="language-python">&quot;&quot;&quot;
+Written by Michał Stęchny. https://github.com/mstechly
+Adapted by Filip Mazurek
+&quot;&quot;&quot;
+
+import numpy as np
+from grove.pyqaoa.qaoa import QAOA
+from pyquil import get_qc
+import scipy
+from pyquil.paulis import PauliTerm, PauliSum
+from rigetti_result_analysis import error_binary_state_to_points_order
+from forest_utils_ms import *
+
+
+class ForestTSPSolver(object):
+    def __init__(self, distance_matrix, steps=1, ftol=1.0e-2, xtol=1.0e-2, use_constraints=False,
+                 add_weight_constraints=True):
+
+        self.distance_matrix = distance_matrix
+        self.number_of_qubits = self.get_number_of_qubits()
+        self.qvm = get_qc(str(self.number_of_qubits) + &quot;q-qvm&quot;)
+        self.steps = steps
+        self.ftol = ftol
+        self.xtol = xtol
+        self.betas = None
+        self.gammas = None
+        self.qaoa_inst = None
+        self.solution = None
+        self.naive_distribution = None
+        self.most_frequent_string = None
+        self.sampling_results = None
+        self.use_constraints = use_constraints
+        self.add_weight_constraints = add_weight_constraints
+
+        self.sensible_distribution = None
+
+        cost_operators = self.create_cost_operators()
+        driver_operators = self.create_driver_operators()
+
+        minimizer_kwargs = {'method': 'Nelder-Mead',
+                                'options': {'ftol': self.ftol, 'xtol': self.xtol,
+                                            'disp': False}}
+
+        # vqe_option = {'disp': print_fun, 'return_all': True,
+        #               'samples': None}
+
+        qubits = list(range(self.number_of_qubits))
+
+        self.qaoa_inst = QAOA(self.qvm, qubits, steps=self.steps, cost_ham=cost_operators, ref_ham=driver_operators,
+                              store_basis=True, minimizer=scipy.optimize.minimize, minimizer_kwargs=minimizer_kwargs,
+                              # vqe_options=vqe_option
+                              )
+
+    def solve_tsp(self):
+        &quot;&quot;&quot;
+        Calculates the optimal angles (betas and gammas) for the QAOA algorithm
+        and returns a list containing the order of nodes.
+        &quot;&quot;&quot;
+        self.find_angles()
+        self.calculate_solution()
+        return self.solution, self.naive_distribution
+
+    def find_angles(self):
+        &quot;&quot;&quot;
+        Runs the QAOA algorithm for finding the optimal angles.
+        &quot;&quot;&quot;
+        self.betas, self.gammas = self.qaoa_inst.get_angles()
+        print(&quot;betas: &quot;, self.betas)
+        print(&quot;gammas: &quot;, self.gammas)
+        return self.betas, self.gammas
+
+    def calculate_solution(self):
+        &quot;&quot;&quot;
+        Samples the QVM for the results of the algorithm
+        and returns a list containing the order of nodes.
+        &quot;&quot;&quot;
+        most_frequent_string, sampling_results = self.qaoa_inst.get_string(self.betas, self.gammas, samples=10000)
+        self.most_frequent_string = most_frequent_string
+        self.sampling_results = sampling_results
+        self.solution = binary_state_to_points_order(most_frequent_string)
+
+        print()   # uncomment to show raw sampling results
+        print(&quot;Raw sampling results: &quot;)
+        print(sampling_results)
+
+        all_solutions = sampling_results.keys()
+        naive_distribution = {}
+        for sol in all_solutions:
+            points_order_solution = error_binary_state_to_points_order(sol)
+            # the following is only true during error conditions of qubits
+            if tuple(points_order_solution) in naive_distribution.keys():
+                naive_distribution[tuple(points_order_solution)] += sampling_results[sol]
+            else:
+                naive_distribution[tuple(points_order_solution)] = sampling_results[sol]
+
+        # TODO: make use of sensible_distribution as well as naive
+        self.naive_distribution = naive_distribution
+
+    def create_cost_operators(self):
+        cost_operators = []
+        if self.add_weight_constraints:
+            cost_operators += self.create_weights_cost_operators()
+        if self.use_constraints:
+            cost_operators += self.create_penalty_operators_for_bilocation()
+            cost_operators += self.create_penalty_operators_for_repetition()
+
+        return cost_operators
+
+    def create_penalty_operators_for_bilocation(self):
+        # Additional cost for visiting more than one node in given time t
+        cost_operators = []
+        number_of_nodes = len(self.distance_matrix)
+        for t in range(number_of_nodes):
+            range_of_qubits = list(range(t * number_of_nodes, (t + 1) * number_of_nodes))
+            cost_operators += self.create_penalty_operators_for_qubit_range(range_of_qubits)
+
+        # print()
+        # print(&quot;Cost operators for bilocation: &quot;)
+        # print(cost_operators)  # uncomment to see cost operator
+
+        return cost_operators
+
+    def create_penalty_operators_for_repetition(self):
+        # Additional cost for visiting given node more than one time
+        cost_operators = []
+        number_of_nodes = len(self.distance_matrix)
+        for i in range(number_of_nodes):
+            range_of_qubits = list(range(i, number_of_nodes ** 2, number_of_nodes))
+            cost_operators += self.create_penalty_operators_for_qubit_range(range_of_qubits)
+
+        # print()  # uncomment to see cost operator
+        # print(&quot;Cost operators for repetition: &quot;)
+        # print(cost_operators)
+
+        return cost_operators
+
+    def create_penalty_operators_for_qubit_range(self, range_of_qubits):
+        cost_operators = []
+        weight = -100 * np.max(self.distance_matrix)
+        for i in range_of_qubits:
+            if i == range_of_qubits[0]:
+                z_term = PauliTerm(&quot;Z&quot;, i, weight)
+                all_ones_term = PauliTerm(&quot;I&quot;, 0, 0.5 * weight) - PauliTerm(&quot;Z&quot;, i, 0.5 * weight)
+            else:
+                z_term = z_term * PauliTerm(&quot;Z&quot;, i)
+                all_ones_term = all_ones_term * (PauliTerm(&quot;I&quot;, 0, 0.5) - PauliTerm(&quot;Z&quot;, i, 0.5))
+
+        z_term = PauliSum([z_term])
+        cost_operators.append(PauliTerm(&quot;I&quot;, 0, weight) - z_term - all_ones_term)
+
+        return cost_operators
+
+    def create_weights_cost_operators(self):
+        cost_operators = []
+        number_of_nodes = len(self.distance_matrix)
+
+        for i in range(number_of_nodes):
+            for j in range(i, number_of_nodes):
+                for t in range(number_of_nodes - 1):
+                    weight = -self.distance_matrix[i][j] / 2
+                    if self.distance_matrix[i][j] != 0:
+                        qubit_1 = t * number_of_nodes + i
+                        qubit_2 = (t + 1) * number_of_nodes + j
+                        cost_operators.append(
+                            PauliTerm(&quot;I&quot;, 0, weight) - PauliTerm(&quot;Z&quot;, qubit_1, weight) * PauliTerm(&quot;Z&quot;, qubit_2))
+
+        return cost_operators
+
+    def create_driver_operators(self):
+        driver_operators = []
+
+        for i in range(self.number_of_qubits):
+            driver_operators.append(PauliSum([PauliTerm(&quot;X&quot;, i, -1.0)]))
+
+        return driver_operators
+
+    def get_number_of_qubits(self):
+        return len(self.distance_matrix) ** 2
+
+
+def print_fun(x):
+    # print(x)
+    pass
+
+
+cities = [[0, 0], [0, 1]]
+distance_matrix = get_distance_matrix(cities)
+solver = ForestTSPSolver(distance_matrix, steps=2, ftol=1.0e-2, xtol=1.0e-2, use_constraints=True,
+                         add_weight_constraints=False)
+sol, dist = solver.solve_tsp()
+print()
+print(sol)
+print()
+print(dist)
+
+</code></pre>
+
+<pre><code>WARNING: Fast method for expectation will be used. Noise
+                     models will be ineffective
+betas:  [1.83163777 2.15788585]
+gammas:  [6.16385162 5.25559322]
+
+Raw sampling results:
+Counter({(1, 0, 0, 1): 3742, (0, 1, 1, 0): 3594, (0, 0, 0, 0): 625, (1, 1, 1, 1): 407, (0, 0, 1, 0): 309, (1, 0, 0, 0): 297, (0, 1, 0, 0): 297, (0, 0, 0, 1): 280, (1, 1, 0, 0): 112, (0, 0, 1, 1): 94, (1, 0, 1, 0): 88, (0, 1, 0, 1): 87, (1, 0, 1, 1): 22, (0, 1, 1, 1): 16, (1, 1, 0, 1): 15, (1, 1, 1, 0): 15})
+
+[0, 1]
+
+{(-1,): 2489, (1, 0): 3594, (0, 1): 3742, (1, 1): 87, (0, 0): 88}
+</code></pre>
+
+<p>Now here are some pretty interesting results. And slightly disheartening as well. First, let&rsquo;s take a look at the raw sampling results. While the two valid results come up as the most prevalent solutions, the margin between them and the rest of the possible results is not that great. Especially considering that this is only for the case with two cities.</p>
+
+<p>When we take a look at the last line, all nonsensical results were classified into the <code>(-1,)</code> label. These include all the cases when more than one city is visited at one time, as well as when no cities are visited at any time point. As can be seen, these nonsensical results make up more than a third of the possible results.</p>
+
+<p>However! Take solace in the fact that we were able to get possible results in the first place &ndash; and from a quantum computer no less! For this specific problem, further time and research will need to be dedicated to find better ways to run this solver.</p>
+
+<h1 id="conclusions">Conclusions</h1>
+
+<p>Hopefully the above was instructive in a more &ldquo;practical&rdquo; problem solution for quantum computers. I hope to be able to improve both the Qiskit and PyQuil versions by doing a more in-depth analysis of the runtimes and analyze the circuit models of both approaches.</p>
+
+<p>For the curious, below is the PyQuil version of the code finding arrangements of three cities. This uses 9 qubits and takes significantly longer to run (around 10 minutes). Check out the results below.</p>
+
+<pre><code class="language-python">cities = [[0, 0], [0, 1], [1, 1]]
+distance_matrix = get_distance_matrix(cities)
+solver = ForestTSPSolver(distance_matrix, steps=2, ftol=1.0e-2, xtol=1.0e-2, use_constraints=True,
+                         add_weight_constraints=False)
+sol, dist = solver.solve_tsp()
+print()
+print(sol)
+print()
+print(dist)
+</code></pre>
+
+<pre><code>WARNING: Fast method for expectation will be used. Noise
+                     models will be ineffective
+betas:  [2.05006381 2.99135792]
+gammas:  [1.35174587 5.73163097]
+
+Raw sampling results:
+Counter({(0, 1, 0, 0, 0, 1, 1, 0, 0): 301, (0, 1, 0, 1, 0, 0, 0, 0, 1): 299, (1, 0, 0, 0, 1, 0, 0, 0, 1): 293, (1, 0, 0, 0, 0, 1, 0, 1, 0): 290, (0, 0, 1, 1, 0, 0, 0, 1, 0): 289, (0, 0, 1, 0, 1, 0, 1, 0, 0): 288, (1, 1, 1, 1, 1, 1, 1, 1, 1): 269, (1, 0, 0, 1, 0, 0, 0, 1, 1): 117, (1, 0, 0, 0, 1, 1, 1, 0, 0): 116, (1, 0, 1, 0, 1, 0, 0, 1, 0): 104, (0, 1, 1, 1, 0, 0, 1, 0, 0): 96, (0, 0, 1, 0, 0, 1, 1, 1, 0): 96, (1, 1, 1, 0, 0, 0, 1, 1, 1): 95, (0, 1, 0, 1, 0, 1, 0, 1, 0): 95, (1, 1, 0, 0, 0, 1, 0, 0, 1): 94, (0, 0, 1, 1, 1, 0, 0, 0, 1): 94, (0, 1, 1, 0, 1, 1, 0, 1, 1): 92, (0, 1, 0, 0, 1, 0, 1, 0, 1): 91, (1, 1, 1, 1, 1, 1, 0, 0, 0): 89, (1, 1, 0, 1, 1, 0, 1, 1, 0): 88, (0, 0, 0, 1, 1, 1, 1, 1, 1): 87, (1, 0, 1, 1, 0, 1, 1, 0, 1): 86, (0, 0, 1, 0, 1, 0, 0, 0, 1): 49, (0, 1, 0, 0, 0, 0, 1, 0, 1): 48, (0, 0, 0, 0, 0, 0, 1, 1, 1): 46, (0, 0, 1, 0, 0, 0, 1, 1, 0): 45, (1, 0, 0, 0, 1, 1, 0, 0, 0): 45, (1, 0, 0, 1, 0, 1, 1, 1, 0): 44, (1, 1, 0, 0, 0, 0, 0, 0, 1): 43, (0, 1, 0, 0, 0, 0, 0, 1, 1): 43, (0, 0, 0, 1, 1, 1, 0, 0, 0): 43, (0, 1, 0, 0, 1, 1, 0, 0, 0): 43, (0, 0, 0, 0, 1, 0, 1, 0, 1): 42, (0, 0, 0, 0, 0, 1, 1, 1, 0): 42, (0, 0, 1, 0, 0, 1, 0, 0, 1): 41, (0, 0, 0, 1, 0, 0, 0, 1, 1): 40, (1, 0, 0, 1, 0, 0, 0, 1, 0): 40, (0, 1, 0, 1, 0, 0, 1, 0, 0): 40, (1, 0, 0, 1, 1, 1, 0, 0, 1): 39, (1, 0, 1, 0, 1, 1, 0, 0, 1): 39, (0, 1, 0, 0, 1, 0, 0, 1, 0): 39, (0, 0, 0, 1, 1, 0, 0, 0, 1): 39, (0, 1, 0, 0, 0, 1, 1, 1, 1): 38, (1, 0, 1, 0, 0, 0, 1, 0, 0): 38, (1, 0, 0, 1, 0, 0, 1, 0, 0): 38, (0, 0, 1, 0, 0, 1, 1, 0, 0): 38, (0, 0, 1, 1, 0, 0, 1, 1, 1): 38, (1, 0, 1, 0, 0, 0, 0, 1, 0): 38, (1, 0, 0, 1, 1, 0, 0, 0, 0): 37, (0, 0, 1, 1, 1, 1, 0, 1, 0): 37, (0, 0, 0, 0, 1, 0, 1, 1, 0): 37, (1, 0, 1, 0, 0, 1, 0, 1, 1): 37, (0, 1, 1, 1, 0, 1, 0, 0, 1): 37, (0, 1, 1, 0, 0, 1, 1, 0, 1): 37, (0, 1, 1, 0, 0, 1, 0, 0, 0): 37, (0, 0, 0, 1, 0, 1, 0, 0, 1): 37, (0, 0, 1, 1, 1, 0, 0, 0, 0): 36, (1, 1, 0, 0, 0, 1, 0, 0, 0): 36, (1, 1, 0, 0, 1, 0, 0, 1, 1): 36, (0, 1, 0, 1, 0, 1, 0, 0, 0): 36, (1, 0, 0, 0, 0, 0, 0, 1, 1): 36, (0, 0, 1, 1, 0, 0, 0, 0, 1): 36, (0, 1, 1, 0, 1, 0, 0, 0, 0): 35, (0, 0, 0, 0, 1, 1, 1, 0, 0): 35, (0, 0, 1, 0, 1, 0, 1, 1, 1): 35, (0, 1, 0, 0, 0, 0, 1, 1, 0): 35, (0, 1, 1, 1, 0, 0, 0, 0, 0): 35, (0, 1, 0, 0, 0, 1, 0, 0, 1): 34, (0, 1, 1, 0, 0, 0, 1, 0, 0): 34, (1, 0, 0, 0, 1, 0, 1, 0, 0): 34, (1, 1, 1, 0, 0, 0, 0, 0, 0): 34, (1, 1, 1, 1, 0, 0, 0, 0, 1): 34, (1, 0, 0, 0, 0, 1, 1, 0, 0): 34, (0, 0, 1, 1, 0, 0, 1, 0, 0): 33, (1, 0, 0, 0, 0, 1, 0, 0, 1): 33, (0, 1, 0, 0, 1, 1, 1, 1, 0): 33, (0, 0, 1, 0, 0, 1, 0, 1, 0): 33, (1, 0, 0, 0, 0, 0, 1, 1, 0): 33, (0, 1, 1, 0, 1, 0, 1, 1, 0): 33, (0, 1, 0, 1, 1, 0, 0, 1, 1): 32, (1, 0, 0, 1, 0, 0, 0, 0, 1): 32, (0, 1, 0, 1, 0, 0, 0, 1, 0): 32, (1, 0, 0, 1, 1, 0, 1, 0, 1): 31, (0, 0, 0, 1, 1, 0, 0, 1, 0): 31, (0, 0, 1, 0, 1, 1, 1, 0, 1): 31, (1, 0, 1, 1, 0, 0, 0, 0, 0): 31, (1, 0, 0, 1, 0, 1, 0, 0, 0): 30, (0, 0, 1, 0, 0, 0, 1, 1, 1): 30, (1, 1, 1, 0, 1, 0, 1, 0, 0): 30, (0, 1, 0, 0, 1, 0, 0, 0, 1): 30, (0, 0, 0, 0, 1, 1, 0, 0, 1): 30, (0, 1, 0, 0, 1, 0, 1, 0, 0): 30, (0, 0, 1, 1, 0, 1, 0, 0, 0): 30, (0, 0, 1, 0, 1, 0, 0, 1, 0): 30, (0, 0, 0, 1, 0, 1, 0, 1, 0): 30, (1, 1, 1, 0, 0, 1, 1, 0, 0): 30, (0, 0, 0, 0, 0, 1, 0, 1, 1): 29, (1, 1, 1, 1, 0, 0, 0, 1, 0): 29, (1, 1, 0, 1, 0, 1, 1, 0, 0): 29, (1, 1, 0, 0, 1, 1, 0, 1, 0): 29, (0, 1, 1, 0, 0, 0, 0, 0, 1): 29, (0, 0, 0, 0, 1, 0, 0, 1, 1): 29, (1, 0, 1, 1, 0, 0, 1, 1, 0): 29, (1, 1, 1, 0, 0, 1, 0, 1, 0): 29, (0, 0, 0, 1, 0, 0, 1, 1, 0): 29, (1, 1, 0, 1, 0, 0, 1, 0, 1): 29, (0, 1, 0, 0, 0, 1, 0, 1, 0): 28, (0, 0, 1, 1, 1, 1, 1, 0, 0): 28, (0, 1, 0, 1, 1, 1, 1, 0, 0): 28, (1, 0, 1, 0, 0, 0, 0, 0, 1): 28, (0, 0, 0, 1, 0, 0, 1, 0, 1): 28, (0, 1, 0, 1, 1, 0, 0, 0, 0): 28, (0, 1, 1, 1, 1, 0, 0, 1, 0): 28, (1, 0, 1, 1, 1, 0, 1, 0, 0): 27, (1, 0, 0, 1, 1, 1, 0, 1, 0): 27, (1, 0, 1, 0, 0, 1, 0, 0, 0): 27, (0, 0, 0, 1, 1, 0, 1, 0, 0): 27, (0, 1, 0, 1, 0, 0, 1, 1, 1): 27, (1, 0, 1, 0, 1, 0, 0, 0, 0): 27, (1, 0, 0, 0, 0, 1, 1, 1, 1): 27, (1, 0, 0, 0, 1, 0, 1, 1, 1): 27, (0, 0, 1, 0, 0, 0, 0, 1, 1): 27, (1, 1, 0, 0, 0, 0, 0, 1, 0): 26, (0, 0, 1, 1, 0, 1, 0, 1, 1): 26, (0, 0, 1, 0, 0, 0, 1, 0, 1): 26, (0, 0, 0, 0, 1, 1, 0, 1, 0): 25, (1, 1, 0, 1, 0, 0, 0, 0, 0): 25, (0, 0, 0, 0, 0, 1, 1, 0, 1): 25, (1, 1, 0, 0, 1, 0, 0, 0, 0): 25, (1, 1, 0, 0, 0, 0, 1, 0, 0): 25, (1, 1, 1, 0, 1, 0, 0, 0, 1): 24, (1, 1, 1, 0, 0, 0, 0, 1, 0): 24, (0, 1, 0, 0, 1, 0, 0, 1, 1): 24, (0, 0, 1, 0, 1, 1, 0, 0, 0): 24, (1, 0, 0, 0, 1, 0, 0, 1, 0): 23, (0, 1, 1, 0, 0, 0, 0, 1, 0): 23, (0, 0, 1, 1, 0, 1, 0, 0, 1): 23, (0, 0, 1, 0, 0, 1, 1, 0, 1): 23, (1, 0, 1, 1, 0, 1, 0, 0, 1): 22, (1, 0, 0, 1, 0, 1, 1, 0, 0): 22, (1, 0, 0, 0, 0, 0, 1, 1, 1): 22, (0, 1, 0, 1, 1, 0, 0, 1, 0): 22, (1, 1, 0, 1, 0, 0, 1, 0, 0): 21, (0, 0, 0, 0, 0, 1, 1, 1, 1): 20, (0, 0, 0, 1, 0, 1, 1, 0, 0): 20, (0, 0, 0, 1, 1, 1, 0, 0, 1): 20, (0, 0, 0, 0, 1, 0, 1, 1, 1): 20, (0, 0, 0, 1, 1, 0, 1, 1, 1): 20, (1, 0, 0, 0, 0, 0, 1, 0, 1): 20, (0, 1, 0, 1, 1, 1, 0, 0, 0): 20, (1, 0, 0, 1, 1, 0, 1, 0, 0): 20, (0, 1, 0, 0, 1, 0, 1, 1, 0): 19, (1, 1, 0, 1, 1, 0, 1, 0, 0): 19, (0, 0, 1, 1, 0, 1, 1, 1, 1): 19, (0, 1, 0, 1, 1, 1, 0, 0, 1): 19, (1, 0, 1, 1, 0, 0, 1, 1, 1): 19, (1, 0, 0, 1, 0, 0, 1, 0, 1): 18, (0, 0, 1, 1, 1, 1, 0, 0, 0): 18, (1, 1, 1, 0, 1, 0, 0, 0, 0): 18, (1, 0, 1, 1, 1, 1, 0, 0, 0): 17, (1, 1, 1, 0, 0, 1, 0, 0, 0): 17, (1, 0, 1, 1, 0, 0, 1, 0, 0): 17, (0, 1, 0, 1, 1, 0, 1, 1, 0): 17, (0, 0, 1, 0, 1, 1, 0, 1, 1): 17, (1, 0, 1, 0, 0, 0, 1, 0, 1): 17, (1, 1, 1, 1, 0, 0, 0, 0, 0): 17, (1, 0, 1, 0, 0, 1, 1, 0, 1): 17, (1, 1, 0, 1, 1, 1, 1, 1, 0): 16, (0, 1, 0, 0, 1, 1, 0, 1, 0): 16, (0, 1, 0, 1, 1, 1, 1, 1, 1): 16, (1, 0, 1, 1, 0, 1, 1, 0, 0): 16, (0, 1, 1, 0, 1, 0, 0, 1, 0): 16, (1, 1, 0, 1, 1, 1, 1, 0, 0): 16, (0, 0, 0, 1, 0, 0, 1, 1, 1): 16, (1, 0, 0, 1, 0, 0, 1, 1, 0): 15, (0, 1, 1, 1, 1, 1, 0, 1, 1): 15, (1, 1, 1, 0, 0, 0, 1, 0, 1): 15, (0, 1, 1, 0, 0, 1, 0, 0, 1): 15, (1, 1, 1, 0, 1, 0, 1, 1, 1): 15, (0, 1, 1, 1, 1, 1, 0, 0, 1): 15, (0, 1, 1, 0, 1, 1, 1, 0, 0): 15, (0, 1, 1, 0, 1, 0, 0, 1, 1): 15, (1, 0, 0, 0, 0, 1, 0, 1, 1): 15, (0, 1, 1, 0, 1, 1, 1, 1, 1): 14, (0, 0, 1, 1, 0, 1, 1, 0, 1): 14, (1, 0, 1, 1, 1, 1, 0, 0, 1): 14, (1, 0, 1, 1, 0, 1, 0, 1, 0): 14, (1, 1, 0, 1, 1, 0, 0, 1, 0): 14, (0, 0, 0, 1, 1, 1, 0, 1, 1): 14, (1, 1, 1, 0, 0, 0, 1, 1, 0): 14, (1, 1, 1, 1, 0, 1, 0, 0, 0): 14, (1, 0, 0, 1, 1, 1, 1, 1, 1): 14, (1, 0, 0, 1, 1, 0, 1, 1, 0): 14, (1, 1, 1, 0, 0, 0, 0, 0, 1): 14, (0, 0, 0, 1, 1, 1, 0, 1, 0): 14, (0, 1, 0, 0, 0, 0, 1, 1, 1): 14, (0, 0, 0, 1, 1, 1, 1, 0, 1): 13, (1, 0, 1, 1, 1, 1, 1, 0, 1): 13, (0, 1, 1, 1, 1, 1, 1, 1, 1): 13, (0, 1, 1, 1, 0, 0, 0, 1, 1): 13, (0, 0, 0, 1, 1, 1, 1, 1, 0): 13, (1, 1, 1, 0, 1, 1, 0, 1, 0): 13, (1, 1, 1, 0, 1, 1, 0, 0, 1): 13, (0, 0, 1, 0, 1, 1, 0, 0, 1): 13, (1, 1, 1, 0, 1, 0, 1, 1, 0): 13, (1, 1, 1, 1, 0, 1, 1, 0, 1): 13, (1, 1, 1, 1, 1, 0, 0, 0, 0): 13, (0, 0, 0, 1, 0, 1, 1, 1, 1): 13, (1, 1, 0, 1, 1, 0, 0, 0, 1): 13, (0, 0, 1, 0, 0, 1, 0, 1, 1): 13, (1, 1, 1, 0, 0, 0, 1, 0, 0): 13, (1, 1, 1, 1, 1, 0, 0, 1, 0): 12, (0, 0, 0, 1, 1, 1, 1, 0, 0): 12, (1, 1, 0, 0, 0, 0, 1, 1, 1): 12, (1, 0, 0, 1, 0, 1, 1, 0, 1): 12, (1, 1, 0, 0, 0, 0, 1, 1, 0): 12, (1, 1, 1, 0, 1, 1, 0, 1, 1): 12, (1, 0, 1, 0, 0, 1, 0, 0, 1): 12, (0, 0, 1, 1, 1, 1, 0, 1, 1): 12, (0, 0, 1, 0, 0, 0, 1, 0, 0): 12, (1, 0, 0, 0, 1, 1, 0, 1, 1): 12, (1, 1, 1, 1, 1, 0, 1, 0, 0): 12, (1, 1, 1, 1, 0, 0, 1, 1, 1): 12, (0, 0, 1, 1, 1, 0, 1, 1, 0): 12, (1, 1, 1, 0, 0, 1, 1, 1, 1): 12, (1, 1, 1, 0, 1, 0, 0, 1, 1): 11, (0, 0, 1, 1, 1, 1, 1, 0, 1): 11, (0, 0, 1, 0, 0, 1, 1, 1, 1): 11, (1, 1, 0, 0, 1, 0, 0, 1, 0): 11, (1, 1, 1, 0, 0, 1, 1, 0, 1): 11, (0, 0, 0, 0, 1, 1, 1, 1, 1): 11, (1, 1, 0, 0, 0, 1, 1, 1, 0): 11, (1, 1, 1, 1, 1, 0, 1, 1, 0): 11, (1, 1, 1, 0, 0, 0, 0, 1, 1): 11, (1, 1, 1, 1, 1, 1, 1, 0, 0): 11, (0, 1, 0, 0, 1, 0, 1, 1, 1): 11, (0, 1, 1, 1, 1, 1, 0, 1, 0): 11, (0, 1, 1, 0, 0, 1, 1, 1, 1): 11, (1, 0, 1, 1, 0, 1, 1, 1, 1): 11, (0, 0, 1, 1, 1, 1, 1, 1, 1): 11, (1, 1, 1, 1, 0, 0, 1, 0, 1): 11, (1, 1, 0, 1, 0, 0, 1, 1, 0): 11, (1, 1, 1, 1, 1, 1, 0, 1, 0): 11, (0, 0, 1, 0, 1, 1, 1, 1, 1): 11, (1, 1, 1, 0, 1, 0, 0, 1, 0): 11, (0, 0, 1, 0, 1, 0, 1, 1, 0): 11, (1, 0, 0, 1, 1, 1, 1, 0, 1): 11, (0, 0, 1, 1, 1, 1, 0, 0, 1): 10, (1, 1, 1, 1, 1, 1, 1, 0, 1): 10, (0, 1, 1, 0, 0, 0, 0, 1, 1): 10, (1, 1, 0, 1, 1, 1, 0, 0, 0): 10, (1, 0, 1, 1, 0, 1, 0, 0, 0): 10, (1, 1, 0, 0, 1, 0, 1, 1, 1): 10, (0, 1, 0, 1, 0, 1, 1, 0, 1): 10, (0, 0, 1, 1, 1, 0, 1, 0, 0): 10, (0, 1, 1, 0, 1, 1, 0, 0, 1): 10, (0, 1, 0, 1, 1, 1, 1, 1, 0): 10, (0, 1, 0, 1, 1, 1, 0, 1, 1): 10, (1, 1, 0, 1, 0, 0, 1, 1, 1): 10, (1, 0, 0, 1, 1, 1, 1, 1, 0): 10, (1, 0, 0, 0, 1, 1, 0, 1, 0): 10, (1, 1, 1, 0, 1, 1, 0, 0, 0): 10, (1, 0, 1, 1, 0, 0, 1, 0, 1): 10, (1, 0, 1, 1, 1, 1, 1, 1, 1): 10, (1, 1, 1, 1, 0, 1, 0, 0, 1): 10, (0, 0, 0, 1, 0, 0, 0, 0, 1): 10, (1, 0, 0, 0, 0, 0, 0, 0, 0): 10, (0, 1, 0, 0, 1, 1, 0, 1, 1): 10, (0, 0, 0, 0, 0, 1, 0, 0, 0): 10, (1, 1, 0, 0, 1, 0, 1, 1, 0): 10, (0, 0, 0, 0, 0, 0, 0, 0, 1): 9, (1, 0, 1, 1, 1, 1, 1, 0, 0): 9, (0, 0, 1, 1, 0, 0, 0, 1, 1): 9, (0, 1, 1, 1, 0, 0, 0, 1, 0): 9, (0, 1, 0, 1, 0, 0, 0, 0, 0): 9, (1, 1, 0, 1, 1, 0, 1, 1, 1): 9, (1, 1, 1, 1, 0, 1, 1, 1, 1): 9, (0, 0, 0, 0, 1, 1, 0, 1, 1): 9, (0, 1, 1, 0, 1, 0, 1, 0, 0): 9, (1, 1, 1, 1, 0, 1, 1, 0, 0): 9, (1, 0, 0, 1, 1, 1, 0, 0, 0): 9, (1, 1, 1, 0, 1, 1, 1, 1, 1): 9, (0, 0, 0, 0, 0, 1, 0, 1, 0): 9, (0, 0, 1, 1, 1, 0, 0, 1, 0): 9, (1, 1, 1, 1, 1, 1, 0, 0, 1): 9, (1, 0, 1, 0, 0, 1, 1, 1, 1): 9, (1, 1, 0, 1, 1, 1, 0, 1, 0): 9, (1, 0, 0, 0, 1, 1, 0, 0, 1): 9, (1, 1, 0, 1, 1, 0, 0, 0, 0): 8, (1, 0, 0, 0, 1, 0, 0, 1, 1): 8, (0, 1, 0, 1, 0, 0, 0, 1, 1): 8, (1, 0, 0, 1, 1, 0, 1, 1, 1): 8, (0, 1, 1, 0, 0, 0, 1, 1, 1): 8, (0, 1, 1, 1, 1, 1, 0, 0, 0): 8, (0, 1, 1, 0, 1, 0, 1, 1, 1): 8, (1, 0, 0, 1, 1, 1, 1, 0, 0): 8, (1, 0, 0, 1, 0, 1, 1, 1, 1): 8, (1, 1, 0, 1, 0, 0, 0, 0, 1): 8, (1, 0, 0, 0, 1, 0, 1, 0, 1): 8, (1, 1, 1, 1, 0, 0, 1, 0, 0): 8, (0, 0, 0, 1, 1, 0, 1, 1, 0): 8, (1, 0, 1, 0, 0, 0, 1, 1, 1): 8, (0, 0, 0, 1, 0, 0, 0, 0, 0): 8, (0, 1, 1, 0, 1, 1, 0, 0, 0): 8, (0, 0, 0, 1, 0, 1, 0, 0, 0): 7, (0, 1, 0, 1, 1, 0, 0, 0, 1): 7, (0, 0, 1, 0, 1, 0, 1, 0, 1): 7, (1, 0, 1, 1, 0, 0, 0, 1, 0): 7, (0, 1, 1, 0, 0, 1, 1, 0, 0): 7, (0, 1, 0, 1, 1, 0, 1, 1, 1): 7, (1, 0, 0, 1, 0, 0, 0, 0, 0): 7, (0, 0, 1, 1, 0, 1, 0, 1, 0): 7, (1, 1, 1, 1, 1, 1, 1, 1, 0): 7, (1, 1, 0, 0, 0, 0, 0, 0, 0): 7, (0, 1, 0, 1, 1, 1, 0, 1, 0): 7, (0, 0, 0, 0, 0, 0, 0, 1, 0): 7, (0, 0, 1, 0, 0, 0, 0, 0, 1): 7, (0, 1, 1, 0, 1, 1, 0, 1, 0): 6, (1, 1, 0, 0, 0, 1, 0, 1, 0): 6, (1, 1, 0, 1, 1, 1, 1, 1, 1): 6, (0, 0, 0, 0, 1, 0, 0, 0, 1): 6, (0, 0, 1, 0, 0, 1, 0, 0, 0): 6, (1, 0, 1, 0, 1, 0, 0, 0, 1): 6, (0, 0, 0, 0, 0, 1, 1, 0, 0): 6, (1, 1, 1, 1, 1, 1, 0, 1, 1): 6, (1, 0, 1, 0, 1, 0, 1, 0, 1): 6, (1, 1, 0, 1, 0, 1, 1, 0, 1): 6, (0, 1, 0, 0, 0, 1, 1, 1, 0): 6, (0, 1, 1, 0, 0, 1, 0, 1, 1): 6, (0, 1, 0, 0, 0, 0, 0, 1, 0): 6, (0, 0, 1, 1, 0, 0, 0, 0, 0): 6, (1, 0, 0, 0, 1, 0, 0, 0, 0): 6, (1, 1, 1, 1, 1, 0, 1, 1, 1): 6, (0, 0, 0, 1, 0, 1, 1, 0, 1): 6, (1, 0, 0, 0, 0, 1, 0, 0, 0): 6, (0, 1, 0, 1, 0, 1, 0, 0, 1): 6, (0, 0, 0, 0, 1, 0, 0, 0, 0): 6, (0, 1, 0, 0, 1, 1, 1, 1, 1): 6, (0, 1, 1, 1, 0, 0, 1, 1, 0): 6, (0, 1, 0, 0, 0, 1, 0, 1, 1): 5, (0, 0, 0, 0, 0, 0, 1, 0, 1): 5, (0, 0, 0, 1, 1, 0, 0, 0, 0): 5, (0, 0, 1, 0, 0, 0, 0, 0, 0): 5, (0, 0, 0, 1, 1, 0, 0, 1, 1): 5, (0, 1, 0, 1, 0, 1, 1, 0, 0): 5, (1, 0, 1, 0, 1, 0, 1, 0, 0): 5, (1, 1, 0, 0, 1, 1, 1, 0, 0): 5, (0, 0, 0, 0, 0, 0, 1, 1, 0): 5, (1, 0, 0, 0, 0, 0, 1, 0, 0): 5, (0, 1, 1, 1, 0, 0, 0, 0, 1): 5, (1, 0, 0, 1, 0, 1, 0, 1, 0): 5, (0, 0, 1, 0, 1, 1, 1, 0, 0): 5, (0, 0, 0, 0, 0, 0, 1, 0, 0): 5, (1, 0, 0, 0, 0, 1, 1, 0, 1): 5, (0, 0, 1, 1, 0, 0, 1, 1, 0): 5, (0, 1, 0, 0, 1, 1, 1, 0, 0): 5, (1, 0, 1, 0, 0, 0, 0, 0, 0): 5, (1, 1, 1, 0, 0, 1, 0, 0, 1): 5, (0, 0, 0, 0, 1, 1, 0, 0, 0): 4, (1, 1, 0, 0, 1, 0, 0, 0, 1): 4, (0, 1, 1, 1, 1, 0, 1, 1, 0): 4, (0, 1, 0, 0, 0, 0, 0, 0, 1): 4, (0, 0, 0, 0, 1, 0, 1, 0, 0): 4, (0, 1, 0, 0, 0, 1, 0, 0, 0): 4, (0, 1, 0, 1, 0, 1, 1, 1, 1): 4, (1, 0, 0, 1, 0, 1, 0, 0, 1): 4, (1, 1, 0, 0, 0, 1, 1, 0, 0): 4, (1, 0, 1, 1, 1, 0, 1, 1, 0): 4, (0, 1, 0, 0, 0, 0, 1, 0, 0): 4, (1, 0, 1, 1, 1, 0, 0, 0, 1): 4, (0, 1, 1, 0, 0, 0, 1, 0, 1): 4, (1, 0, 1, 0, 1, 1, 0, 1, 1): 4, (1, 1, 1, 1, 0, 0, 1, 1, 0): 4, (0, 0, 0, 0, 0, 1, 0, 0, 1): 4, (1, 0, 0, 0, 0, 1, 1, 1, 0): 4, (0, 1, 0, 0, 0, 1, 1, 0, 1): 4, (1, 0, 1, 1, 1, 1, 0, 1, 0): 4, (0, 0, 1, 0, 1, 0, 0, 0, 0): 4, (0, 1, 0, 1, 1, 0, 1, 0, 1): 4, (0, 0, 0, 1, 0, 0, 0, 1, 0): 4, (0, 1, 1, 0, 1, 1, 1, 0, 1): 4, (0, 1, 0, 1, 0, 0, 1, 0, 1): 4, (1, 0, 1, 0, 1, 0, 0, 1, 1): 4, (1, 0, 0, 1, 1, 0, 0, 1, 0): 3, (1, 0, 1, 0, 0, 1, 1, 0, 0): 3, (0, 1, 1, 0, 0, 0, 0, 0, 0): 3, (1, 0, 0, 1, 1, 0, 0, 0, 1): 3, (1, 1, 0, 1, 1, 0, 0, 1, 1): 3, (0, 0, 1, 0, 1, 1, 1, 1, 0): 3, (0, 1, 1, 1, 0, 0, 1, 0, 1): 3, (0, 1, 1, 1, 0, 1, 1, 0, 1): 3, (0, 0, 0, 0, 0, 0, 0, 0, 0): 3, (1, 0, 1, 1, 0, 1, 1, 1, 0): 3, (0, 0, 0, 1, 1, 0, 1, 0, 1): 3, (1, 1, 1, 0, 1, 0, 1, 0, 1): 3, (0, 1, 1, 1, 1, 1, 1, 0, 0): 3, (1, 1, 0, 1, 0, 0, 0, 1, 1): 3, (1, 0, 1, 0, 1, 0, 1, 1, 1): 3, (1, 1, 0, 0, 0, 1, 1, 0, 1): 3, (0, 0, 1, 0, 1, 1, 0, 1, 0): 3, (1, 0, 0, 1, 0, 0, 1, 1, 1): 3, (1, 0, 1, 1, 1, 0, 1, 0, 1): 3, (1, 0, 1, 1, 1, 1, 1, 1, 0): 3, (0, 0, 1, 0, 1, 0, 0, 1, 1): 3, (0, 1, 0, 1, 0, 1, 0, 1, 1): 3, (1, 1, 0, 0, 1, 0, 1, 0, 1): 3, (1, 1, 1, 0, 0, 1, 0, 1, 1): 3, (1, 1, 0, 0, 1, 1, 0, 0, 0): 3, (1, 0, 1, 0, 1, 1, 1, 1, 1): 3, (1, 1, 1, 0, 1, 1, 1, 0, 1): 3, (0, 1, 0, 1, 0, 0, 1, 1, 0): 3, (1, 0, 1, 0, 0, 1, 0, 1, 0): 3, (1, 0, 0, 0, 0, 0, 0, 1, 0): 3, (0, 0, 0, 0, 1, 0, 0, 1, 0): 3, (0, 1, 0, 1, 1, 1, 1, 0, 1): 3, (1, 0, 1, 0, 1, 1, 1, 0, 1): 3, (1, 1, 0, 0, 1, 1, 1, 1, 0): 2, (0, 1, 0, 1, 1, 0, 1, 0, 0): 2, (1, 1, 0, 0, 0, 0, 0, 1, 1): 2, (1, 1, 0, 0, 1, 1, 0, 1, 1): 2, (1, 0, 0, 0, 0, 0, 0, 0, 1): 2, (1, 0, 1, 0, 1, 1, 0, 0, 0): 2, (0, 0, 0, 1, 0, 0, 1, 0, 0): 2, (0, 1, 0, 0, 0, 0, 0, 0, 0): 2, (0, 1, 0, 0, 1, 1, 0, 0, 1): 2, (1, 0, 1, 0, 1, 1, 1, 1, 0): 2, (1, 1, 0, 0, 1, 1, 1, 0, 1): 2, (0, 1, 1, 1, 0, 1, 0, 1, 0): 2, (0, 0, 1, 0, 0, 0, 0, 1, 0): 2, (1, 1, 1, 0, 0, 1, 1, 1, 0): 2, (1, 1, 0, 0, 0, 1, 0, 1, 1): 2, (1, 1, 1, 1, 0, 1, 1, 1, 0): 2, (1, 1, 0, 0, 0, 0, 1, 0, 1): 2, (1, 1, 1, 0, 1, 1, 1, 1, 0): 2, (1, 0, 0, 1, 0, 1, 0, 1, 1): 2, (1, 0, 1, 1, 1, 1, 0, 1, 1): 2, (0, 1, 1, 0, 1, 0, 1, 0, 1): 2, (1, 0, 1, 0, 0, 0, 0, 1, 1): 2, (1, 0, 1, 1, 0, 0, 0, 0, 1): 2, (1, 1, 1, 1, 0, 1, 0, 1, 0): 2, (0, 0, 1, 1, 1, 1, 1, 1, 0): 2, (0, 0, 1, 1, 0, 1, 1, 0, 0): 2, (1, 0, 1, 0, 1, 1, 1, 0, 0): 2, (0, 0, 0, 0, 0, 0, 0, 1, 1): 2, (0, 1, 1, 1, 0, 1, 1, 1, 0): 1, (0, 1, 1, 1, 1, 0, 1, 0, 0): 1, (0, 0, 0, 1, 0, 1, 1, 1, 0): 1, (0, 0, 1, 1, 1, 0, 0, 1, 1): 1, (0, 0, 1, 1, 0, 1, 1, 1, 0): 1, (1, 1, 0, 0, 1, 1, 0, 0, 1): 1, (0, 1, 0, 0, 1, 1, 1, 0, 1): 1, (0, 0, 0, 1, 0, 1, 0, 1, 1): 1, (1, 0, 1, 1, 0, 1, 0, 1, 1): 1, (0, 1, 1, 1, 1, 0, 0, 1, 1): 1, (0, 0, 1, 1, 0, 0, 1, 0, 1): 1, (0, 1, 1, 0, 0, 1, 0, 1, 0): 1, (1, 0, 1, 0, 1, 1, 0, 1, 0): 1, (0, 1, 1, 0, 1, 1, 1, 1, 0): 1, (1, 0, 1, 1, 1, 0, 0, 0, 0): 1, (1, 1, 1, 0, 1, 1, 1, 0, 0): 1, (0, 1, 1, 0, 0, 0, 1, 1, 0): 1, (1, 0, 0, 1, 1, 1, 0, 1, 1): 1, (1, 1, 0, 0, 0, 1, 1, 1, 1): 1, (1, 0, 1, 1, 1, 0, 1, 1, 1): 1, (0, 1, 1, 1, 0, 0, 1, 1, 1): 1, (1, 0, 0, 0, 1, 0, 1, 1, 0): 1, (0, 1, 1, 1, 0, 1, 0, 1, 1): 1, (0, 1, 1, 0, 0, 1, 1, 1, 0): 1, (0, 1, 1, 1, 1, 0, 0, 0, 0): 1, (1, 1, 1, 1, 0, 0, 0, 1, 1): 1, (0, 0, 1, 1, 1, 0, 1, 1, 1): 1, (0, 1, 0, 1, 0, 1, 1, 1, 0): 1, (1, 1, 0, 1, 1, 1, 1, 0, 1): 1, (1, 1, 0, 1, 1, 1, 0, 1, 1): 1, (1, 1, 0, 1, 0, 0, 0, 1, 0): 1, (1, 1, 1, 1, 1, 0, 0, 1, 1): 1, (0, 1, 1, 1, 1, 1, 1, 0, 1): 1, (1, 0, 1, 0, 0, 1, 1, 1, 0): 1, (1, 0, 1, 0, 1, 0, 1, 1, 0): 1, (1, 0, 1, 0, 0, 0, 1, 1, 0): 1, (1, 1, 0, 0, 1, 0, 1, 0, 0): 1, (1, 1, 0, 1, 1, 1, 0, 0, 1): 1, (1, 0, 0, 0, 1, 1, 1, 1, 1): 1, (0, 1, 1, 0, 1, 0, 0, 0, 1): 1, (0, 1, 1, 1, 0, 1, 0, 0, 0): 1, (0, 0, 1, 1, 1, 0, 1, 0, 1): 1, (1, 1, 0, 1, 0, 1, 0, 1, 1): 1})
+
+[1, 2, 0]
+
+{(-1,): 7513, (2, 0, 1): 289, (1, 0, 2): 299, (1, 2, 1): 28, (0, 0, 0): 38, (0, 1, 2): 293, (1, 2, 0): 301, (2, 2, 2): 41, (2, 1, 0): 288, (0, 2, 1): 290, (1, 1, 2): 30, (2, 0, 0): 33, (1, 2, 2): 34, (1, 1, 1): 39, (0, 1, 1): 23, (0, 2, 2): 33, (0, 1, 0): 34, (0, 0, 1): 40, (2, 2, 0): 38, (1, 1, 0): 30, (0, 2, 0): 34, (2, 1, 1): 30, (2, 2, 1): 33, (0, 0, 2): 32, (2, 1, 2): 49, (2, 0, 2): 36, (1, 0, 0): 40, (1, 0, 1): 32}
+</code></pre>
+
+    </div>
+
+    
+
+
+
+
+    
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/quantum/">quantum</a>
+  
+</div>
+
+
+
+    
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  
+  
+    
+  
+  
+  <div class="media author-card">
+    
+      <img class="portrait mr-3" src="https://s.gravatar.com/avatar/2f9504a5192e2e1890d3b57dcc358055?s=200')" alt="Avatar">
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://filipmazurek.github.io/">Filip Mazurek</a></h5>
+      <h6 class="card-subtitle">Prospective Computer Science PhD Student</h6>
+      
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:filip@filipmazurek.com" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/f-mazurek/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/filipmazurek" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.youtube.com/channel/UCqNug5yM65yAxgSAp2s_6iA" target="_blank" rel="noopener">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="/files/mazurek_resume.pdf" >
+        <i class="ai ai-cv"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+      
+      
+      <div class="article-widget">
+        <div class="hr-light"></div>
+        <h3>Related</h3>
+        <ul>
+          
+          <li><a href="/projects/q-unsampling/">Variational Quantum Unsampling</a></li>
+          
+          <li><a href="/projects/quantum-supremacy/">Quantum Supremacy Circuits</a></li>
+          
+          <li><a href="/projects/q-neural-nets/">Quantum Neural Networks</a></li>
+          
+          <li><a href="/projects/matrix-visualization/">Matrix Visualization</a></li>
+          
+          <li><a href="/projects/quantum-languages/">Quantum Languages</a></li>
+          
+        </ul>
+      </div>
+      
+    
+
+    
+
+    
+
+
+  </div>
+</article>
+
+      
+
+    
+    
+    
+    <script src="/js/mathjax-config.js"></script>
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js" integrity="sha256-aYTdUrn6Ow1DDgh5JTc3aDGnnju48y/1c8s1dgkYPQ8=" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/r.min.js"></script>
+        
+      
+
+      
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous" async></script>
+      
+    
+
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin="anonymous"></script>
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    
+    
+    
+    <script src="/js/academic.min.d6bd04fdad2ad213aa8111c5a3b72fc5.js"></script>
+
+    
+
+
+
+
+
+
+  
+  <div class="container">
+    <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    &copy; 2019 &middot; 
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" class="back-to-top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+  </div>
+  
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

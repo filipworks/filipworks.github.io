@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 4.5.0">
+
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Filip Mazurek">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="Exploring a verification method for quantum circuits. VQU is a method based on quantum neural networks.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="https://filipmazurek.github.io/projects/q-unsampling/">
+
+  
+
+
+  
+  
+  
+  <meta name="theme-color" content="#2962ff">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css" integrity="sha384-aOkxzJ5uQz7WBObEZcHvV5JvRW3TUc2rNPA7pe3AwnsUohiw1Vj2Rgx2KSOkF5+h" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin="anonymous">
+    
+
+    
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/css/academic.min.1884ccbe79662c38d99b291260b58a24.css">
+
+  
+
+  
+
+
+
+
+  
+
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon-32.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="https://filipmazurek.github.io/projects/q-unsampling/">
+
+  
+  
+  
+  
+    
+  
+  
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="Filip Mazurek">
+  <meta property="og:url" content="https://filipmazurek.github.io/projects/q-unsampling/">
+  <meta property="og:title" content="Variational Quantum Unsampling | Filip Mazurek">
+  <meta property="og:description" content="Exploring a verification method for quantum circuits. VQU is a method based on quantum neural networks."><meta property="og:image" content="https://filipmazurek.github.io/projects/q-unsampling/featured.png">
+  <meta property="twitter:image" content="https://filipmazurek.github.io/projects/q-unsampling/featured.png"><meta property="og:locale" content="en-us">
+  
+    
+      <meta property="article:published_time" content="2019-10-16T00:00:00&#43;00:00">
+    
+    <meta property="article:modified_time" content="2019-10-16T00:00:00&#43;00:00">
+  
+
+  
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  <title>Variational Quantum Unsampling | Filip Mazurek</title>
+
+</head>
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" >
+
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+  
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0 compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Filip Mazurek</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav mr-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#about"><span>Home</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#projects"><span>Projects</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#research-interests"><span>Research</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#experience"><span>Experience</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/files/mazurek_resume.pdf"><span>CV</span></a>
+        </li>
+
+        
+        
+
+      
+      </ul>
+      <ul class="navbar-nav ml-auto">
+      
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-dark-toggle" href="#"><i class="fas fa-moon" aria-hidden="true"></i></a>
+        </li>
+        
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+  <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+
+<div class="article-container pt-3">
+  <h1>Variational Quantum Unsampling</h1>
+
+  
+
+  
+
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+    
+    Oct 16, 2019
+  </span>
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+  
+
+  
+    
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://twitter.com/intent/tweet?url=https://filipmazurek.github.io/projects/q-unsampling/&amp;text=Variational%20Quantum%20Unsampling" target="_blank" rel="noopener" class="share-btn-twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.facebook.com/sharer.php?u=https://filipmazurek.github.io/projects/q-unsampling/&amp;t=Variational%20Quantum%20Unsampling" target="_blank" rel="noopener" class="share-btn-facebook">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="mailto:?subject=Variational%20Quantum%20Unsampling&amp;body=https://filipmazurek.github.io/projects/q-unsampling/" target="_blank" rel="noopener" class="share-btn-email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.linkedin.com/shareArticle?url=https://filipmazurek.github.io/projects/q-unsampling/&amp;title=Variational%20Quantum%20Unsampling" target="_blank" rel="noopener" class="share-btn-linkedin">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://web.whatsapp.com/send?text=Variational%20Quantum%20Unsampling%20https://filipmazurek.github.io/projects/q-unsampling/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://service.weibo.com/share/share.php?url=https://filipmazurek.github.io/projects/q-unsampling/&amp;title=Variational%20Quantum%20Unsampling" target="_blank" rel="noopener" class="share-btn-weibo">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 720px; max-height: 355px;">
+  <div style="position: relative">
+    <img src="/projects/q-unsampling/featured_hu3818ffd5825130e08854d554b46d7079_277215_720x0_resize_lanczos_2.png" alt="" class="featured-image">
+    
+  </div>
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+
+<h1 id="introduction">Introduction</h1>
+
+<p>Variational Quantum Unsampling (VQU) is an algorithm recently developed to take into account the limited computational powers of NISQ computers, and described in this <a href="https://arxiv.org/abs/1904.10463" target="_blank">arXiv paper</a>. The code and some descriptions here were helped out by a challenge which was part of the University of Edinburgh&rsquo;s quantum computing hackathon, found on their <a href="https://github.com/QuHackEd/Challenges/blob/master/advanced_challenge_quantum_unsampling.ipynb" target="_blank">GitHub</a></p>
+
+<p>This notebook serves as a complement to the one on creating supremacy circuits. If you have not taken a look at that or if you are not familiar with Google&rsquo;s proposed pseudo-random generating supremacy circuits, take a look at that for context first.</p>
+
+<p>The whole point of quantum supremacy circuits is that the algorithm which they encode cannot be replicated on a classical computer. That begs the question, however, as to how we can be sure that the quantum computer actually gave us the correct answer. We&rsquo;re short on verification tools in this space. The need for verification will become more and more important as NISQ computers may be used to develop new chemical compounds &ndash; we need to be able to check the accuracy of quantum algorithm results before we blindly trust its results.</p>
+
+<p>Enter Variational Quantum Unsampling. This algorithm is designed to variationally &ldquo;undo&rdquo; the operations performed on the circuit. If we consider some quantum circuit to be represented as some unitary $U$ acting on the inputs of the quantum circuit, then VQU attempts to find that $U$:</p>
+
+<p>\begin{align}
+|\psi_o\rangle = U|\psi_i\rangle
+\end{align}</p>
+
+<p>More specifically, the algorithm does this by applying some parameterized unitary operation, $V(\theta)$, on the state $|\psi_o\rangle$ in order to return it to the reference state, $\left|\psi_i\right&gt;$. In other words, it attempts to find the <strong><em>inverse</em></strong> of the target unitary, $U$, such that:</p>
+
+<p>\begin{align}
+|\psi_i\rangle =  V(\theta)U|\psi_i\rangle
+\end{align}</p>
+
+<p>This is achieved by minimizing some cost function, relative to the parameters, $\theta$, which describes the discrepancy between the target, and the current state of the system at any point during the optimization procedure.</p>
+
+<h2 id="quantum-neural-networks-relationship">Quantum Neural Networks Relationship</h2>
+
+<p>The method for VQU was largely inspired by quantum neural networks (QNN). I wrote another [notebook]() addressing the specifics of QNN, so check it out if you&rsquo;re interested!</p>
+
+<p>QNN work by optimizing over a set of parameters in some defined gate operations. The parameters are optimized by a classical optimizer to find the parameters which correspond to the correct output. Similarly, VQU works by optimizing gate parameters for some chosen gates, except that it does so multiple times, bu disentangling one qubit at a time from the state space.</p>
+
+<p>The following is an illustration of a QNN:</p>
+
+<p><img src="qnn_ancilla_diagram.png" alt="Quantum neural network with ancilla" width="50%"/></p>
+
+<p>In contrast, the following is an example of a VQU:</p>
+
+<p><img src="vqu_image.png" alt="Variational quantum unsampling circuit" width="50%"/></p>
+
+<p>Here, we can see each time that we would need to optimize for some $\theta$.</p>
+
+<h1 id="basic-implementation">Basic Implementation</h1>
+
+<p>First, let&rsquo;s go ahead and import all the basics that we need when working with PyQuil</p>
+
+<pre><code class="language-python">from pyquil import Program
+from pyquil.api import get_qc, WavefunctionSimulator, local_qvm
+from pyquil.gates import *
+import numpy as np
+
+# as well as our classic optimizer
+import scipy.optimize as opt
+</code></pre>
+
+<p>And let&rsquo;s define an extra gate that we&rsquo;ll need to use</p>
+
+<pre><code class="language-python">from pyquil.parameters import Parameter, quil_sin, quil_cos
+from pyquil.quilbase import DefGate
+
+# Define the new gate from a matrix
+theta = Parameter('theta')
+crx = np.array([
+    [1, 0, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, quil_cos(theta / 2), -1j * quil_sin(theta / 2)],
+    [0, 0, -1j * quil_sin(theta / 2), quil_cos(theta / 2)]
+])
+
+gate_definition = DefGate('CRX', crx, [theta])
+CRX = gate_definition.get_constructor()
+</code></pre>
+
+<p>Now, let&rsquo;s construct the circuit on which we will run VQU.</p>
+
+<pre><code class="language-python">def create_trial_circuit(circuit, qubits):
+    target_two_qubit_angle = 0.444
+    target_single_qubit_angle = 0.7822
+
+    circuit += RY(target_single_qubit_angle, qubits[0])
+    circuit += CRX(target_two_qubit_angle)(qubits[0], qubits[1])
+</code></pre>
+
+<p>Since this is a two qubit circuit, we&rsquo;re going to have two major steps to this VQU. The first step will be finding the parameters to bring qubit 1 to the state $|0\rangle$.</p>
+
+<pre><code class="language-python">def cost_func_two_qubit_gate(params, qubits):
+    circuit = Program()
+    circuit += gate_definition # We need to define the new gate in each program we use it in.
+
+    ro = circuit.declare('ro', 'BIT', 1)
+
+    create_trial_circuit(circuit, qubits)
+
+    # apply some trial gate to otimize our angle
+    circuit += CRX(params[0])(qubits[0], qubits[1])
+
+#     print('The current parameter value is:', params[0])
+    circuit += MEASURE(qubits[1], ro[0])
+    circuit.wrap_in_numshots_loop(num_trials)
+
+    executable = qc.compile(circuit)
+
+    results = qc.run(executable)
+    prob_zero = list(results).count([0])/num_trials
+
+    # We want to minimise this value, by making the probability of observing qubit *one* in the state |0&gt; close to 1
+    cost_func = 1 - prob_zero
+
+    return cost_func
+</code></pre>
+
+<p>Note that in this particular example we have chosen to apply the same gate to our &ldquo;unsampling&rdquo; as we have in the trial circuit. This is for the sake of first simple example. We&rsquo;ll use more gritty scenarios later in this notebook.</p>
+
+<p>Now let&rsquo;s go ahead and run our optimizer.</p>
+
+<pre><code class="language-python">qc_name = &quot;2q-qvm&quot;
+qc = get_qc(qc_name)
+qubits = qc.qubits()
+
+num_trials = 10000
+params = np.random.rand(1)
+
+result = opt.minimize(cost_func_two_qubit_gate, params, args=(qubits), method='Powell')
+
+print('The optimised parameter value found is: ', result.x)
+</code></pre>
+
+<pre><code>The optimised parameter value found is:  -0.4813267098032141
+</code></pre>
+
+<p>We found the first parametrized value! Now time to do the same thing but for qubit 0. Below is another function which will run after the first angle is optimized.</p>
+
+<pre><code class="language-python">def cost_func_both_gates(params, optimised_two_q_param, qubits):
+    circuit = Program()
+    circuit += gate_definition # We need to define the new gate in each program we use it in.
+
+    ro = circuit.declare('ro', 'BIT', 1)
+
+    create_trial_circuit(circuit, qubits)
+
+    circuit += CRX(optimised_two_q_param)(qubits[0], qubits[1])  # using the previously found parameter
+    circuit += RY(params[0], qubits[0])  # new gate put in to find the second paramter
+
+#     print('The current parameter value is:', params[0])
+
+    circuit += MEASURE(qubits[0], ro[0])
+    circuit.wrap_in_numshots_loop(num_trials)
+
+    executable = qc.compile(circuit)
+    results = qc.run(executable)
+    prob_zero = list(results).count([0])/num_trials
+
+    # We want to minimise this value, by making the probability of observing |0&gt; in qubit *zero* close to 1
+    cost_func = 1 - prob_zero
+
+    return cost_func
+</code></pre>
+
+<p>We can plug in the angle we found in the previous run and optimize for this second angle.</p>
+
+<pre><code class="language-python">optimised_two_q_param = np.asscalar(result.x)
+params = np.random.rand(1) # start with another random parameter for this run
+
+
+result_single_qubit_opt = \
+opt.minimize(cost_func_both_gates, params, args=(optimised_two_q_param, qubits), method='Powell')
+
+optimised_single_q_param = result_single_qubit_opt.x
+
+print('The optimised parameter value found is: ', optimised_single_q_param)
+</code></pre>
+
+<pre><code>The optimised parameter value found is:  -0.7723922231661331
+</code></pre>
+
+<h2 id="checking-our-results">Checking Our Results</h2>
+
+<p>Now we can take the two angles found and apply them to our constructed circuit. Thereby checking for the condition</p>
+
+<p>\begin{align}
+\left|\psi_i\right&gt; =  V(\theta)U\left|\psi_i\right&gt;
+\end{align}</p>
+
+<p>And seeing how close we got to the input state of $|00\rangle$</p>
+
+<pre><code class="language-python">make_wf = WavefunctionSimulator()
+
+optimised_params = np.array([optimised_two_q_param, optimised_single_q_param])
+
+circuit_optimised = Program()
+circuit_optimised += gate_definition # We need to define the new gate in each program we use it in.
+
+ro = circuit_optimised.declare('ro', 'BIT', 1)
+
+create_trial_circuit(circuit_optimised, qubits)
+
+# Applying our &quot;unsampling&quot; operations here
+circuit_optimised += CRX(optimised_params[0])(qubits[0], qubits[1])
+circuit_optimised += RY(optimised_params[1], qubits[0])
+
+with local_qvm():
+    wavefunction = make_wf.wavefunction(circuit_optimised)
+
+print(wavefunction)
+
+print(wavefunction.get_outcome_probs())
+</code></pre>
+
+<pre><code>(0.9999629694+0j)|00&gt; + (0.0048423694+0j)|01&gt; + 0.0026796731j|10&gt; + 0.0065901938j|11&gt;
+{'00': 0.9999259401560409, '01': 2.3448541541007383e-05, '10': 7.180647922794661e-06, '11': 4.3430654495366794e-05}
+</code></pre>
+
+<p>Checking our results, the VQU did well! We&rsquo;re back to the $|00\rangle$ state with good accuracy.</p>
+
+<h1 id="more-complex-examples">More Complex Examples</h1>
+
+<p>Now let&rsquo;s run our same method of VQU, but this time we can define a different circuit to run our algorithm on. This way we can check how well the algorithm can actually work.</p>
+
+<pre><code class="language-python">def create_trial_circuit(circuit, qubits):
+
+    circuit += H(qubits[0])
+    circuit += CNOT(qubits[0], qubits[1])
+
+    return circuit
+</code></pre>
+
+<p>Now that we changed the function of the trial circuit, we can run exactly the same code as we ran before. First we optimize for qubit 1, then for qubit 0, and then we can check how well we got the circuit back to the initial state.</p>
+
+<pre><code class="language-python">result_two_qubit_opt = opt.minimize(cost_func_two_qubit_gate, np.array(params[0]), args=(qubits), method='Powell')
+optimised_two_q_param = np.asscalar(result_two_qubit_opt.x)
+print('The optimised parameter value found is: ', optimised_two_q_param)
+
+params = np.random.rand(1)
+result_single_qubit_opt = \
+opt.minimize(cost_func_both_gates, params, args=(optimised_two_q_param, qubits), method='Powell')
+optimised_single_q_param = result_single_qubit_opt.x
+print('The optimised parameter value found is: ', optimised_single_q_param)
+
+optimised_params = np.array([optimised_two_q_param, optimised_single_q_param])
+
+circuit_optimised = Program()
+circuit_optimised += gate_definition # We need to define the new gate in each program we use it in.
+
+ro = circuit_optimised.declare('ro', 'BIT', 1)
+
+create_trial_circuit(circuit_optimised, qubits)
+
+# Applying our &quot;unsampling&quot; operations here
+circuit_optimised += CRX(optimised_params[0])(qubits[0], qubits[1])
+circuit_optimised += RY(optimised_params[1], qubits[0])
+
+with local_qvm():
+    wavefunction = make_wf.wavefunction(circuit_optimised)
+
+print(wavefunction)
+
+print(wavefunction.get_outcome_probs())
+</code></pre>
+
+<pre><code>The optimised parameter value found is:  3.13466307165333
+The optimised parameter value found is:  -1.0631845000285267
+(0.609526782-0.3584348752j)|00&gt; + (-0.3584370267-0.6095231233j)|01&gt; + (0.0012419069+0j)|10&gt; + (0.0021118787+0j)|11&gt;
+{'00': 0.4999984576672817, '01': 0.49999553996851026, '10': 1.5423327181163183e-06, '11': 4.460031489581977e-06}
+</code></pre>
+
+<p>Note what happened this time. We kept our &ldquo;unsampling&rdquo; circuit the same, and it was not able to untangle the Bell state. We have equal probability of the $|00\rangle$ state as well as the $|01\rangle$ state.</p>
+
+<h2 id="another-example">Another Example</h2>
+
+<p>Now we can try the same approach, but with yet another circuit.</p>
+
+<pre><code class="language-python">def create_trial_circuit(state, qubits):
+    theta = Parameter('theta')
+    crtest = np.array([
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, quil_cos(theta / 2), -quil_sin(theta / 2)],
+        [0, 0, quil_sin(theta / 2), quil_cos(theta / 2)]
+    ])
+
+    gate_definition = DefGate('CRTEST', crtest, [theta])
+    CRTEST = gate_definition.get_constructor()
+
+    state += gate_definition
+    state += H(qubits[0])
+    state += Z(qubits[0])
+    state += CRTEST(np.pi/42)(qubits[0], qubits[1])
+
+    return state
+</code></pre>
+
+<pre><code class="language-python">result_two_qubit_opt = opt.minimize(cost_func_two_qubit_gate, np.array(params[0]), args=(qubits), method='Powell')
+optimised_two_q_param = np.asscalar(result_two_qubit_opt.x)
+print('The optimised parameter value found is: ', optimised_two_q_param)
+
+params = np.random.rand(1)
+result_single_qubit_opt = \
+opt.minimize(cost_func_both_gates, params, args=(optimised_two_q_param, qubits), method='Powell')
+optimised_single_q_param = result_single_qubit_opt.x
+print('The optimised parameter value found is: ', optimised_single_q_param)
+
+optimised_params = np.array([optimised_two_q_param, optimised_single_q_param])
+
+circuit_optimised = Program()
+circuit_optimised += gate_definition # We need to define the new gate in each program we use it in.
+
+ro = circuit_optimised.declare('ro', 'BIT', 1)
+
+create_trial_circuit(circuit_optimised, qubits)
+
+# Applying our &quot;unsampling&quot; operations here
+circuit_optimised += CRX(optimised_params[0])(qubits[0], qubits[1])
+circuit_optimised += RY(optimised_params[1], qubits[0])
+
+with local_qvm():
+    wavefunction = make_wf.wavefunction(circuit_optimised)
+
+print(wavefunction)
+
+print(wavefunction.get_outcome_probs())
+</code></pre>
+
+<pre><code>The optimised parameter value found is:  -0.04057073475865205
+The optimised parameter value found is:  1.5613149700366853
+(0.9995384668+0.000377419j)|00&gt; + (-0.0042860746-0.0003810145j)|01&gt; + (0.0186029294+0.0100867359j)|10&gt; + (-0.0187801519-0.0101828281j)|11&gt;
+{'00': 0.9990772890769184, '01': 1.8515607891615624e-05, '10': 0.00044781122263651166, '11': 0.0004563840925529468}
+</code></pre>
+
+<p>Our circuit worked out pretty well in this case!</p>
+
+<h1 id="conclusions">Conclusions</h1>
+
+<p>VQU is a quantum neural network approach to verification for NISQ computers. It provides another demonstrably working tool to use for quantum computer scientists, and a possibility to keep building on it.</p>
+
+<p>This is a very interesting new tool, one that we can hopefully learn to better use.</p>
+
+    </div>
+
+    
+
+
+
+
+    
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/quantum/">quantum</a>
+  
+</div>
+
+
+
+    
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  
+  
+    
+  
+  
+  <div class="media author-card">
+    
+      <img class="portrait mr-3" src="https://s.gravatar.com/avatar/2f9504a5192e2e1890d3b57dcc358055?s=200')" alt="Avatar">
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://filipmazurek.github.io/">Filip Mazurek</a></h5>
+      <h6 class="card-subtitle">Prospective Computer Science PhD Student</h6>
+      
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:filip@filipmazurek.com" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/f-mazurek/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/filipmazurek" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.youtube.com/channel/UCqNug5yM65yAxgSAp2s_6iA" target="_blank" rel="noopener">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="/files/mazurek_resume.pdf" >
+        <i class="ai ai-cv"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+      
+      
+      <div class="article-widget">
+        <div class="hr-light"></div>
+        <h3>Related</h3>
+        <ul>
+          
+          <li><a href="/projects/quantum-supremacy/">Quantum Supremacy Circuits</a></li>
+          
+          <li><a href="/projects/q-neural-nets/">Quantum Neural Networks</a></li>
+          
+          <li><a href="/projects/matrix-visualization/">Matrix Visualization</a></li>
+          
+          <li><a href="/projects/quantum-languages/">Quantum Languages</a></li>
+          
+        </ul>
+      </div>
+      
+    
+
+    
+
+    
+
+
+  </div>
+</article>
+
+      
+
+    
+    
+    
+    <script src="/js/mathjax-config.js"></script>
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js" integrity="sha256-aYTdUrn6Ow1DDgh5JTc3aDGnnju48y/1c8s1dgkYPQ8=" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/r.min.js"></script>
+        
+      
+
+      
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous" async></script>
+      
+    
+
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin="anonymous"></script>
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    
+    
+    
+    <script src="/js/academic.min.d6bd04fdad2ad213aa8111c5a3b72fc5.js"></script>
+
+    
+
+
+
+
+
+
+  
+  <div class="container">
+    <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    &copy; 2019 &middot; 
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" class="back-to-top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+  </div>
+  
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

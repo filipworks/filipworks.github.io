@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 4.5.0">
+
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Filip Mazurek">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="A quick cross-reference for writing quantum code in some of the most popular Python-based libraries.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="https://filipmazurek.github.io/projects/quantum-languages/">
+
+  
+
+
+  
+  
+  
+  <meta name="theme-color" content="#2962ff">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css" integrity="sha384-aOkxzJ5uQz7WBObEZcHvV5JvRW3TUc2rNPA7pe3AwnsUohiw1Vj2Rgx2KSOkF5+h" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin="anonymous">
+    
+
+    
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/css/academic.min.1884ccbe79662c38d99b291260b58a24.css">
+
+  
+
+  
+
+
+
+
+  
+
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon-32.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="https://filipmazurek.github.io/projects/quantum-languages/">
+
+  
+  
+  
+  
+    
+  
+  
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="Filip Mazurek">
+  <meta property="og:url" content="https://filipmazurek.github.io/projects/quantum-languages/">
+  <meta property="og:title" content="Quantum Languages | Filip Mazurek">
+  <meta property="og:description" content="A quick cross-reference for writing quantum code in some of the most popular Python-based libraries."><meta property="og:image" content="https://filipmazurek.github.io/projects/quantum-languages/featured.jpg">
+  <meta property="twitter:image" content="https://filipmazurek.github.io/projects/quantum-languages/featured.jpg"><meta property="og:locale" content="en-us">
+  
+    
+      <meta property="article:published_time" content="2019-08-16T00:00:00&#43;00:00">
+    
+    <meta property="article:modified_time" content="2019-08-16T00:00:00&#43;00:00">
+  
+
+  
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  <title>Quantum Languages | Filip Mazurek</title>
+
+</head>
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" >
+
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+  
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0 compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Filip Mazurek</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav mr-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#about"><span>Home</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#projects"><span>Projects</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#research-interests"><span>Research</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#experience"><span>Experience</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/files/mazurek_resume.pdf"><span>CV</span></a>
+        </li>
+
+        
+        
+
+      
+      </ul>
+      <ul class="navbar-nav ml-auto">
+      
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-dark-toggle" href="#"><i class="fas fa-moon" aria-hidden="true"></i></a>
+        </li>
+        
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+  <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+<div class="article-container pt-3">
+  <h1>Quantum Languages</h1>
+
+  
+
+  
+
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+    
+    Aug 16, 2019
+  </span>
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+  
+
+  
+    
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://twitter.com/intent/tweet?url=https://filipmazurek.github.io/projects/quantum-languages/&amp;text=Quantum%20Languages" target="_blank" rel="noopener" class="share-btn-twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.facebook.com/sharer.php?u=https://filipmazurek.github.io/projects/quantum-languages/&amp;t=Quantum%20Languages" target="_blank" rel="noopener" class="share-btn-facebook">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="mailto:?subject=Quantum%20Languages&amp;body=https://filipmazurek.github.io/projects/quantum-languages/" target="_blank" rel="noopener" class="share-btn-email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.linkedin.com/shareArticle?url=https://filipmazurek.github.io/projects/quantum-languages/&amp;title=Quantum%20Languages" target="_blank" rel="noopener" class="share-btn-linkedin">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://web.whatsapp.com/send?text=Quantum%20Languages%20https://filipmazurek.github.io/projects/quantum-languages/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://service.weibo.com/share/share.php?url=https://filipmazurek.github.io/projects/quantum-languages/&amp;title=Quantum%20Languages" target="_blank" rel="noopener" class="share-btn-weibo">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 400px; max-height: 400px;">
+  <div style="position: relative">
+    <img src="/projects/quantum-languages/featured.jpg" alt="" class="featured-image">
+    
+  </div>
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+
+<p>Filip Mazurek - 8/16/2019</p>
+
+<h1 id="introduction">Introduction</h1>
+
+<p>This notebook serves as a quick cross-reference for how to write code to run on a quantum computer in some of the most popular Python-based libraries. We&rsquo;ll cover the code for simulation on the local machine in Qiskit, Cirq, pyQuil, and ProjectQ. We&rsquo;ll also cover how to use Qiskit to run the quantum code on IBM&rsquo;s quantum computers.</p>
+
+<p>As for the actual code, we&rsquo;ll be basing everything on a game of &ldquo;Cat/Box/Scissors&rdquo;, and interesting quantum take on the classical rock-paper-scissors. The original was written by Dr. James Wootton, and can be found on <a href="https://medium.com/@decodoku/introducing-the-worlds-first-game-for-a-quantum-computer-50640e3c22e4" target="_blank">Medium</a></p>
+
+<p>Please note that this notebook only serves to show how writing quantum instructions is different among the different libraries. In order to run this on your machine, see each SDK&rsquo;s website for installation steps.</p>
+
+<p><a href="https://qiskit.org/" target="_blank">Qiskit</a><br/>
+<a href="https://cirq.readthedocs.io/en/stable/install.html" target="_blank">Cirq</a><br/>
+<a href="https://www.rigetti.com/forest" target="_blank">Forest/PyQuil</a><br/>
+<a href="https://projectq.readthedocs.io/en/latest/tutorials.html#getting-started" target="_blank">ProjectQ</a></p>
+
+<h2 id="projectq-original-code">ProjectQ Original Code</h2>
+
+<p>Dr. James Wootton wrote the original code below. As you can see, it&rsquo;s a simple luck-based game which takes advantage of quantum effects. Take a look at the original <a href="https://medium.com/@decodoku/introducing-the-worlds-first-game-for-a-quantum-computer-50640e3c22e4" target="_blank">Medium</a> article for how the game actually works, but we&rsquo;ll be focusing on how to translate the actual quantum part of the code.</p>
+
+<pre><code class="language-python">import math, numpy, random, time # normal python stuff
+
+from projectq import MainEngine  # import the main compiler engine
+from projectq.ops import H, S, T, X, CNOT, get_inverse, Measure  # import the operations we want to perform
+
+import projectq.setups.ibm
+from projectq.backends import IBMBackend
+
+eng = MainEngine() #uncomment to simulate on your own computer
+#eng = MainEngine(IBMBackend(use_hardware=True, num_runs=1, verbose=True, user=None, password=None))
+# uncomment to run on the quantum experience
+
+print(&quot;\n\n\n\n===== Welcome to Cat/Box/Scissors! =====\n\n&quot;)
+print(&quot;  ~~ A game by the Decodoku project ~~ \n\n&quot;)
+print(&quot;When in doubt, press any key to continue!&quot;)
+raw_input()
+print(&quot;You and your opponent choose one of two possible moves.&quot;)
+raw_input()
+print(&quot;You win if your moves are the same.&quot;)
+raw_input()
+print(&quot;Your opponent wins if they are different.&quot;)
+raw_input()
+
+# get human player to choose opponent
+chosen = 0
+while (chosen==0):
+	opponent = int( raw_input(&quot;\nWhich qubit will be your opponent? (1,2,3, or 4)\n&quot;) )
+	if ( (opponent &gt;= 1) &amp; (opponent &lt;= 4) ):
+		chosen = 1
+	else:
+		print(&quot;u wot m8? Try that again.&quot;)
+
+# here 1 and 2 mean qubits 0 and 1, so change accordingly
+if (opponent&lt;3):
+	opponent = opponent - 1
+
+# referee is always qubit 2
+
+# get human player to choose move
+chosen = 0
+while (chosen==0):
+	humanMove = raw_input(&quot;\nChoose your move (s or sdg)\n&quot;)
+	if ( (humanMove == &quot;s&quot;) | (humanMove == &quot;sdg&quot;) ):
+		chosen = 1
+	else:
+		print(&quot;u wot m8? Try that again.&quot;)
+
+print(&quot;\nWe'll now send your move to the quantum referee at IBM.&quot;)
+raw_input()
+print(&quot;It will take your opponents move and compare them.&quot;)
+raw_input()
+print(&quot;But first you'll have to sign in...\n&quot;)
+
+# prepare qubits
+qubits = eng.allocate_qureg(5)
+
+# referee decides things in the X basis, so we prepare it in the |+&gt; state
+H | qubits[2]
+
+# implement human move
+if (humanMove == &quot;s&quot;):
+	S | qubits[2]
+else:
+	get_inverse(S) | qubits[2]
+
+# opponent qubit is prepared in state |+&gt; to randomly decide the move to make
+H | qubits[opponent]
+
+# to implement the quantum move, first do an S in all cases
+S | qubits[2]
+# then use a controlled-Z to make it into a Sdg if that's what the quantum player chooses
+H | qubits[2]
+CNOT | (qubits[opponent], qubits[2])
+H | qubits[2]
+
+# quantum player wins if the moves where different, which would leave referee in the |+&gt; state
+# human player wins if the moves were the same
+# we measure in the X basis to see
+H | qubits[2]
+Measure | qubits[2]
+
+eng.flush()  # flush all gates (and execute measurements)
+
+print(&quot;\nThe referee has decided...\n&quot;)
+time.sleep(1)
+if int(qubits[2]):
+	print(&quot;You win!\n&quot;)
+else:
+	print(&quot;You Lose!\n&quot;)
+</code></pre>
+
+<h1 id="everything-else">Everything Else</h1>
+
+<p>Now we&rsquo;ll only care about the parts of the game that have different ways to write quantum instructions, so we&rsquo;ll go ahead and wrap each one in an <code>if</code> statement.</p>
+
+<pre><code class="language-python">print(&quot;\n\n\n\n===== Welcome to Cat/Box/Scissors! =====\n\n&quot;)
+print(&quot;  ~~ A game by the Decodoku project ~~ \n\n&quot;)
+print(&quot;When in doubt, press Enter key to continue!&quot;)
+input()
+print(&quot;You and your opponent choose one of two possible moves.&quot;)
+input()
+print(&quot;You win if your moves are the same.&quot;)
+input()
+print(&quot;Your opponent wins if they are different.&quot;)
+input()
+
+print(&quot;How should this quantum program run?&quot;)
+
+chosen = 0
+runMethod = &quot;&quot;
+while chosen == 0:
+    runMethod = input(&quot;\nChoose your method (ibm_sim or ibm_real or cirq or pyquil or projq)\n&quot;)
+    if (runMethod == &quot;ibm_sim&quot;) | (runMethod == &quot;ibm_real&quot;) | (runMethod == &quot;cirq&quot;) \
+            | (runMethod == &quot;pyquil&quot;) | (runMethod == &quot;pq&quot;) | (runMethod == &quot;projq&quot;):
+        chosen = 1
+    else:
+        print(&quot;u wot m8? Try that again.&quot;)
+
+# get human player to choose opponent
+chosen = 0
+opponent = -1
+while chosen == 0:
+    try:
+        opponent = int(input(&quot;\nWhich qubit will be your opponent? (1,2,3, or 4)\n&quot;))
+        if (opponent &gt;= 1) &amp; (opponent &lt;= 4):
+            chosen = 1
+        else:
+            print(&quot;u wot m8? Try that again.&quot;)
+    except ValueError:
+        input(&quot;Try again&quot;)
+
+# here 1 and 2 mean qubits 0 and 1, so change accordingly
+# referee is always qubit 2
+if opponent &lt; 3:
+    opponent = opponent - 1
+
+# get human player to choose move
+chosen = 0
+humanMove = &quot;&quot;
+while chosen == 0:
+    humanMove = input(&quot;\nChoose your move (s or sdg)\n&quot;)
+    if (humanMove == &quot;s&quot;) | (humanMove == &quot;sdg&quot;):
+        chosen = 1
+    else:
+        print(&quot;u wot m8? Try that again.&quot;)
+
+print(&quot;\nWe'll now send your move to the quantum referee - simulated.&quot;)
+input()
+print(&quot;It will take your opponents move and compare them.&quot;)
+input()
+
+#########
+#
+#  Here's where the different run methods lie. Take a look at the differences!
+#
+#########
+
+if (runMethod == &quot;ibm_sim&quot;) | (runMethod == &quot;ibm_real&quot;):
+    from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+    from qiskit import execute
+    from qiskit import BasicAer, IBMQ
+    from qiskit.providers.ibmq import least_busy
+
+    q = QuantumRegister(5)
+    c = ClassicalRegister(1)
+    qc = QuantumCircuit(q, c)
+
+    if runMethod == &quot;ibm_sim&quot;:
+        backend = BasicAer.get_backend(&quot;qasm_simulator&quot;)
+    else:
+        import secrets
+        provider = IBMQ.enable_account(secrets.IBM_TOKEN)
+        large_enough_devices = provider.backends(filters=lambda x: x.configuration().n_qubits &gt; 4 and
+                                                               not x.configuration().simulator)
+        backend = least_busy(large_enough_devices)
+        print(&quot;The best IBM simulation backend is &quot; + backend.name())
+
+    # referee decides things in the X basis, so we prepare it in the |+&gt; state
+    qc.h(q[2])
+
+    # implement human move
+    if humanMove == &quot;s&quot;:
+        qc.s(q[2])
+    else:
+        qc.sdg(q[2])
+
+    # opponent qubit is prepared in state |+&gt; to randomly decide the move to make
+    qc.h(q[opponent])
+
+    # to implement the quantum move, first do an S in all cases
+    qc.s(q[2])
+    # then use a controlled-Z to make it into a Sdg if that's what the quantum player chooses
+    qc.h(q[2])
+    qc.cx(q[opponent], q[2])
+    qc.h(q[2])
+
+    # quantum player wins if the moves where different, which would leave referee in the |+&gt; state
+    # human player wins if the moves were the same
+    # we measure in the X basis to see
+    qc.h(q[2])
+    qc.barrier()
+    qc.measure(q[2], c)
+
+    qc.draw(filename=&quot;circ.txt&quot;)
+
+    # Run the quantum circuit on a statevector simulator backend
+    job = execute(qc, backend, shots=1)
+    result = job.result()
+    counts = result.get_counts(qc)
+    if &quot;1&quot; in counts:
+        print(&quot;You win!&quot;)
+    elif &quot;0&quot; in counts:
+        print(&quot;You lose&quot;)
+    else:
+        print(&quot;Something weird happened&quot;)
+
+
+if runMethod == &quot;cirq&quot;:
+    import cirq
+    from cirq.ops import H, S, CNOT, measure
+
+    qubits = [cirq.GridQubit(0, i) for i in range(5)]
+    q2 = qubits[2]
+    circuit = cirq.Circuit()
+
+    circuit.append(H(q2))
+
+    if humanMove == &quot;s&quot;:
+        circuit.append(S(q2))
+    else:
+        circuit.append(cirq.inverse(S(q2)))
+
+    circuit.append([H(qubits[opponent]),
+                    S(q2),
+                    H(q2),
+                    CNOT(qubits[opponent], q2),
+                    H(q2),
+                    H(q2),
+                    measure(q2, key=&quot;m&quot;)
+                    ])
+
+    print(circuit)
+
+    simulator = cirq.Simulator()
+    results = simulator.run(circuit, repetitions=1)
+    # print(results.histogram(key=&quot;m&quot;))
+    keys = results.histogram(key=&quot;m&quot;).keys()
+
+    for key in keys:
+        if key == 1:
+            print(&quot;You win!&quot;)
+        elif key == 0:
+            print(&quot;You lose&quot;)
+        else:
+            print(&quot;Something weird happened&quot;)
+
+
+# first, must start running compiler and vm using the following commands in terminal
+# quilc -S
+# qvm -S
+if runMethod == &quot;pyquil&quot;:
+    from pyquil.quil import Gate
+    from pyquil.gates import H, CNOT, S
+    from pyquil import Program, get_qc
+    from pyquil.api import local_qvm
+
+    qvm = get_qc('5q-qvm')
+    program = Program(H(2))
+
+    if humanMove == &quot;s&quot;:
+        program += S(2)
+    else:
+        program += Gate.dagger(S(2))
+
+    program += [H(opponent), S(2), H(2), CNOT(opponent, 2), H(2), H(2)]
+
+    with local_qvm():
+        results = qvm.run_and_measure(program, trials=1)
+
+    if results[2][0] == 1:
+        print(&quot;You win!&quot;)
+    elif results[2][0] == 0:
+        print(&quot;You lose&quot;)
+    else:
+        print(&quot;Something went weird&quot;)
+
+    # print(results)
+
+if runMethod == &quot;projq&quot;:
+    from projectq import MainEngine
+    from projectq.ops import H, S, Sdag, CNOT, Measure
+
+    eng = MainEngine()
+
+    qubits = eng.allocate_qureg(5)
+    q2 = qubits[2]
+
+    H | q2
+
+    if humanMove == &quot;s&quot;:
+        S | q2
+    else:
+        Sdag | q2
+
+    H | qubits[opponent]
+    S | q2
+    H | q2
+    CNOT | (qubits[opponent], q2)
+    H | q2
+    H | q2
+
+    Measure | q2
+
+    eng.flush()
+
+    if int(q2) == 1:
+        print(&quot;You win!&quot;)
+    elif int(q2) == 0:
+        print(&quot;You lose&quot;)
+    else:
+        print(&quot;Something went weird&quot;)
+
+</code></pre>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>And that&rsquo;s all there is to it! Of course it&rsquo;s most useful to take a look at the actual documentation when writing each piece of code. But hopefully this quick reference can serve as an introduction to choose how you want to write quantum code!</p>
+
+    </div>
+
+    
+
+
+
+
+    
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/quantum/">quantum</a>
+  
+</div>
+
+
+
+    
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  
+  
+    
+  
+  
+  <div class="media author-card">
+    
+      <img class="portrait mr-3" src="https://s.gravatar.com/avatar/2f9504a5192e2e1890d3b57dcc358055?s=200')" alt="Avatar">
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://filipmazurek.github.io/">Filip Mazurek</a></h5>
+      <h6 class="card-subtitle">Prospective Computer Science PhD Student</h6>
+      
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:filip@filipmazurek.com" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/f-mazurek/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/filipmazurek" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.youtube.com/channel/UCqNug5yM65yAxgSAp2s_6iA" target="_blank" rel="noopener">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="/files/mazurek_resume.pdf" >
+        <i class="ai ai-cv"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+      
+      
+    
+
+    
+
+    
+
+
+  </div>
+</article>
+
+      
+
+    
+    
+    
+    <script src="/js/mathjax-config.js"></script>
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js" integrity="sha256-aYTdUrn6Ow1DDgh5JTc3aDGnnju48y/1c8s1dgkYPQ8=" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/r.min.js"></script>
+        
+      
+
+      
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous" async></script>
+      
+    
+
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin="anonymous"></script>
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    
+    
+    
+    <script src="/js/academic.min.d6bd04fdad2ad213aa8111c5a3b72fc5.js"></script>
+
+    
+
+
+
+
+
+
+  
+  <div class="container">
+    <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    &copy; 2019 &middot; 
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" class="back-to-top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+  </div>
+  
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

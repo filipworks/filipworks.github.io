@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 4.5.0">
+
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Filip Mazurek">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="A utility to calculate how a unitary matrix will look. Useful for visualizing the effects of certain Hamiltonians.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="https://filipmazurek.github.io/projects/matrix-visualization/">
+
+  
+
+
+  
+  
+  
+  <meta name="theme-color" content="#2962ff">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css" integrity="sha384-aOkxzJ5uQz7WBObEZcHvV5JvRW3TUc2rNPA7pe3AwnsUohiw1Vj2Rgx2KSOkF5+h" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin="anonymous">
+    
+
+    
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/css/academic.min.1884ccbe79662c38d99b291260b58a24.css">
+
+  
+
+  
+
+
+
+
+  
+
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon-32.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="https://filipmazurek.github.io/projects/matrix-visualization/">
+
+  
+  
+  
+  
+    
+  
+  
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="Filip Mazurek">
+  <meta property="og:url" content="https://filipmazurek.github.io/projects/matrix-visualization/">
+  <meta property="og:title" content="Matrix Visualization | Filip Mazurek">
+  <meta property="og:description" content="A utility to calculate how a unitary matrix will look. Useful for visualizing the effects of certain Hamiltonians."><meta property="og:image" content="https://filipmazurek.github.io/projects/matrix-visualization/featured.jpg">
+  <meta property="twitter:image" content="https://filipmazurek.github.io/projects/matrix-visualization/featured.jpg"><meta property="og:locale" content="en-us">
+  
+    
+      <meta property="article:published_time" content="2019-09-20T00:00:00&#43;00:00">
+    
+    <meta property="article:modified_time" content="2019-09-20T00:00:00&#43;00:00">
+  
+
+  
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  <title>Matrix Visualization | Filip Mazurek</title>
+
+</head>
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" >
+
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+  
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0 compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Filip Mazurek</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav mr-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#about"><span>Home</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#projects"><span>Projects</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#research-interests"><span>Research</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#experience"><span>Experience</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/files/mazurek_resume.pdf"><span>CV</span></a>
+        </li>
+
+        
+        
+
+      
+      </ul>
+      <ul class="navbar-nav ml-auto">
+      
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-dark-toggle" href="#"><i class="fas fa-moon" aria-hidden="true"></i></a>
+        </li>
+        
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+  <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+
+<div class="article-container pt-3">
+  <h1>Matrix Visualization</h1>
+
+  
+
+  
+
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+    
+    Sep 20, 2019
+  </span>
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+  
+
+  
+    
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://twitter.com/intent/tweet?url=https://filipmazurek.github.io/projects/matrix-visualization/&amp;text=Matrix%20Visualization" target="_blank" rel="noopener" class="share-btn-twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.facebook.com/sharer.php?u=https://filipmazurek.github.io/projects/matrix-visualization/&amp;t=Matrix%20Visualization" target="_blank" rel="noopener" class="share-btn-facebook">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="mailto:?subject=Matrix%20Visualization&amp;body=https://filipmazurek.github.io/projects/matrix-visualization/" target="_blank" rel="noopener" class="share-btn-email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.linkedin.com/shareArticle?url=https://filipmazurek.github.io/projects/matrix-visualization/&amp;title=Matrix%20Visualization" target="_blank" rel="noopener" class="share-btn-linkedin">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://web.whatsapp.com/send?text=Matrix%20Visualization%20https://filipmazurek.github.io/projects/matrix-visualization/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://service.weibo.com/share/share.php?url=https://filipmazurek.github.io/projects/matrix-visualization/&amp;title=Matrix%20Visualization" target="_blank" rel="noopener" class="share-btn-weibo">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 720px; max-height: 568px;">
+  <div style="position: relative">
+    <img src="/projects/matrix-visualization/featured_hu875cb666f7c1fb1b05794b812816f94c_299864_720x0_resize_q90_lanczos.jpg" alt="" class="featured-image">
+    
+  </div>
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+
+<p>Filip Mazurek</p>
+
+<h1 id="introduction">Introduction</h1>
+
+<p>This notebook will introduce the utility of how to set up matrices and their multiplication to more easily visualize quantum operations. The premise is that we already know how the single-qubit operation matrices look, and we know how to combine them. While not difficult, this notebook provides a starting point.</p>
+
+<h1 id="basic-operations">Basic Operations</h1>
+
+<p>First, we have to define our single-qubit operations. We&rsquo;ll define these as some of the most common gates available, but add more as needed. We&rsquo;ll be working with numpy arrays to make matrix operations easier.</p>
+
+<pre><code class="language-python">from numpy import kron as k
+from numpy import subtract as sub
+from numpy import add
+from numpy import sqrt
+from numpy import array
+import numpy as np
+</code></pre>
+
+<pre><code class="language-python">pauli_Z = array([[1, 0], [0, -1]])
+pauli_X = array([[0, 1], [1, 0]])
+identity = array([[1, 0], [0, 1]])
+</code></pre>
+
+<p>We can go ahead and simplify the naming, since we&rsquo;ll be using lots of these matrices.</p>
+
+<pre><code class="language-python">Z = pauli_Z
+X = pauli_X
+I = identity
+H = 1/sqrt(2) * array([[1, 1], [1, -1]])
+S = array([[1, 0], [0, 1j]])
+</code></pre>
+
+<h1 id="compound-matrices">Compound Matrices</h1>
+
+<p>Now that we have some basic operations defined, let&rsquo;s define what everything would look like if we were figuring out a Hamiltonian which runs on <strong>four qubits</strong>. In order to make the above operation usable, we need to use the Kronecker product (our imported k) with the identity operator. Let&rsquo;s do this for the Z operator.</p>
+
+<pre><code class="language-python">z0 = k(k(k(Z, I), I), I)
+z1 = k(k(k(I, Z), I), I)
+z2 = k(k(k(I, I), Z), I)
+z3 = k(k(k(I, I), I), Z)
+I4 = k(k(k(I, I), I), I)
+</code></pre>
+
+<h1 id="traveling-salesman-example">Traveling Salesman Example</h1>
+
+<p>The following is an excerpt from the Hamiltonian on traveling salesman. It penalizes the qubits for being in two cities at once and for not visiting any cities. We&rsquo;ll be doing the case for four qubits (two cities at two timesteps).</p>
+
+<pre><code class="language-python">def create_penalty_operators_for_qubit_range(self, range_of_qubits):
+    from pyquil.paulis import PauliTerm, PauliSum
+    cost_operators = []
+    weight = -100 * np.max(self.distance_matrix)
+    for i in range_of_qubits:
+        if i == range_of_qubits[0]:
+            z_term = PauliTerm(&quot;Z&quot;, i, weight)
+            all_ones_term = PauliTerm(&quot;I&quot;, 0, 0.5 * weight) - PauliTerm(&quot;Z&quot;, i, 0.5 * weight)
+        else:
+            z_term = z_term * PauliTerm(&quot;Z&quot;, i)
+            all_ones_term = all_ones_term * (PauliTerm(&quot;I&quot;, 0, 0.5) - PauliTerm(&quot;Z&quot;, i, 0.5))
+
+    z_term = PauliSum([z_term])
+    cost_operators.append(PauliTerm(&quot;I&quot;, 0, weight) - z_term - all_ones_term)
+
+    return cost_operators
+</code></pre>
+
+<p>That&rsquo;s part of the code creating a Hamiltonian with Pauli operators. We can visualize what it looks like if we were to run it, but let&rsquo;s do that later. First, let&rsquo;s see what our expected matrix would look just using matrix multiplication. The below starts with what the penalty is between each of the qubit positions. If you&rsquo;re having trouble following at this point, please check out the quantum traveling salesman problem for context!</p>
+
+<pre><code class="language-python">def create_penalty_for_range_02():
+    weight = -100
+
+    z_term = z0 * -100
+    all_ones_term = sub(I4 * -50, z0 * -50)
+
+    z_term = z_term.dot(z2)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z2 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+
+
+def create_penalty_for_range_13():
+    weight = -100
+
+    z_term = z1 * -100
+    all_ones_term = sub(I4 * -50, z1 * -50)
+
+    z_term = z_term.dot(z3)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z3 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+
+
+def create_penalty_for_range_01():
+    weight = -100
+
+    z_term = z0 * -100
+    all_ones_term = sub(I4 * -50, z0 * -50)
+
+    z_term = z_term.dot(z1)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z1 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+
+
+def create_penalty_for_range_23():
+    weight = -100
+
+    z_term = z2 * -100
+    all_ones_term = sub(I4 * -50, z2 * -50)
+
+    z_term = z_term.dot(z3)
+    all_ones_term = all_ones_term.dot(sub((I4 * .5), (z3 * .5)))
+
+    cost_op = sub(sub(I4 * -100, z_term), all_ones_term)
+
+    # print(cost_op)
+
+    return cost_op
+</code></pre>
+
+<p>Now we can add up each of the penalty terms and find the part of our cost Hamiltonian for co-location and multiple visitation.</p>
+
+<pre><code class="language-python">same_city_penalty = add(add(add(create_penalty_for_range_02(),
+                                create_penalty_for_range_13()),
+                            create_penalty_for_range_01()),
+                        create_penalty_for_range_23())
+print(same_city_penalty)
+</code></pre>
+
+<pre><code>[[   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0. -400.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0. -400.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0. -300.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0. -400.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0. -300.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0. -800.    0.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0. -200.    0.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0. -400.    0.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0. -800.    0.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0. -300.    0.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0. -200.
+     0.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+  -300.    0.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0. -200.    0.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0. -200.    0.]
+ [   0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.    0.
+     0.    0.    0.  400.]]
+</code></pre>
+
+<p>Here, we can check that indeed our most favored states of <code>0110</code> and <code>1001</code> are indeed the ones with the most favorable (negative) value. The difference between the most favored states and the rest may not be as large as we had hoped, so we might be left looking for a better Hamiltonian. But that can be an exercise saved for another time.</p>
+
+<h1 id="multi-qubit-operations">Multi-Qubit Operations</h1>
+
+<p>We can also add in multi-qubit operations, such as CNOT, or even custom controlled rotations. Note that working with these might require you to make custom matrices, since, by definition, it&rsquo;s impossible to get these results by multiplying single qubit operations using the Kronecker product.</p>
+
+<pre><code class="language-python">CNOT = array([
+    [1, 0, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, 0, 1],
+    [0, 0, 1, 0]])
+
+def CRX(theta):
+    CRX = array([
+        [1, 0, 0, 0],
+        [0, 1, 0, 0],
+        [0, 0, np.cos(theta / 2), -1j * np.sin(theta / 2)],
+        [0, 0, -1j * np.sin(theta / 2), np.cos(theta / 2)]
+        ])
+    return CRX
+</code></pre>
+
+<p>Note that if we were to want to make a CNOT in a two qubit system where the second qubit is the control for <code>NOT</code> on the first, we would need to define a different matrix.</p>
+
+<pre><code class="language-python">CNOT_rev = array([
+    [0, 1, 0, 0],
+    [1, 0, 0, 0],
+    [0, 0, 1, 0],
+    [0, 0, 0, 1]])
+</code></pre>
+
+<p>Notice the differences of how these CNOTs act.</p>
+
+<pre><code class="language-python">qubits = array([[1], [2], [3], [4]])
+
+CNOT @ qubits
+</code></pre>
+
+<pre><code>array([[1],
+       [2],
+       [4],
+       [3]])
+</code></pre>
+
+<pre><code class="language-python">CNOT_rev @ qubits
+</code></pre>
+
+<pre><code>array([[2],
+       [1],
+       [3],
+       [4]])
+</code></pre>
+
+    </div>
+
+    
+
+
+
+
+    
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/quantum/">quantum</a>
+  
+</div>
+
+
+
+    
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  
+  
+    
+  
+  
+  <div class="media author-card">
+    
+      <img class="portrait mr-3" src="https://s.gravatar.com/avatar/2f9504a5192e2e1890d3b57dcc358055?s=200')" alt="Avatar">
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://filipmazurek.github.io/">Filip Mazurek</a></h5>
+      <h6 class="card-subtitle">Prospective Computer Science PhD Student</h6>
+      
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:filip@filipmazurek.com" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/f-mazurek/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/filipmazurek" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.youtube.com/channel/UCqNug5yM65yAxgSAp2s_6iA" target="_blank" rel="noopener">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="/files/mazurek_resume.pdf" >
+        <i class="ai ai-cv"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+      
+      
+      <div class="article-widget">
+        <div class="hr-light"></div>
+        <h3>Related</h3>
+        <ul>
+          
+          <li><a href="/projects/quantum-languages/">Quantum Languages</a></li>
+          
+        </ul>
+      </div>
+      
+    
+
+    
+
+    
+
+
+  </div>
+</article>
+
+      
+
+    
+    
+    
+    <script src="/js/mathjax-config.js"></script>
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js" integrity="sha256-aYTdUrn6Ow1DDgh5JTc3aDGnnju48y/1c8s1dgkYPQ8=" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/r.min.js"></script>
+        
+      
+
+      
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous" async></script>
+      
+    
+
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin="anonymous"></script>
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    
+    
+    
+    <script src="/js/academic.min.d6bd04fdad2ad213aa8111c5a3b72fc5.js"></script>
+
+    
+
+
+
+
+
+
+  
+  <div class="container">
+    <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    &copy; 2019 &middot; 
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" class="back-to-top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+  </div>
+  
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

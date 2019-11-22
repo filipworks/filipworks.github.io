@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="generator" content="Source Themes Academic 4.5.0">
+
+  
+
+  
+  
+  
+  
+  
+    
+    
+    
+  
+  
+
+  <meta name="author" content="Filip Mazurek">
+
+  
+  
+  
+    
+  
+  <meta name="description" content="Constructing pseudo-random generating circuits. Based on Google&#39;s claim to quantum supremacy.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="https://filipmazurek.github.io/projects/quantum-supremacy/">
+
+  
+
+
+  
+  
+  
+  <meta name="theme-color" content="#2962ff">
+  
+
+  
+  
+  
+  
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.6/css/academicons.min.css" integrity="sha256-uFVgMKfistnJAfoCUQigIl+JfUaP47GrRKjf6CTPVmw=" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.0/css/all.css" integrity="sha384-aOkxzJ5uQz7WBObEZcHvV5JvRW3TUc2rNPA7pe3AwnsUohiw1Vj2Rgx2KSOkF5+h" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+
+    
+    
+    
+      
+    
+    
+      
+      
+        
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css" crossorigin="anonymous" title="hl-light">
+          <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/dracula.min.css" crossorigin="anonymous" title="hl-dark" disabled>
+        
+      
+    
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin="anonymous">
+    
+
+    
+
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,700%7CRoboto:400,400italic,700%7CRoboto+Mono&display=swap">
+  
+
+  
+  
+  
+  <link rel="stylesheet" href="/css/academic.min.1884ccbe79662c38d99b291260b58a24.css">
+
+  
+
+  
+
+
+
+
+  
+
+
+  
+
+  <link rel="manifest" href="/index.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon-32.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="https://filipmazurek.github.io/projects/quantum-supremacy/">
+
+  
+  
+  
+  
+    
+  
+  
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="og:site_name" content="Filip Mazurek">
+  <meta property="og:url" content="https://filipmazurek.github.io/projects/quantum-supremacy/">
+  <meta property="og:title" content="Quantum Supremacy Circuits | Filip Mazurek">
+  <meta property="og:description" content="Constructing pseudo-random generating circuits. Based on Google&#39;s claim to quantum supremacy."><meta property="og:image" content="https://filipmazurek.github.io/projects/quantum-supremacy/featured.jpg">
+  <meta property="twitter:image" content="https://filipmazurek.github.io/projects/quantum-supremacy/featured.jpg"><meta property="og:locale" content="en-us">
+  
+    
+      <meta property="article:published_time" content="2019-10-12T00:00:00&#43;00:00">
+    
+    <meta property="article:modified_time" content="2019-10-12T00:00:00&#43;00:00">
+  
+
+  
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+
+  <title>Quantum Supremacy Circuits | Filip Mazurek</title>
+
+</head>
+
+<body id="top" data-spy="scroll" data-offset="70" data-target="#TableOfContents" >
+
+  <aside class="search-results" id="search">
+  <div class="container">
+    <section class="search-header">
+
+      <div class="row no-gutters justify-content-between mb-3">
+        <div class="col-6">
+          <h1>Search</h1>
+        </div>
+        <div class="col-6 col-search-close">
+          <a class="js-search" href="#"><i class="fas fa-times-circle text-muted" aria-hidden="true"></i></a>
+        </div>
+      </div>
+
+      <div id="search-box">
+        
+        <input name="q" id="search-query" placeholder="Search..." autocapitalize="off"
+        autocomplete="off" autocorrect="off" spellcheck="false" type="search">
+        
+      </div>
+
+    </section>
+    <section class="section-search-results">
+
+      <div id="search-hits">
+        
+      </div>
+
+    </section>
+  </div>
+</aside>
+
+
+  
+<nav class="navbar navbar-light fixed-top navbar-expand-lg py-0 compensate-for-scrollbar" id="navbar-main">
+  <div class="container">
+
+    
+      <a class="navbar-brand" href="/">Filip Mazurek</a>
+      
+      <button type="button" class="navbar-toggler" data-toggle="collapse"
+              data-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span><i class="fas fa-bars"></i></span>
+      </button>
+      
+
+    
+    <div class="collapse navbar-collapse" id="navbar">
+
+      
+      
+      <ul class="navbar-nav mr-auto">
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#about"><span>Home</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#projects"><span>Projects</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#research-interests"><span>Research</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+          
+          
+          
+            
+          
+          
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/#experience"><span>Experience</span></a>
+        </li>
+
+        
+        
+
+        
+
+        
+        
+        
+          
+        
+
+        
+        
+        
+        
+        
+        
+
+        <li class="nav-item">
+          <a class="nav-link " href="/files/mazurek_resume.pdf"><span>CV</span></a>
+        </li>
+
+        
+        
+
+      
+      </ul>
+      <ul class="navbar-nav ml-auto">
+      
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-search" href="#"><i class="fas fa-search" aria-hidden="true"></i></a>
+        </li>
+        
+
+        
+
+        
+        <li class="nav-item">
+          <a class="nav-link js-dark-toggle" href="#"><i class="fas fa-moon" aria-hidden="true"></i></a>
+        </li>
+        
+
+      </ul>
+
+    </div>
+  </div>
+</nav>
+
+
+  <article class="article">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+
+<div class="article-container pt-3">
+  <h1>Quantum Supremacy Circuits</h1>
+
+  
+
+  
+
+
+
+<div class="article-metadata">
+
+  
+  
+
+  
+  <span class="article-date">
+    
+    
+      
+    
+    Oct 12, 2019
+  </span>
+  
+
+  
+
+  
+
+  
+  
+  
+
+  
+  
+
+  
+    
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://twitter.com/intent/tweet?url=https://filipmazurek.github.io/projects/quantum-supremacy/&amp;text=Quantum%20Supremacy%20Circuits" target="_blank" rel="noopener" class="share-btn-twitter">
+          <i class="fab fa-twitter"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.facebook.com/sharer.php?u=https://filipmazurek.github.io/projects/quantum-supremacy/&amp;t=Quantum%20Supremacy%20Circuits" target="_blank" rel="noopener" class="share-btn-facebook">
+          <i class="fab fa-facebook-f"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="mailto:?subject=Quantum%20Supremacy%20Circuits&amp;body=https://filipmazurek.github.io/projects/quantum-supremacy/" target="_blank" rel="noopener" class="share-btn-email">
+          <i class="fas fa-envelope"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://www.linkedin.com/shareArticle?url=https://filipmazurek.github.io/projects/quantum-supremacy/&amp;title=Quantum%20Supremacy%20Circuits" target="_blank" rel="noopener" class="share-btn-linkedin">
+          <i class="fab fa-linkedin-in"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://web.whatsapp.com/send?text=Quantum%20Supremacy%20Circuits%20https://filipmazurek.github.io/projects/quantum-supremacy/" target="_blank" rel="noopener" class="share-btn-whatsapp">
+          <i class="fab fa-whatsapp"></i>
+        </a>
+      </li>
+    
+      
+      
+      
+        
+      
+      
+      
+      <li>
+        <a href="https://service.weibo.com/share/share.php?url=https://filipmazurek.github.io/projects/quantum-supremacy/&amp;title=Quantum%20Supremacy%20Circuits" target="_blank" rel="noopener" class="share-btn-weibo">
+          <i class="fab fa-weibo"></i>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+
+
+  
+
+</div>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+
+<div class="article-header article-container featured-image-wrapper mt-4 mb-4" style="max-width: 720px; max-height: 477px;">
+  <div style="position: relative">
+    <img src="/projects/quantum-supremacy/featured_hu3a49524507827b8c2de44cfef4f2a6e1_129152_720x0_resize_q90_lanczos.jpg" alt="" class="featured-image">
+    
+  </div>
+</div>
+
+
+
+  <div class="article-container">
+
+    <div class="article-style">
+      
+
+<h1 id="introduction">Introduction</h1>
+
+<p>Some information recently leaked that Google&rsquo;s quantum computing team achieved quantum supremacy &ndash; that Google&rsquo;s new 54-qubit quantum computer was successful in completing a task that would be intractable even for modern supercomputers. This notebook is dedicated to running a simplified version of the supremacy circuit that Google&rsquo;s team used. It is based on the notebook from the University of Edinburgh&rsquo;s quantum computing hackathon, found on <a href="https://github.com/QuHackEd/Challenges/blob/master/advanced_challenge_circuit_sampling.ipynb" target="_blank">GitHub</a></p>
+
+<p>We&rsquo;re going to follow the original <a href="https://arxiv.org/abs/1608.00263" target="_blank">Google proposal</a> This supremacy circuit focuses on running pseudo-random quantum circuits, which is a natural task for a quantum computer, but can take exponential time to run on a classical computer. We&rsquo;ll run a four-qubit example of this supremacy circuit.</p>
+
+<h1 id="circuit-building">Circuit Building</h1>
+
+<p>The first step in the supremacy routine is to apply Hadamard gates to all qubits.</p>
+
+<pre><code class="language-python">from pyquil import Program
+from pyquil.api import get_qc, WavefunctionSimulator, local_qvm
+from pyquil.gates import *
+import numpy as np
+</code></pre>
+
+<pre><code class="language-python">def hadamard_to_all(circuit, n):
+    for qubit in qubits:
+        circuit += H(qubit)
+    return circuit
+</code></pre>
+
+<p>Next we have the application of Controlled-Z operations to all qubits, where the qubits are ordered in a square. For an example of a 6 x 6 qubit grid, these CZ gates are applied in an order specified by this image:</p>
+
+<p><img src="supremacy_cZ.png" alt="Application of CZ gates" width="50%"/></p>
+
+<p>While applying the CZ gates, we begin adding random gates from a specific set. We apply them following these rules:</p>
+
+<ul>
+<li>The set of gates that may be applied is
+
+<ul>
+<li>$X^{\frac{1}{2}} = \exp\left(i\frac{\pi}{4}\sigma_x\right)$</li>
+<li>$Y^{\frac{1}{2}} = \exp{i\frac{\pi}{4}\sigma_y}$</li>
+<li>$T = \left(\begin{array}{cc}
+    1 &amp; 0 \\<br />
+    0 &amp; e^{i\pi/4} \end{array}
+\right)$</li>
+</ul></li>
+<li>A gate from this set may be applied to a qubit only if a CZ gate was applied to it the previous time step.</li>
+<li>On each qubit, the first gate from this set to be applied must be the $T$ gate</li>
+<li>On each qubit, a different gate from this set must be applied than was applied to it previously</li>
+</ul>
+
+<p>The end goal is to have a circuit of the general form shown below.</p>
+
+<p><img src="supremacy_circ_gates.png" alt="General supremacy circuit" width="50%"/></p>
+
+<p>First, we need to define the $X^{\frac{1}{2}}$ and $Y^{\frac{1}{2}}$ gates.</p>
+
+<pre><code class="language-python">from pyquil.quilbase import DefGate
+
+# gate definitions for the X^(1/2) gate
+sqrt_x = np.array([[ 0.5+0.5j,  0.5-0.5j],
+                   [ 0.5-0.5j,  0.5+0.5j]])
+# Get the Quil definition for the new gate
+sqrt_x_definition = DefGate(&quot;SQRT_X&quot;, sqrt_x)
+# Get the gate constructor
+SQRT_X = sqrt_x_definition.get_constructor()
+
+# gate definitions for the Y^(1/2) gate
+sqrt_y = np.array([[ 0.5+0.5j, -0.5-0.5j],
+                   [ 0.5+0.5j,  0.5+0.5j]])
+# Get the Quil definition for the new gate
+sqrt_y_definition = DefGate(&quot;SQRT_Y&quot;, sqrt_y)
+# Get the gate constructor
+SQRT_Y = sqrt_y_definition.get_constructor()
+</code></pre>
+
+<p>Now that we have defined all gates and constructed a function to apply the Hadamard to all qubits, we can make a function to apply all necessary operations. For the sake of reproducibility and brevity, we&rsquo;ll apply the gates in a set order, but it is trivial to pick them from the random set instead.</p>
+
+<pre><code class="language-python">def random_circuit_sampling_4(circuit, qubits):
+    circuit += sqrt_x_definition
+    circuit += sqrt_y_definition
+
+    circuit = hadamard_to_all(circuit, np.sqrt(len(qubits)))
+    circuit += CZ(qubits[0], qubits[1])
+
+    circuit += T(qubits[0])
+    circuit += T(qubits[1])
+
+    circuit += CZ(qubits[2], qubits[3])
+
+    circuit += T(qubits[2])
+    circuit += T(qubits[3])
+
+    # end of layer 1
+    #----------------------
+
+    circuit += CZ(qubits[0], qubits[2])
+
+    circuit += SQRT_Y(qubits[0])
+    circuit += SQRT_X(qubits[2])
+
+    circuit += CZ(qubits[1], qubits[3])
+
+    circuit += SQRT_Y(qubits[1])
+    circuit += SQRT_X(qubits[3])
+
+    return circuit
+</code></pre>
+
+<p>Now we are ready to apply the randomized gates to the circuit.</p>
+
+<pre><code class="language-python">circuit = Program()
+qc = get_qc(&quot;4q-qvm&quot;)
+qubits = qc.qubits()
+
+random_circuit_sampling_4(circuit, qubits)
+</code></pre>
+
+<pre><code>&lt;pyquil.quil.Program at 0xa21c78cf8&gt;
+</code></pre>
+
+<p>Now that the circuit is built, let&rsquo;s also make a plotting utility so that we can see the outcomes more easily.</p>
+
+<pre><code class="language-python">def plot_data(probs):
+    x = np.arange(len(probs))        
+    plt.bar(x, probs.values(), width=0.3, align='center')
+
+    plt.xticks(range(len(probs)), list(probs.keys()),rotation=70)
+
+    plt.xlabel(&quot;Outcomes&quot;, fontsize=20)
+    plt.ylabel(&quot;Coefficients&quot;, fontsize=20)
+</code></pre>
+
+<p>Now let&rsquo;s actually find the values of the circuit. We&rsquo;ll use the PyQuil WavefunctionSimulator to get the exact outputs. Recall that the exact probability of an outcome is the coefficient squared.</p>
+
+<pre><code class="language-python">from pyquil.api import WavefunctionSimulator
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+make_wf = WavefunctionSimulator()
+
+with local_qvm():
+    wf = make_wf.wavefunction(circuit)
+exact_probs = wf.get_outcome_probs()
+print('The exact circuit probability coeffs are: \n', exact_probs )
+
+plot_data(exact_probs)
+</code></pre>
+
+<pre><code>The exact circuit probability coeffs are:
+ {'0000': 0.015624999999999993, '0001': 0.0026808261758407724, '0010': 0.0026808261758407724, '0011': 0.22901334764831824, '0100': 0.09106917382415915, '0101': 0.14062499999999992, '0110': 0.015624999999999993, '0111': 0.002680826175840781, '1000': 0.09106917382415915, '1001': 0.015624999999999986, '1010': 0.14062499999999992, '1011': 0.002680826175840778, '1100': 0.05223665235168152, '1101': 0.09106917382415915, '1110': 0.09106917382415915, '1111': 0.01562499999999999}
+</code></pre>
+
+<p><img src="output_16_1.png" alt="png" /></p>
+
+<h1 id="conclusions">Conclusions</h1>
+
+<p>It&rsquo;s easy to see how this supremacy circuit is relatively easy to execute on a quantum computer, since it is a series of two- and one-qubit operations. It&rsquo;s also easy to see how the size of classical computation for this circuit can quickly grow exponentially.</p>
+
+<p>This contrived example has shown a case of quantum supremacy, but it is a fascinating example nonetheless. Unless we were to come up with a new clever classical algorithm to simulate a quantum circuit, this will stand as the first example of achieved quantum supremacy, provided that Google officially releases its official article outlining its quantum supremacy experiment.</p>
+
+    </div>
+
+    
+
+
+
+
+    
+
+<div class="article-tags">
+  
+  <a class="badge badge-light" href="/tags/quantum/">quantum</a>
+  
+</div>
+
+
+
+    
+      
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  
+  
+    
+  
+  
+  <div class="media author-card">
+    
+      <img class="portrait mr-3" src="https://s.gravatar.com/avatar/2f9504a5192e2e1890d3b57dcc358055?s=200')" alt="Avatar">
+    
+
+    <div class="media-body">
+      <h5 class="card-title"><a href="https://filipmazurek.github.io/">Filip Mazurek</a></h5>
+      <h6 class="card-subtitle">Prospective Computer Science PhD Student</h6>
+      
+      <ul class="network-icon" aria-hidden="true">
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+    <li>
+      <a href="mailto:filip@filipmazurek.com" >
+        <i class="fas fa-envelope"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.linkedin.com/in/f-mazurek/" target="_blank" rel="noopener">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://github.com/filipmazurek" target="_blank" rel="noopener">
+        <i class="fab fa-github"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+      
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="https://www.youtube.com/channel/UCqNug5yM65yAxgSAp2s_6iA" target="_blank" rel="noopener">
+        <i class="fab fa-youtube"></i>
+      </a>
+    </li>
+  
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    <li>
+      <a href="/files/mazurek_resume.pdf" >
+        <i class="ai ai-cv"></i>
+      </a>
+    </li>
+  
+</ul>
+
+    </div>
+  </div>
+
+
+
+      
+      
+      <div class="article-widget">
+        <div class="hr-light"></div>
+        <h3>Related</h3>
+        <ul>
+          
+          <li><a href="/projects/q-neural-nets/">Quantum Neural Networks</a></li>
+          
+          <li><a href="/projects/matrix-visualization/">Matrix Visualization</a></li>
+          
+          <li><a href="/projects/quantum-languages/">Quantum Languages</a></li>
+          
+        </ul>
+      </div>
+      
+    
+
+    
+
+    
+
+
+  </div>
+</article>
+
+      
+
+    
+    
+    
+    <script src="/js/mathjax-config.js"></script>
+    
+
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js" integrity="sha256-lqvxZrPLtfffUl2G/e7szqSvPBILGbwmsGE1MKlOi0Q=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.6/isotope.pkgd.min.js" integrity="sha256-CBrpuqrMhXwcLLUd5tvQ4euBHCdh7wGlDfNz8vbu/iI=" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+
+      
+
+      
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/highlight.min.js" integrity="sha256-aYTdUrn6Ow1DDgh5JTc3aDGnnju48y/1c8s1dgkYPQ8=" crossorigin="anonymous"></script>
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/languages/r.min.js"></script>
+        
+      
+
+      
+      
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS_CHTML-full" integrity="sha256-GhM+5JHb6QUzOQPXSJLEWP7R73CbkisjzK5Eyij4U9w=" crossorigin="anonymous" async></script>
+      
+    
+
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.2.0/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin="anonymous"></script>
+    
+
+    
+    
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    
+    
+    
+    
+    <script>
+      const search_config = {"indexURI":"/index.json","minLength":1,"threshold":0.3};
+      const i18n = {"no_results":"No results found","placeholder":"Search...","results":"results found"};
+      const content_type = {
+        'post': "Posts",
+        'project': "Projects",
+        'publication' : "Publications",
+        'talk' : "Talks"
+        };
+    </script>
+    
+
+    
+    
+
+    
+    
+    <script id="search-hit-fuse-template" type="text/x-template">
+      <div class="search-hit" id="summary-{{key}}">
+      <div class="search-hit-content">
+        <div class="search-hit-name">
+          <a href="{{relpermalink}}">{{title}}</a>
+          <div class="article-metadata search-hit-type">{{type}}</div>
+          <p class="search-hit-description">{{snippet}}</p>
+        </div>
+      </div>
+      </div>
+    </script>
+    
+
+    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/3.2.1/fuse.min.js" integrity="sha256-VzgmKYmhsGNNN4Ph1kMW+BjoYJM2jV5i4IlFoeZA9XI=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/jquery.mark.min.js" integrity="sha256-4HLtjeVgH0eIB3aZ9mLYF6E8oU5chNdjU6p6rrXpl9U=" crossorigin="anonymous"></script>
+    
+
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+      
+    
+    
+    
+    
+    <script src="/js/academic.min.d6bd04fdad2ad213aa8111c5a3b72fc5.js"></script>
+
+    
+
+
+
+
+
+
+  
+  <div class="container">
+    <footer class="site-footer">
+  
+
+  <p class="powered-by">
+    &copy; 2019 &middot; 
+
+    Powered by the
+    <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+    <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+    
+    <span class="float-right" aria-hidden="true">
+      <a href="#" class="back-to-top">
+        <span class="button_icon">
+          <i class="fas fa-chevron-up fa-2x"></i>
+        </span>
+      </a>
+    </span>
+    
+  </p>
+</footer>
+
+  </div>
+  
+
+  
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cite</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <pre><code class="tex hljs"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-outline-primary my-1 js-copy-cite" href="#" target="_blank">
+          <i class="fas fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-outline-primary my-1 js-download-cite" href="#" target="_blank">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
